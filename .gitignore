@@ -13,3 +13,5 @@
 /www/files/
 /.vscode/
 /www/assets/
+deployment.ini
+deployment.log
