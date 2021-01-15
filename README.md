@@ -23,3 +23,7 @@ Toto je môj [Nette](https://nette.org) projekt web-stránky [vzsim.echo-msz.eu]
 ## Dokumentácia
 
 Dokumentácia je [tu](https://github.com/petak23/vzsim/wiki)
+
+## Deployment
+
+ - `php ../ftp-deployment/deployment deployment.ini`
