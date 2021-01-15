@@ -1,0 +1,52 @@
+<div class="btn-group user-lang-menu" role="group" aria-label="User-lang-menu" n:if="count($menu_user)" n:inner-foreach="$menu_user as $mu">
+  <a href="{ifset $mu->abs_link}{$mu->abs_link}{else}{if is_array($mu->odkaz)}{plink $mu->odkaz[0], $mu->odkaz[1]['meno']=>$mu->odkaz[1]['obsah']}{else}{plink $mu->odkaz}{/if}{/ifset}" 
+     title="{$mu->title}" role="button" aria-label="{$mu->nazov|webalize}"
+     class="btn {if strlen($mu->class)}{$mu->class}{/if}" 
+     {if strlen($mu->target)}target="{$mu->target}"{/if}
+     {if count($mu->data)}{foreach $mu->data as $da => $va}data-{$da}="{$va|noescape}" {/foreach}{/if}>
+    <i n:ifset="$mu->ikonka" class="{$mu->ikonka}"></i>
+    <img n:ifset="$mu->image" src="{$baseUrl}/{$mu->image}" alt="A" class="avatar">
+    <span n:ifset="$mu->nazov"> {_$mu->nazov|noescape}</span>
+  </a>
+</div>
+
+<!-- Modal -->
+{*<div n:if="!$user->isLoggedIn()" class="modal fade" id="modalSignInForm" tabindex="-1" role="dialog" aria-labelledby="modalSignInFormTitle" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header bg-success">
+        <h5 class="modal-title text-white" id="modalSignInFormTitle">
+        	<i class="fas fa-sign-in-alt"></i>
+        	{_'SignInForm_h2'}
+       	</h5>
+        <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      {form signInForm}
+        <div class="modal-body">
+          <ul class=error n:if="$form->ownErrors">
+            <li n:foreach="$form->ownErrors as $error">{$error}</li>
+          </ul>
+          {foreach $form->controls as $input}
+            <div n:if="in_array($input->options['type'], ['text', 'checkbox'])" class="form-group row {if $input->required}required{/if}">
+              <div class="col-12 col-sm-2 control-label">
+                {label $input /}
+              </div>
+              <div class="col-12 col-sm-8 control-field">
+                {input $input}
+              </div>
+              <div class="col-12 col-sm-2 alert alert-danger" n:ifcontent>
+                {$input->error}
+              </div>
+            </div>
+          {/foreach}
+        </div>
+        <div class="modal-footer">
+          {input login}
+          {input forgottenPassword}
+        </div>
+      {/form}
+    </div>
+  </div>
+</div>*}

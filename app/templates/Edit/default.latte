@@ -1,0 +1,59 @@
+{block title}Oblasť: {$oblast->name}{/block}
+{block content}
+<section class="row">
+  <article class="col-12">
+    <a n:href="Edit:import $oblast->id" title="Import"><small>Import</small></a>
+  </article>{*dump $prvky}{dump $jprvky*}
+  <article class="col-12">
+    <mycanvas 
+      prvky="{$jprvky}"
+      xmax_s=63
+      ymax_s=28
+    >
+    </mycanvas>
+  </article>
+  <article class="col-12" >
+    {if count($prvky)}
+      <table class="table table-striped table-hover table-sm">
+        <thead>
+          <tr>
+            <th scope="col">Kľúč</th>
+            <th scope="col">xs</th>
+            <th scope="col">y</th>
+            <th scope="col">c0</th>
+            <th scope="col">c1</th>
+            <th scope="col">c2</th>
+            <th scope="col">c3</th>
+            <th scope="col">dl</th>
+            <th scope="col">n0</th>
+            <th scope="col">n1</th>
+            <th scope="col">sm</th>
+            <th scope="col">re</th>
+            <th scope="col">odk</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr n:foreach="$prvky as $p">
+            <td><strong>{$p->prvky_kluc->key}</strong>({$p->prvky_kluc->id})</td>
+            <td>{$p->xs}</td>
+            <td>{$p->y}</td>
+            <td>{$p->c0}</td>
+            <td>{$p->c1}</td>
+            <td>{$p->c2}</td>
+            <td>{$p->c3}</td>
+            <td>{$p->dl}</td>
+            <td>{$p->n0}</td>
+            <td>{$p->n1}</td>
+            <td>{$p->sm}</td>
+            <td>{$p->rezim}</td>
+            <td>{$p->odk}</td>
+          </tr>
+        </tbody>
+      </table>
+    {else}
+      <div class="alert alert-warning">
+        Oblasť nemá žiadne prvky...
+      </div>
+    {/if}
+  </article>
+</section>

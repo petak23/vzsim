@@ -1,0 +1,1 @@
+c:\xampp\php\php.exe .\vendor\nette\tester\src\tester tests

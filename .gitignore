@@ -1,0 +1,15 @@
+/log/
+/temp/
+/vendor/
+/app/config/config.local.neon
+/app/config/database.neon
+/www/checker/
+/nbproject/
+/web.config
+/api/
+/_doc/
+/www/webtemp/
+/node_modules/
+/www/files/
+/.vscode/
+/www/assets/

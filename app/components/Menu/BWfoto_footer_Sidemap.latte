@@ -1,0 +1,7 @@
+<nav n:if="$startNode?" class="w-100">
+  <ul class="nav text-center justify-content-center py-3" n:inner-foreach="$startNode->nodes as $subNode">
+    <li n:if="$subNode->id > 0 && $subNode->parent->id < 0" class="nav-item px-2 my-2 {$subNode->getItemClass()}">
+      <a href="{$subNode->link}" title="{$subNode->name}">{$subNode->name}</a>
+    </li>
+  </ul>
+</nav>

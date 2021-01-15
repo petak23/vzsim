@@ -1,0 +1,18 @@
+{if isset($startNode) && count($startNode->nodes)}
+  {foreach $startNode->nodes as $node}
+    {var $avatar = strlen($nastav['avatar']) && isset($node->avatar) ? $nastav['avatar'].$node->avatar : FALSE}
+    <div class="col-12 col-md-4 col-lg-3 album">
+      <a href="{$node->link}" title="{$node->name}">
+        <img n:if="$avatar && is_file($avatar)  && ($nastav['article_avatar_view_in'] & 1)"
+             src="{$basePath}/{$avatar}" alt="{$node->name}" class="img-responsive img-square"/>
+        <i n:if="isset($node->node_class)" class="{$node->node_class}"> </i>
+				<h3>{$node->name}</h3>
+      </a>
+      <div class="caption">
+        <p n:if="$nastav['anotacia'] && $node->anotacia" class="popis">
+          {$node->anotacia} <a n:if="$node->link" href="{$node->link}" title="more">»»»</a>
+        </p>
+      </div>
+    </div>
+  {/foreach}
+{/if}
