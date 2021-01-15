@@ -5,6 +5,32 @@
 # http://nette.org/security-warning
 #
 services:
+	- App\Model\UserManager
+	authorizator: App\Model\AuthorizatorFactory::create(@Nette\Database\Context)
+	- App\Model\Lang
+	- App\Model\Oblast
+	- App\Model\Oblast_prvky
+	- App\Model\Prvky_kluc
+	- App\Model\Udaje	
+	- App\Model\Udaje_typ
+	- App\Model\User_login	
+	- App\Model\User_main
+	- App\Model\User_profiles
+	- App\Model\User_roles
+	- App\Model\Verzie	
+	- App\RouterFactory
+	router: @App\RouterFactory::createRouter
+
+# services for language support
+	- Language_support\LanguageMain
+
+	- App\Presenters\EditPresenter(%parameters%)
+	- App\Presenters\ErrorPresenter(%parameters%)
+	- App\Presenters\HomepagePresenter(%parameters%)
+	- App\Presenters\SignPresenter(%parameters%)
+	- App\Presenters\UserLogPresenter(%parameters%)
+	- App\Presenters\UserPresenter(%parameters%)
+
 # forms
 	- App\Forms\User\ForgottenPasswordFormFactory
 	- App\Forms\User\SignInFormFactory
