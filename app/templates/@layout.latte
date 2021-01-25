@@ -36,6 +36,7 @@
       </button>
       <div class="collapse navbar-collapse" id="navbarCollapse">
         <a n:href="Homepage:" title="VZ - simulátor ZZ">VZ-sim</a>
+        {control userLangMenu}
         <div n:if="$user->loggedIn" n:inner-foreach="$main_menu as $m">
           <a href="{link $m['odkaz']}" title="{$m['nazov']}">{$m['nazov']}</a>
           {sep}&nbsp;|&nbsp;{/sep}
@@ -62,7 +63,7 @@
     </div>
   </main>
         
-  <footer n:snippet="page-footer" class="footer mt-auto py-3 bg-dark text-center">
+  <footer n:snippet="page-footer" class="footer mt-auto bg-dark text-center">
     <p class="text-muted text-center w-100 mb-0">
       &copy; Ing. Peter VOJTECH <a href="http://petak23.echo-msz.eu" title="petak23.echo-msz.eu">petak23.echo-msz.eu</a> - 2021 - {date('Y')}
       &nbsp;|&nbsp;<a href="http://nette.org" title="Nette Framework">Nette Framework</a>
@@ -70,8 +71,8 @@
   </footer>
 </div>
 {*<script src="{webpack main.js}"></script>*}
-{block scripts}{/block}
+
 <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
-<script src="{$basePath}/front/js/vue_canvas.js"></script>
+{block scripts}{/block}
 </body>
 </html>

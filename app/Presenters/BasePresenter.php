@@ -46,7 +46,7 @@ abstract class BasePresenter extends Presenter {
   
   /** @var array */
   protected $main_menu = [
-    ["nazov"=>"Odhlás sa", "odkaz"=>"Homepage:signOut"]
+//    ["nazov"=>"Odhlás sa", "odkaz"=>"Homepage:signOut"],
   ];
 
   // -- Komponenty
@@ -92,6 +92,8 @@ abstract class BasePresenter extends Presenter {
       'info'    => 'fas fa-info-circle',
       'danger'  => 'fas fa-exclamation-circle',
     ];
+    //$this->main_menu = array_map($this->main_menu, ["nazov"=>"Adminer", "odkaz"=>])
+        
     $this->template->main_menu = $this->main_menu;
   }
 

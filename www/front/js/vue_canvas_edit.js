@@ -37,7 +37,7 @@ Vue.component('mycanvas', {
   mounted() {
     var c = document.getElementById("editPlace");
     this.canvas = c.getContext('2d');
-    this.mriezka(this.xmax_s, this.ymax_s)
+    //this.mriezka(this.xmax_s, this.ymax_s);
     
     this.myprv.forEach(e => {
       var x = this.sux(e.xs);
@@ -50,6 +50,12 @@ Vue.component('mycanvas', {
                 this.prvok_XB(this.krokx*(x + 0.5), this.kroky*(y + 0.5), '#999', (e.c0 & 4095));  
           break;
         case 3: this.prvok_XB(this.krokx*(x + 0.5), this.kroky*(y + 0.5), '#339', (e.c0 & 4095)); 
+          break;
+        case 6:
+        case 7:
+        case 9: this.prvok_NHD(this.krokx*(x + 0.5), this.kroky*(y + 0.5), '#000', '#999', '#999', e.sm);
+          break;
+        case 8: this.prvok_NE(this.krokx*(x + 0.5), this.kroky*(y + 0.5), '#000', '#999', e.sm);
           break;
         case 10:
         case 11: this.prvok_XP(this.krokx*(x + 0.5), this.kroky*(y + 0.5), e.sm, '#999');
@@ -65,6 +71,15 @@ Vue.component('mycanvas', {
         case 16: this.prvok_VN(this.krokx*(x + 0.5), this.kroky*(y + 0.5), e);
           break;
         case 17: this.prvok_VK(this.krokx*(x + 0.5), this.kroky*(y + 0.5), e);
+          break;
+        case 18: this.prvok_ZB (this.krokx*(x + 0.5), this.kroky*(y + 0.5), e.sm, 0, [e.c0, e.c1, e.c2, e.c3]); //ZB
+          break;
+        case 19: this.prvok_TS(this.krokx*(x + 0.5), this.kroky*(y + 0.5), e, e.sm); //TS
+          break;
+        case 20: this.prvok_SB(this.krokx*(x + 0.5), this.kroky*(y + 0.5), e);
+          break;
+        case 21: //MZ
+        case 22: //KO
           break;
         default:
           break;
@@ -166,8 +181,8 @@ Vue.component('mycanvas', {
       var b = (ss !== 0) ? String(ss).length : 0;
       var k_l = this.kr2x*(e.c0>>4)*2; 
       var k_r = this.kr2x*(e.c0 & 15)*2;
-      //ctx.fillStyle = "#000";
-      //ctx.fillRect(xxs - k_l - (3 * this.kr2x) + 1, yys - this.kr2y + 2, xxs + (3 * this.kr2x) + k_r - 1, yys + this.kr2y - 2);
+      ctx.fillStyle = "#000";
+      ctx.fillRect(xxs - k_l - (3 * this.kr2x), yys - this.kr2y + 2, (6 * this.kr2x) + k_l + k_r, 2*this.kr2y - 4);
       //nastupiste
       if ((e.sm & 1) === 1) { this.drawLine(xxs - 3 * this.kr2x, yys + this.kr2y, xxs + 3 * this.kr2x, yys + this.kr2y, 2, '#FF9F03'); }
       if ((e.sm & 2) === 2) { this.drawLine(xxs - 3 * this.kr2x, yys - this.kr2y, xxs + 3 * this.kr2x, yys - this.kr2y, 2, '#FF9F03'); }
@@ -192,11 +207,11 @@ Vue.component('mycanvas', {
         ctx.fillStyle = fa_u;
         ctx.font = "14px Verdana";
         ctx.textAlign = "center";
-        ctx.fillText(ss, xxs, yys + 6); 
+        ctx.textBaseline = "middle";
+        ctx.fillText(ss, xxs, yys); 
       }
     },
     vykresliVetvu(xxs, yys, i, a, farba) { /* Vykreslenie jednej vetvy výhybky */
-      //console.log(a); console.log(i);
       this.drawLine(xxs + this.kr2x * this.dx[a[i][0]], yys + this.kr2y * this.dy[a[i][0]], xxs + this.kr2x * this.dx[a[i][1]], yys + this.kr2y * this.dy[a[i][1]], 3, farba);
       this.drawLine(xxs + this.kr2x * this.dx[a[i][1]], yys + this.kr2y * this.dy[a[i][1]], xxs + this.kr2x * this.dx[a[i][2]], yys + this.kr2y * this.dy[a[i][2]], 3, farba);
     },
@@ -216,10 +231,8 @@ Vue.component('mycanvas', {
       ctx.lineWidth = "1";
       ctx.strokeStyle = fa_s;
       ctx.fillStyle = fa_v;
-      ctx.fillRect(xxs - (this.kr2x / 2), yys - this.kr2y, xxs + (this.kr2x / 2), yys + this.kr2y);
+      ctx.fillRect(xxs - (this.kr2x / 2), yys - this.kr2y, this.kr2x, 2*this.kr2y);
       ctx.stroke();
-      
-      //stroke(#34454D);fill(#34454D);strokeWeight(3);strokeCap(PROJECT);
     },
     prvok_VN(xxs, yys, e) { /* Obycajna vyhybka */
       var a = [[0, 0, 0], [0, 0, 0]];
@@ -232,7 +245,7 @@ Vue.component('mycanvas', {
       a[1][1] = ((ppom >> 4) & 15) % 10;
       a[1][2] = (ppom & 15) % 10;
       
-      //this.initVyhybka(xxs, yys, 0, e.sm);
+      this.initVyhybka(xxs, yys, 0, e.sm);
       if (e.sm > 64) { //Vyhybka sa prestavuje
         //farbaStav(3);
         this.vykresliVetvu(xxs, yys, 2 - (e.sm & 63), a, '#999');
@@ -261,8 +274,7 @@ Vue.component('mycanvas', {
       a[3][0] = (ppom >> 8) % 10;
       a[3][1] = ((ppom >> 4) & 15) % 10;
       a[3][2] = (ppom & 15) % 10;
-      
-      //this.initVyhybka(xxs, yys, 0, e.sm);
+      this.initVyhybka(xxs, yys, 0, e.sm);
       var b = ((e.sm & 63) & 3); 
       var c = (((e.sm & 63) >> 2) & 3);
       this.vykresliVetvu(xxs, yys, 2 - b, a, '#34454D');
@@ -273,7 +285,145 @@ Vue.component('mycanvas', {
         this.vykresliVetvu(xxs, yys, b - 1, a, '#999'); }
       if ((e.sm & 32) == 32 || stav == 0) {
         this.vykresliVetvu(xxs, yys, c + 1, a, '#999'); }
-    }  
+    },
+    /* Vykreslenie navestidla pre posun
+    * @param int pozadie farba pozadia
+    * @param int obris farba obrisu symbolu navestidla */
+    prvok_NE(xxs, yys, pozadie, obris, sm) {
+      var ctx = this.canvas;
+      ctx.fillStyle = pozadie;
+      ctx.fillRect(xxs - this.kr2x+2, yys - this.kr2y+1, 2*this.kr2x-4, 2*this.kr2y-2);
+                           // Vymaž políčko návestidla
+      var k = 3 - (2 * (sm & 3));        // sm=1 => k=1; sm=2 => k=-1
+      this.drawLine(xxs + (-1 * k * (this.kr2x / 2)), yys - this.kr2y + 2, xxs + (k * this.kr2x / 2), yys, 2, obris); 
+      this.drawLine(xxs + (k * this.kr2x / 2), yys, xxs + (-1 * k * (this.kr2x / 2)), yys + this.kr2y - 2, 2, obris);
+    },
+    prvok_NHD(xxs, yys, pozadie, obris, obsah, sm) {
+      var ctx = this.canvas;
+      ctx.fillStyle = pozadie;
+      ctx.fillRect(xxs - this.kr2x+2, yys - this.kr2y+1, 2*this.kr2x-4, 2*this.kr2y-2);
+      
+      var k = 3 - (2 * (sm & 3));     // sm=1 => k=1; sm=2 => k=-1
+      ctx.beginPath();
+      ctx.moveTo(xxs + (-1 * k * (this.kr2x / 2)), yys - this.kr2y + 2);
+      ctx.lineTo(xxs + (k * this.kr2x / 2), yys); 
+      ctx.lineTo(xxs + (-1 * k * (this.kr2x / 2)), yys + this.kr2y - 2);
+      ctx.closePath();
+      ctx.lineWidth = 2;
+      ctx.strokeStyle = obris;
+      ctx.stroke();
+      ctx.fillStyle = obsah;
+      ctx.fill();
+    },
+    prvok_SB(xxs, yys, e) { /* STANICNA BUDOVA */
+      var ctx = this.canvas;
+      ctx.fillStyle = '#FF8400';
+      ctx.fillRect(xxs - this.kr2x + 1, yys - this.kr2y + 1, 2*this.kr2x - 2, 2*this.kr2y - 2);
+
+      this.kresliText(xxs, yys, e.n1, e.oznacenie, '#ddd');
+    },
+    /* Vykreslenie textu so smerom
+    * @param int smer_txt Smer podľa numerickej klávesnice 
+    * @param String text Text na vypísanie 
+    * @param color farba Farba textu */
+    kresliText(xxs, yys, smer_txt, text, farba) {
+      var ctx = this.canvas;
+      ctx.fillStyle = farba;
+      ctx.font = "14px Verdana";
+      var korekcia_y = 0;
+      var smer = ['center','middle'];
+      var smu = (smer_txt & 15);
+      switch (smu) {
+        case 1: smer = ['right', 'top']; break;
+        case 2: smer = ['center', 'top']; break;
+        case 3: smer = ['left', 'top']; break;
+        case 4: smer = ['right', 'middle']; korekcia_y = -2; break;
+        case 5: smer = ['center', 'middle']; korekcia_y = -2; break;
+        case 6: smer = ['left', 'middle']; korekcia_y = -2; break;
+        case 7: smer = ['right', 'bottom']; break;
+        case 8: smer = ['center', 'bottom']; break;
+        case 9: smer = ['left', 'bottom']; break;
+      }
+      ctx.textAlign = smer[0];
+      ctx.textBaseline = smer[1];
+      ctx.strokeStyle = farba;
+      ctx.font = "14px Verdana";
+      ctx.fillText(text, xxs + this.dx[smu] * this.kr2x, yys + this.dy[smu] * this.kr2y + korekcia_y);
+    },
+    
+    prvok_TS(xxs, yys, e, stav) {
+      var ctx = this.canvas;
+      ctx.fillStyle = (e.n1 == 1) ? '#000' : '#DCDCDC';
+      ctx.fillRect(xxs - this.kr2x + 1, yys - this.kr2y + 1, 2*this.kr2x - 2, 2*this.kr2y - 2);
+      ctx.textAlign = 'center';
+      ctx.textBaseline = "middle";
+      ctx.font = "14px Courier New";
+      if (e.n1 == 1) {  //Ak je viditeľný 
+        var p = 3 - 2 * e.sm;
+        ctx.fillStyle = '#66DE57'; ctx.strokeStyle = '#66DE57'; //Základný stav voľný - zelená
+        if (e.c2 > 0) { ctx.strokeStyle = '#EE3355'; ctx.fillStyle = '#000';}                // Obsadený - červená
+        if (e.dl > 0) { ctx.fillStyle = '#333'; ctx.strokeStyle = '#333'; }                  // Blokovany - čierny
+        if ((stav & 4) == 4) { ctx.fillStyle = '#8888FF'; ctx.strokeStyle = '#8888FF';}      // Zmena smeru na AB - fialový
+        ctx.fillText(((stav & 3) == 1 ? '»':'«'), xxs, yys);
+      } else {  
+        ctx.fillStyle = '#333'; ctx.strokeStyle = '#333';
+        ctx.fillText(((stav & 3) == 1 ? '»':'«'), xxs, yys);
+      } 
+    },
+    prvok_ZB (xxs, yys, sm, stav, c) {
+      var ctx = this.canvas;
+      ctx.lineWidth = "1";
+      ctx.strokeStyle = '#8888FF';
+      ctx.fillStyle = '#000';
+      ctx.font = "14px Verdana";
+      var b = sm >> 1; //b-pocet riadkov
+      switch ((sm & 1)) {
+        case 0:
+          ctx.strokeRect(xxs - this.kr2x, yys - this.kr2y + 1, 6 * this.kr2x, 2*this.kr2y * (b + 1) - 2);
+          ctx.textAlign = 'right';
+          ctx.textBaseline = 'middle';
+          ctx.strokeStyle = '#FFE498';
+          if (stav == 0) {
+           for (var i = 0; i <= b; i++) { 
+             if (c[i] > 0) { 
+               ctx.fillText(c[i], xxs + this.kr2x * 5, yys - 2 + i * (2*this.kr2y - 1));
+             } 
+           }
+          } else {
+            ctx.fillText(c[3], xxs + this.kr2x * 5, yys - 1);
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText("?", xxs + 2 * this.kr2x, yys + 2*this.kr2y - 2);
+            ctx.strokeStyle = '#8888FF'; 
+            ctx.fillText("A", xxs, yys + 2*this.kr2y - 2);
+            ctx.strokeStyle = '#FF8888'; 
+            ctx.fillText("N", xxs + this.kr2x * 4, yys + 2*this.kr2y - 2);
+          }
+         break;
+       case 1:
+          ctx.strokeRect(xxs - this.kr2x, yys + this.kr2y - 1, 6 * this.kr2x, 2 - 2*this.kr2y * (b + 1));
+          ctx.textAlign = 'right';
+          ctx.textBaseline = 'middle';
+          ctx.strokeStyle = '#FFE498';
+          if (stav == 0) {
+           for (var i = 0; i <= b; i++) { 
+             if (c[i] > 0) { 
+               ctx.fillText(c[i], xxs + this.kr2x * 5, yys - 2 - i * (2*this.kr2y - 1));
+             }
+           }
+          } else {
+            ctx.fillText(c[3], xxs + this.kr2x * 5, yys - 2*this.kr2y - 1);
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText("?", xxs + 2 * this.kr2x, yys - 3);
+            ctx.strokeStyle = '#8888FF'; 
+            ctx.fillText("A", xxs, yys - 3);
+            ctx.strokeStyle = '#FF8888'; 
+            ctx.fillText("N", xxs + this.kr2x * 4, yys - 3);
+          }
+         break;
+      }
+    }
   }
 });
 

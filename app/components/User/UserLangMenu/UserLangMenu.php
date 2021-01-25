@@ -124,7 +124,7 @@ class UserLangMenuControl extends Control {
           'class'=>'btn-info noajax',
           'image'=> $this->nastavenie['view_avatar'] ? (($udata->user_profiles->avatar && is_file($avatar)) ? $avatar : "ikonky/64/figurky_64.png") : NULL,
         ]);
-    if ($this->user->isAllowed('Admin:Homepage', 'default')) {
+    /*if ($this->user->isAllowed('Admin:Homepage', 'default')) {
       $menu_user[] = new MenuItem([
         'odkaz'=> ':Admin:Homepage:',
         'title'=> $this->texty->translate('admin_link_name'),
@@ -133,7 +133,7 @@ class UserLangMenuControl extends Control {
         'class'=> 'btn-info noajax',
         'data'=> ['ajax'=>'false'],
       ]);
-    }
+    }*/
     if ($this->user->isInRole('admin')) {
       $hl_m_db_info = $this->lang->getDBInfo();
       $menu_user[] = new MenuItem([

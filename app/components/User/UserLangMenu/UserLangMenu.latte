@@ -1,7 +1,7 @@
 <div class="btn-group user-lang-menu" role="group" aria-label="User-lang-menu" n:if="count($menu_user)" n:inner-foreach="$menu_user as $mu">
   <a href="{ifset $mu->abs_link}{$mu->abs_link}{else}{if is_array($mu->odkaz)}{plink $mu->odkaz[0], $mu->odkaz[1]['meno']=>$mu->odkaz[1]['obsah']}{else}{plink $mu->odkaz}{/if}{/ifset}" 
      title="{$mu->title}" role="button" aria-label="{$mu->nazov|webalize}"
-     class="btn {if strlen($mu->class)}{$mu->class}{/if}" 
+     class="btn btn-sm {if strlen($mu->class)}{$mu->class}{/if}" 
      {if strlen($mu->target)}target="{$mu->target}"{/if}
      {if count($mu->data)}{foreach $mu->data as $da => $va}data-{$da}="{$va|noescape}" {/foreach}{/if}>
     <i n:ifset="$mu->ikonka" class="{$mu->ikonka}"></i>

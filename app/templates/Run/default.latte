@@ -1,0 +1,30 @@
+{block title}Oblasť: {$oblast->name}{/block}
+{block content}
+<section class="row hlavna-plocha">
+  <article class="col-12 vrchny-panel">
+    <zoznam></zoznam>
+  </article>
+  <article class="col-12 stred">
+    <mycanvas 
+      prvky="{$jprvky}"
+      cesty="{$jcesty}"
+      vlaky="{$jvlaky}"
+      xmax_s=63
+      ymax_s=28
+      @text_g="text_g = $event"
+      @text_r="text_r = $event"
+    >
+    </mycanvas>
+  </article>
+  <article class="col-12 dolny-panel">
+    <info 
+      :text_g=text_g
+      :text_r=text_r
+      @text_r_clr="text_r_clear"
+      >
+    </info>
+  </article>
+</section>
+{/block}
+{block scripts}
+<script src="{$basePath}/front/js/vue_canvas_run.js"></script>

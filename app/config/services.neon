@@ -9,6 +9,7 @@ services:
 	authorizator: App\Model\AuthorizatorFactory::create(@Nette\Database\Context)
 	- App\Model\Lang
 	- App\Model\Oblast
+	- App\Model\Oblast_cesty
 	- App\Model\Oblast_prvky
 	- App\Model\Prvky_kluc
 	- App\Model\Udaje	
@@ -18,6 +19,7 @@ services:
 	- App\Model\User_profiles
 	- App\Model\User_roles
 	- App\Model\Verzie	
+	- App\Model\Vlaky
 	- App\RouterFactory
 	router: @App\RouterFactory::createRouter
 
@@ -27,6 +29,7 @@ services:
 	- App\Presenters\EditPresenter(%parameters%)
 	- App\Presenters\ErrorPresenter(%parameters%)
 	- App\Presenters\HomepagePresenter(%parameters%)
+	- App\Presenters\RunPresenter(%parameters%)
 	- App\Presenters\SignPresenter(%parameters%)
 	- App\Presenters\UserLogPresenter(%parameters%)
 	- App\Presenters\UserPresenter(%parameters%)

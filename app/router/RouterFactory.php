@@ -63,6 +63,27 @@ class RouterFactory {
                 }
             ],
     ]);
+    $router[] = new Route('run[/<id>]', [
+      'presenter' => 'Run',
+      'action' => 'default',
+      'id' => [ Route::FILTER_IN => function ($id) use ($servis) {
+                    if (is_numeric($id)) {
+                      return $id;
+                    } else {
+                      $hh = $servis->oblast->findOneBy(['web_name'=>$id]);
+                      return $hh != null ? $hh->id : 0;
+                    }
+                },
+                Route::FILTER_OUT => function ($id) use ($servis) {
+                    if (!is_numeric($id)) {
+                      return $id;
+                    } else {
+                      $hh = $servis->oblast->find($id);
+                      return $hh != null ? $hh->web_name : 0;
+                    }
+                }
+            ],
+    ]);
     $router[] = new Route('<presenter>/<action>[/<id>]', 'Homepage:default');
 		return $router;
 	}
