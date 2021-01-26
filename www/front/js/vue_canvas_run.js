@@ -474,13 +474,13 @@ Vue.component('mycanvas', {
       var cesta = null;
       if (typeof pr !== 'undefined' ) { //https://stackoverflow.com/questions/2281633/javascript-isset-equivalent
         if (this.cesta_z === null && pr.id_prvky_kluc === 6) { // NH
-          if (m === "P" && (pr.sm & 8) === 0) {
+          if (m === "P" && (pr.sm & 8) === 0) { // Posunová
             this.cesta_z = pr;
             this.$emit('text_g', "Začiatok cesty:" + this.cesta_z.key + "("+ this.cesta_z.xs + ")" + "<||>" + m);
             this.cesta_z.stav += 16;
             this.cesta_z.n[0] = 1;
             this.prvok_N(this.cesta_z);
-          } else if (m === "V") {
+          } else if (m === "V") {  //Vlaková
             this.cesta_z = pr;
             this.$emit('text_g', "Začiatok cesty:" + this.cesta_z.key + "("+ this.cesta_z.xs + ")" + "<||>" + m);
             this.cesta_z.stav += 32;
@@ -489,9 +489,10 @@ Vue.component('mycanvas', {
           }
         } else if (this.cesta_z === null && pr.id_prvky_kluc === 8) { //NE
           this.cesta_z = pr;
+          m = 'P';
           this.$emit('text_g', "Začiatok cesty:" + this.cesta_z.key + "("+ this.cesta_z.xs + ")" + "<||>" + m);
-          this.cesta_z.stav += 32;
-          this.cesta_z.n[0] = 2;
+          this.cesta_z.stav += 16;
+          this.cesta_z.n[0] = 1;
           this.prvok_N(this.cesta_z);
         } else if (this.cesta_z !== null && (pr.id_prvky_kluc === 3 || pr.id_prvky_kluc === 14 || pr.id_prvky_kluc === 22)) {
           this.cesta_k = (pr.id_prvky_kluc !== 22) ? pr : this.myprv[pr.c[0]]; // Pre prípad kliku na KO
@@ -532,7 +533,7 @@ Vue.component('zoznam', {
   },
   data: function () {
     return {
-      time: 28883, // v sekundách 8 * 60 * 60
+      time: 28800, // v sekundách 8:00 * 60 * 60
       button_txt: "Spusť",
       timer:null,
       isRunning: false
@@ -591,6 +592,7 @@ Vue.component('info', {
   data: function () {
     return {
       textr: '',
+      textg: '',
       textgv: false,
       textrv: false,
       timer:null,
@@ -599,9 +601,11 @@ Vue.component('info', {
   methods: {
     skry_g() {
       this.textgv = false;
+      this.$emit('text_g_clr', true);
     },
     skry_r() {
       this.textrv = false;
+      this.$emit('text_r_clr', true);
     },
     start_r() {
       if (!this.timer) {
@@ -610,32 +614,23 @@ Vue.component('info', {
           this.textrv = false;
           this.$emit('text_r_clr', true);
           clearInterval(this.timer);
-          this.timer = null
+          this.timer = null;
           this.stop();
         }, 3000 );
 			}
     },
     stop () {
-      clearInterval(this.timer)
-      this.timer = null
+      clearInterval(this.timer);
+      this.timer = null;
     },
   },
   computed: {
     activeClass: function () {
       var sp = this.text_g.split("<||>");
-      return sp[1] === 'V' ? 'bg-success' : 'bg-light';
+      return sp[1] === 'V' ? 'bg-success' : (sp[1] === 'P' ? 'bg-light' : 'bg-transparent');
     },
-    textg: {
-      get: function () {
-        var sp = this.text_g.split("<||>");
-        console.log(sp[0]);
-        this.textgv = sp[0].length > 0 ? true : false;
-        return sp[0];
-      },
-      set: function () {
-        this.textgv = false;
-        this.text_g = "";
-      }
+    redClass: function () {
+      return this.text_r.length > 0 ? "bg-danger" : "bg-transparent";
     }
   },
   watch: {
@@ -643,16 +638,21 @@ Vue.component('info', {
       this.textrv = this.text_r.length > 0 ? true : false;
       this.textr = newText_r;
       this.start_r();
+    },
+    text_g: function(newText_g, oldText_g) {
+      this.textgv = this.text_g.length > 0 ? true : false;
+      var sp = newText_g.split("<||>");
+      this.textg = sp[0];
     }
   },
 
   template: `
     <div class="row">
-      <div  class="col-6 m-1" 
-            :class="[activeClass]"
-            v-if="textgv" @click="skry_g">{{textg}}</div>
+      <div  class="col-6 mt-1 min-h-my" 
+            :class="activeClass" @click="skry_g">{{textg}}</div>
                                           
-      <div class="col-6 bg-danger h-3" v-if="textrv" @click="skry_r">{{textr}}</div>
+      <div class="col-6 mt-1 min-h-my text-white"
+            :class="redClass" @click="skry_r">{{textr}}</div>
     </div>
     `
 });
@@ -662,11 +662,13 @@ new Vue({
   data: {
     text_g: "",
     text_r: "",
-    text_r_clr: false
   },
   methods: {
     text_r_clear() {
       this.text_r = "";
+    },
+    text_g_clear() {
+      this.text_g = "";
     }
   }
 });

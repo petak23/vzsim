@@ -12985,4 +12985,8 @@ a[href^="error:"] {
   font-size: 12px;
 }
 
+.dolny-panel .min-h-my {
+  min-height: 2rem;
+}
+
 
