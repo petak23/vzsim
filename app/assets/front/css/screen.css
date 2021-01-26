@@ -3,7 +3,7 @@ body {
    font-weight: 400;
 }
 .main {
-  margin-top: 1.95rem;
+  margin-top: 2.5rem;
 }
 .navbar {
   font-size: 90%;
@@ -52,6 +52,7 @@ a[href^="error:"] {
   border-bottom: 3px #007bff solid;
   background-color: #002752;
   margin-bottom: .5rem;
+  padding-top: .2rem;
 }
 
 .stred {

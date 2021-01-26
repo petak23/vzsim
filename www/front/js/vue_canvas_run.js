@@ -56,7 +56,7 @@ Vue.component('mycanvas', {
   mounted() {
     var c = document.getElementById("editPlace");
     this.canvas = c.getContext('2d');
-    this.mriezka(this.xmax_s, this.ymax_s);
+    //this.mriezka(this.xmax_s, this.ymax_s);
     Object.keys(this.myprv).forEach(xs => {
       var pr = this.myprv[xs];
       switch (pr.id_prvky_kluc) {
@@ -530,9 +530,55 @@ Vue.component('zoznam', {
     text_v: String,
     text_i: String
   },
+  data: function () {
+    return {
+      time: 28883, // v sekundách 8 * 60 * 60
+      button_txt: "Spusť",
+      timer:null,
+      isRunning: false
+    };
+  },
+  computed: {
+    time_u: function () {
+      let time = this.time / 60;
+      let secondes = Math.round((this.time - parseInt((this.time / 60)) * 60));
+      let minutes = parseInt(parseInt((this.time / 60)) % 60);
+      let hours = parseInt(time / 60);
+      if (hours < 10) {
+        hours = "0"+hours;
+      }
+      if (minutes < 10) {
+        minutes = "0"+minutes;
+      }
+      if (secondes < 10) {
+        secondes = "0"+secondes;
+      }
+      return hours+":"+minutes+":"+secondes;
+    }
+  },
+  methods: {
+    casovac_start () {
+      this.isRunning = true;
+      if (!this.timer) {
+        this.timer = setInterval( () => {
+            this.time++;
+        }, 1000 );
+      }
+    },
+    casovac_stop () {
+      this.isRunning = false;
+      clearInterval(this.timer);
+			this.timer = null;
+    }
+  },
   template: `
     <div class="row">
-      <div class="col-6 bg-info h-3">{{text_v}}</div>
+      <div class="col-2 bg-dark text-white">
+        {{time_u}}<br />
+        <button @click="casovac_start" v-if="!isRunning" class="btn btn-outline-warning btn-sm">Spusť</button>
+        <button @click="casovac_stop" v-if="isRunning" class="btn btn-outline-warning btn-sm">Stop</button>
+      </div>
+      <div class="col-4 bg-info h-3">{{text_v}}</div>
       <div class="col-6 bg-primary h-3">{{text_i}}</div>
     </div>
     `
