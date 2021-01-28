@@ -56,6 +56,7 @@ Vue.component('mycanvas', {
   mounted() {
     var c = document.getElementById("editPlace");
     this.canvas = c.getContext('2d');
+    //console.log(this.myprv[1]);
     //this.mriezka(this.xmax_s, this.ymax_s);
     Object.keys(this.myprv).forEach(xs => {
       var pr = this.myprv[xs];
@@ -496,12 +497,7 @@ Vue.component('mycanvas', {
           this.prvok_N(this.cesta_z);
         } else if (this.cesta_z !== null && (pr.id_prvky_kluc === 3 || pr.id_prvky_kluc === 14 || pr.id_prvky_kluc === 22)) {
           this.cesta_k = (pr.id_prvky_kluc !== 22) ? pr : this.myprv[pr.c[0]]; // Pre prípad kliku na KO
-          Object.keys(this.mycst).forEach(s => {
-            if ((this.mycst[s].zc === this.cesta_z.xs) && (this.mycst[s].kc === this.cesta_k.xs) && (this.mycst[s].typ === this.cesta_z.n[0])) {
-              cesta = this.mycst[s];
-            }
-          });
-          console.log(cesta);
+          var cesta = this.test_cesta(this.cesta_z, this.cesta_k);
           if (cesta !== null) {
             this.$emit('text_g', "Staviam cestu:" + cesta.zc + " -> " + cesta.kc + " t:" + cesta.typ + " v:" + cesta.vyh + "<||>" + (cesta.typ === 2 ? "V" : "P"));
           } else {
@@ -522,6 +518,103 @@ Vue.component('mycanvas', {
           this.$emit('text_g', "");
         }
       }
+    },
+    test_cesta(cesta_z, cesta_k) {
+      var cesta = null;
+      var cisvyh = 0;
+      Object.keys(this.mycst).forEach(s => { //Nájdenie cesty
+        if ((this.mycst[s].zc === cesta_z.xs) && (this.mycst[s].kc === cesta_k.xs) && (this.mycst[s].typ === cesta_z.n[0])) {
+          cesta = this.mycst[s];
+        }
+      });
+      if (cesta === null) { return null; } // Cestu som nenašiel skonč
+      console.log("cesta.vyh:"+cesta.vyh);
+      var pr = this.myprv[cesta_z.xs];
+      var prvky_cesty = [cesta_z.xs];
+      var xs = cesta_z.c[0];
+      this.myprv[cesta_z.xs].c[3] = cesta_k.xs; // Zapíš do návestidla koniec cesty
+      var cisvch = (pr.sm & 3) === 1 ? 4 : 6;   // Nájdenie čísla "vchodu" do nasledujúcej bunky podľa num. klávesnice
+      var rychl = 255; // Max. rýchlosť cesty
+      var final = 50;  // Max. počet prvkov cesty
+      do {
+        console.log("xs:"+xs);
+        pr = this.myprv[xs];
+        if (typeof pr !== 'undefined' && pr.stav === 0) { // Volný úsek
+          prvky_cesty.push(pr.xs);
+          if (pr.xs === this.cesta_k.xs) { // Je koniec cesty?
+            final = 0;
+          } else { // Najdi nasledujúci
+            switch (pr.id_prvky_kluc) {
+              case 1: //UB
+//              case 2: //MB
+              case 3: //KB
+              case 4: //UO
+              case 5: //MO
+                var k = pr.c[0];
+                k = ((k >> 8) === cisvch) ? (k & 15) : (k >> 8);
+                xs += this.dx[k] + this.dy[k] * this.xmax_s;
+                cisvch = 10 - k;
+                break;
+              case 6: //NH
+              case 8: //NE
+                console.log("cisvch:"+cisvch);
+                console.log("sm:"+(pr.sm & 3));
+                switch (cisvch) {
+                  case 4: xs = pr.c[(pr.sm & 3)-1]; break;
+                  case 6: xs = pr.c[2-(pr.sm & 3)]; break;
+                }
+                console.log("xs_new:"+xs);
+                break;
+              case 10: //UP
+//              case 11: //MP;
+                xs += this.dx[10 - cisvch];
+                break;
+//              case 12: //MA;
+//                break;
+//              case 13: //MR;
+//                break;
+              case 14: //KS;
+                //pr.c[3] = pre_vlak;
+                switch (cisvch) {
+                  case 4: xs +=(pr.c[0] & 15) + 2; break;
+                  case 6: xs -=(pr.c[1] >> 4) - 2; break;
+                }
+                break;
+              case 16: //VN;
+                var pomv = pr.c[cesta.vyh[cisvyh]-1];
+                var v1 = (pomv >> 12) & 15;
+                pomv = pomv >> 16;
+                if ((pomv > 0) && ((this.myprv[pomv].sm & v1) === 0)) { //je odvrat a ina cesta?
+                  var pp = this.myprv[pomv];
+                  if (pp.stav >= 1 && pp.stav <= 6) { 
+                    //obsad; 
+                    final = 0;
+                    return null; 
+                  } else {
+                    pp.sm = (v1 > 3) ? (pp.sm & 3) | v1 : (pp.sm & 12) | v1;
+//                    prvky(pomv,0);
+                  }
+                }
+                pr.sm = cesta.vyh[cisvyh];
+                k = pr.c[cesta.vyh[cisvyh]-1] & 4095; //Najdenie nasledujuceho
+                k = ((k >> 8) === cisvch) ? k & 15 : k >> 8;
+                xs += this.dx[k] + this.dy[k] * this.xmax_s;
+                cisvyh++;
+                cisvch = 10 - k;
+                break;
+              case 17: //VK;
+                break; 
+            }
+          }
+          final--;
+        } else {
+          final = 0;
+        }
+        
+      }
+      while (final > 0)
+      console.log(prvky_cesty);
+      return cesta;
     }
   }
 });
@@ -533,7 +626,7 @@ Vue.component('zoznam', {
   },
   data: function () {
     return {
-      time: 28800, // v sekundách 8:00 * 60 * 60
+      time: 288000, // v desatinách sekund 8:00 * 60 * 60 * 10
       button_txt: "Spusť",
       timer:null,
       isRunning: false
@@ -541,9 +634,10 @@ Vue.component('zoznam', {
   },
   computed: {
     time_u: function () {
-      let time = this.time / 60;
-      let secondes = Math.round((this.time - parseInt((this.time / 60)) * 60));
-      let minutes = parseInt(parseInt((this.time / 60)) % 60);
+      let mytime = Math.round(this.time /10);
+      let time = mytime / 60;
+      let secondes = Math.round((mytime - parseInt((mytime / 60)) * 60));
+      let minutes = parseInt(parseInt((mytime / 60)) % 60);
       let hours = parseInt(time / 60);
       if (hours < 10) {
         hours = "0"+hours;
@@ -562,8 +656,8 @@ Vue.component('zoznam', {
       this.isRunning = true;
       if (!this.timer) {
         this.timer = setInterval( () => {
-            this.time++;
-        }, 1000 );
+            this.time += 2;
+        }, 200 );
       }
     },
     casovac_stop () {

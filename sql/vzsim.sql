@@ -945,7 +945,10 @@ INSERT INTO `user_login` (`id`, `id_user_main`, `log_in_datetime`) VALUES
 (25,	1,	'2021-01-24 11:13:11'),
 (26,	1,	'2021-01-25 06:26:41'),
 (27,	1,	'2021-01-25 08:05:23'),
-(28,	1,	'2021-01-25 13:03:23');
+(28,	1,	'2021-01-25 13:03:23'),
+(29,	1,	'2021-01-26 13:41:57'),
+(30,	1,	'2021-01-26 15:50:56'),
+(31,	1,	'2021-01-27 18:22:32');
 
 DROP TABLE IF EXISTS `user_main`;
 CREATE TABLE `user_main` (
@@ -1012,7 +1015,7 @@ CREATE TABLE `user_profiles` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin COMMENT='Doplňujúci profil užívateľa';
 
 INSERT INTO `user_profiles` (`id`, `poznamka`, `last_login`, `pocet_pr`, `avatar`, `news`, `news_key`) VALUES
-(1,	NULL,	'2021-01-25 13:03:23',	28,	NULL,	'A',	NULL);
+(1,	NULL,	'2021-01-27 18:22:32',	31,	NULL,	'A',	NULL);
 
 DROP TABLE IF EXISTS `user_resource`;
 CREATE TABLE `user_resource` (
@@ -1223,4 +1226,4 @@ INSERT INTO `vlaky` (`id`, `id_oblast`, `cislo`, `cislo_p`, `mz`, `mo`, `cas_z`,
 (139,	1,	7870,	7870,	801,	771,	1382,	100,	8,	2,	'658 1389'),
 (140,	1,	7873,	7873,	834,	864,	1383,	100,	8,	1,	'658 1388');
 
--- 2021-01-25 14:01:51
+-- 2021-01-27 18:16:36
