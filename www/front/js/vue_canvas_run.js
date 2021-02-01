@@ -250,7 +250,7 @@ Vue.component('mycanvas', {
         ctx.font = "14px Verdana";
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
-        ctx.fillText(ss, xxs, yys); 
+        ctx.fillText(ss, xxs, yys+1); 
       }
     },
     
@@ -531,6 +531,8 @@ Vue.component('mycanvas', {
       if (cislo_cesty === 0) { return null; }   // Cestu som nenašiel skonč
       var pr = this.myprv[cesta_z.xs];          // Aktuálne testovaný prvok cesty
       var prvky_cesty = [cesta_z.xs];           // Pole prvkov cesty
+      var prvky_odvrat = [];                    // Pole odvratov
+      var prvky_odkaz = [];                     // Pole odkazov pre danú cestu
       var xs = cesta_z.c[0];                    // Počiatočné xs z položky csn NH alebo NE
       this.myprv[cesta_z.xs].c[3] = cesta_k.xs; // Zapíš do návestidla koniec cesty
       var cisvch = (pr.sm & 3) === 1 ? 4 : 6;   // Nájdenie čísla "vchodu" do nasledujúcej bunky podľa num. klávesnice
@@ -551,6 +553,10 @@ Vue.component('mycanvas', {
                 var sm0 = (this.myprv[cesta_z.xs].sm & 3);   // Smer cesty
                 var k = pr.c[0];                             // Cesta úseku
                 k = (sm0 === 1) ? (k & 15) : (k >> 8);       // Číslo cesty v smere ku koncu cesty
+                if (pr.odk > 0) {                            // Existujú k prvku prvky UO alebo MO
+                  prvky_odkaz = prvky_odkaz.concat(this.najdiOdkazy(xs, sm0));
+                  console.log(prvky_odkaz);
+                }
                 xs += this.dx[k] + this.dy[k] * this.xmax_s; // Nájdi ďaľší prvok
                 cisvch = 10 - k;                             // Nájdi číslo vchodu pre nasledujúci úsek
                 break;
@@ -572,21 +578,24 @@ Vue.component('mycanvas', {
                 }
                 break;
               case 16: //VN;
-                var pomv = pr.c[this.mycst[cislo_cesty].vyh[cisvyh]-1];
-                var v1 = (pomv >> 12) & 15;
-                pomv = pomv >> 16;
-                if ((pomv > 0) && ((this.myprv[pomv].sm & v1) === 0)) { //je odvrat a ina cesta?
-                  var pp = this.myprv[pomv];
-                  if (pp.stav >= 1 && pp.stav <= 6) { 
+                var pomv = pr.c[this.mycst[cislo_cesty].vyh[cisvyh]-1]; // Zisti cestu výhybky pre danú cestu
+                var v1 = (pomv >> 12) & 15;                             // Číslo odvratnej cesty
+                pomv = pomv >> 16;                                      // xs odvratnej výhybky  
+//                console.log("VN pomv:"+pomv+" v1:"+v1+" this.myprv["+pomv+"].sm & "+v1+":"+(this.myprv[pomv].sm & v1));
+                if (pomv > 0) {                                         // Existuje odvrat
+                  var pp = this.myprv[pomv];                            // Prvok odvratnej výhybky
+//                  console.log(pp.stav);
+                  if (pp.stav >= 1 && pp.stav <= 6 && ((this.myprv[pomv].sm & v1) !== v1)) { // Odvratná cesta nie je voľná 
                     //obsad; 
                     final = 0;
                     return null; 
                   } else {
                     this.myprv[pomv].sm = (v1 > 3) ? (pp.sm & 3) | v1 : (pp.sm & 12) | v1;
                   }
+                  prvky_odvrat.push(pomv+"|"+v1);
                 }
-                pr.sm = this.mycst[cislo_cesty].vyh[cisvyh];
-                k = pr.c[this.mycst[cislo_cesty].vyh[cisvyh]-1] & 4095; //Najdenie nasledujuceho
+                pr.sm = this.mycst[cislo_cesty].vyh[cisvyh];            // Poloha výhybky pre danú cestu
+                k = pr.c[this.mycst[cislo_cesty].vyh[cisvyh]-1] & 4095; // Najdenie nasledujuceho
                 k = ((k >> 8) === cisvch) ? k & 15 : k >> 8;
                 xs += this.dx[k] + this.dy[k] * this.xmax_s;
                 cisvyh++;
@@ -596,19 +605,25 @@ Vue.component('mycanvas', {
                 var sm = [0,0,0];
                 var z_sm = (this.myprv[cesta_z.xs].sm & 3); // Smer cesty podľa počiatočného návestidla
                 var cestav = this.mycst[cislo_cesty].vyh[cisvyh];
+//                console.log("xs:"+pr.xs+" key:"+pr.key+" vyh:"+this.mycst[cislo_cesty].vyh);
+//                console.log("this.mycst["+cislo_cesty+"].vyh["+cisvyh+"]:"+cestav);
                 if ((cestav.charCodeAt(0) & 255) > 64) {    // Prevod kódu A na 10, B na 11, C...
-                  cestav = (cestav.charCodeAt(0) & 255) - 54; //https://stackoverflow.com/questions/94037/convert-character-to-ascii-code-in-javascript
+                  cestav = (cestav.charCodeAt(0) & 255) - 55; //https://stackoverflow.com/questions/94037/convert-character-to-ascii-code-in-javascript
                 }
-                sm[z_sm] = (cestav & 3);         
-                sm[3-z_sm] = (cestav >> 2) & 3;
+//                console.log("this.mycst["+cislo_cesty+"].vyh["+cisvyh+"] = cestav = "+cestav);
+                sm[z_sm] = (cestav & 3);            // Odvratnú cestu pre smer cesty
+                sm[3-z_sm] = (cestav >> 2) & 3;     // Odvratná cesta proti smeru cesty
+//                console.log("cestav:"+cestav+" sm:"+sm);
                 if (sm[1] > 0) {                     //cez tuto cast sa pojde
                   sm[1] += ((z_sm === 2) ? 2 : 0);
-                  var pomv = pr.c[sm[1]-1]; //a zisti odvrat
-                  var v1 = (pomv >> 12) & 15; 
-                  pomv = pomv >> 16;
-                  var pp = this.myprv[pomv];
-                  if ((pomv > 0) && ((pp.sm & v1) === 0)) {
-                    if (pp.stav >= 1 && pp.stav <= 6) {
+                  var pomv = pr.c[sm[1]-1];          // Zisti odvrat z cesty
+                  var v1 = (pomv >> 12) & 15;        // Zisti odvratnú cestu
+                  pomv = pomv >> 16;                 // Zisti xs odvr. výhybky
+                  var pp = this.myprv[pomv];         // Odvratná výhybka 
+//                  console.log("VK(sm1) pomv:"+pomv+" v1:"+v1+" pp.sm & v1:"+(pp.sm & v1)+" pp.stav:"+pp.stav);
+                  if (pomv > 0) {
+                    if (pp.stav >= 1 && pp.stav <= 6 && ((pp.sm & v1) !== v1)) {
+//                      console.log(pp);
                       //obsad; 
                       final = 0;
                       return null; 
@@ -616,6 +631,7 @@ Vue.component('mycanvas', {
                       this.myprv[pomv].sm = ((v1 < 3) ? pp.sm & 252 : pp.sm & 243) | v1;
                       //prvky(pomv,0);
                     }
+                    prvky_odvrat.push(pomv+"|"+v1);
                   }
                   //prestavenie vyhybky a zaver
                   pr.sm = (sm[1] < 3) ? ((pr.sm & 12) | (cestav & 3) | 16) 
@@ -631,8 +647,9 @@ Vue.component('mycanvas', {
                   var v1 = (pomv >> 12) & 15;
                   pomv = pomv >> 16;
                   var pp = this.myprv[pomv];
-                  if ((pomv > 0) && ((pp.sm & v1)===0)) {
-                    if (pp.stav >= 1 && pp.stav <= 6) {
+//                  console.log("VK(sm2) pomv:"+pomv+" v1:"+v1+" pp.sm & v1:"+(pp.sm & v1));
+                  if (pomv > 0) {
+                    if (pp.stav >= 1 && pp.stav <= 6 && ((pp.sm & v1) !== v1)) {
                       //obsad; 
                       final = 0;
                       return null; 
@@ -640,6 +657,7 @@ Vue.component('mycanvas', {
                       this.myprv[pomv].sm = ((v1 < 3) ? pp.sm & 252 : pp.sm & 243) | v1;
                       //prvky(pomv,0);
                     }
+                    prvky_odvrat.push(pomv+"|"+v1);
                   }
                   // prestavenie vyhybky a zaver
                   pr.sm = (sm[2] < 3) ? ((pr.sm & 60) | (cestav & 3) | 16)
@@ -660,7 +678,9 @@ Vue.component('mycanvas', {
         
       }
       while (final > 0)
-      this.mycst[cislo_cesty].prvky_cesty = prvky_cesty; //Do cesty vlož jej prvky
+      this.mycst[cislo_cesty].prvky_cesty = prvky_cesty;    //Do cesty vlož jej prvky
+      this.mycst[cislo_cesty].prvky_odvrat = prvky_odvrat;  //Do cesty vlož odvratné výhybky
+      this.mycst[cislo_cesty].prvky_odkaz = prvky_odkaz;    //Do cesty vlož odkazy na prvky
       console.log(this.mycst[cislo_cesty]);
       return this.mycst[cislo_cesty];
     },
@@ -707,6 +727,14 @@ Vue.component('mycanvas', {
           default:
             break;
         }
+      });
+    },
+    najdiOdkazy(xs, sm) {
+      var odkazy = [];
+      Object.keys(this.myprv).forEach(xos => {
+        var pr = this.myprv[xos];
+        if (pr.n[sm-1] ===  xs && pr.id_prvky_kluc === 4 ) 
+          odkazy.push(xos);
       });
     }
   }

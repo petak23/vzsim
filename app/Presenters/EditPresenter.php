@@ -7,7 +7,7 @@ use Nette\Utils\Json;
 
 /**
  * Prezenter pre editáciu oblasti.
- * Posledna zmena(last change): 22.01.2021
+ * Posledna zmena(last change): 01.02.2021
  *
  *	Modul: FRONT
  *
@@ -15,7 +15,7 @@ use Nette\Utils\Json;
  * @copyright  Copyright (c) 2021 - 2021 Ing. Peter VOJTECH ml.
  * @license
  * @link       http://petak23.echo-msz.eu
- * @version 1.0.1
+ * @version 1.0.2
  */
 class EditPresenter extends BasePresenter {
   
@@ -46,6 +46,20 @@ class EditPresenter extends BasePresenter {
     $this->template->oblast = $this->aktualna_oblast;
     $this->template->prvky = $this->prvky;
     $this->template->jprvky = Json::encode($this->rtoArray($this->prvky));
+    $this->template->addFilter('uprav', function ($c){
+      $out = "";
+      $o = $oc = 0;
+      if ($c > 65535) { // 2^16 - odvrat
+        $o = floor($c / 65536);
+        $c = $c % 65536;
+        $oc = floor($c / 4096); // 2^12 - odvratná cesta
+        $ooc = (($oc & 1) ? "c1" : "").(($oc >> 1 & 1) ? " c2" : "").(($oc >> 2 & 1) ? " c3" : "").(($oc >> 3 & 1) ? " c4" : "");
+        $c = $c % 4096;
+        $out = "O:".$o." | OC:".$ooc." | ";
+      }
+      $out .= "C:".floor(($c >> 8) & 15).",".floor(($c >> 4) & 15).",".floor($c & 15);
+      return $out;
+    });
   }
 
   public function rtoArray($prvky) {

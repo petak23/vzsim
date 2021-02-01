@@ -34,13 +34,14 @@
         </thead>
         <tbody>
           <tr n:foreach="$prvky as $p">
+            {var $vyh = ($p->prvky_kluc->id == 16 || $p->prvky_kluc->id == 17) ? false : true}
             <td><strong>{$p->prvky_kluc->key}</strong>({$p->prvky_kluc->id})</td>
             <td>{$p->xs}</td>
             <td>{$p->y}</td>
-            <td>{$p->c0}</td>
-            <td>{$p->c1}</td>
-            <td>{$p->c2}</td>
-            <td>{$p->c3}</td>
+            <td>{if $vyh}{$p->c0}{else}{$p->c0|uprav}{/if}</td>
+            <td>{if $vyh}{$p->c1}{else}{$p->c1|uprav}{/if}</td>
+            <td>{if $vyh}{$p->c2}{else}{$p->c2|uprav}{/if}</td>
+            <td>{if $vyh}{$p->c3}{else}{$p->c3|uprav}{/if}</td>
             <td>{$p->dl}</td>
             <td>{$p->n0}</td>
             <td>{$p->n1}</td>
