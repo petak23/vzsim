@@ -722,7 +722,9 @@ Vue.component('zoznam', {
       time: 288000, // v desatinách sekund 8:00 * 60 * 60 * 10
       button_txt: "Spusť",
       timer:null,
-      isRunning: false
+      isRunning: false,
+      interval: [200, 130, 60],
+      speed: 0
     };
   },
   computed: {
@@ -742,6 +744,13 @@ Vue.component('zoznam', {
         secondes = "0"+secondes;
       }
       return hours+":"+minutes+":"+secondes;
+    },
+    speedClass: function () {
+      switch (this.speed) {
+        case 0: return "btn-outline-success"; break;
+        case 1: return "btn-outline-warning"; break;
+        case 2: return "btn-outline-danger"; break;
+      }
     }
   },
   methods: {
@@ -750,21 +759,40 @@ Vue.component('zoznam', {
       if (!this.timer) {
         this.timer = setInterval( () => {
             this.time += 2;
-        }, 200 );
+        }, this.interval[this.speed] );
       }
     },
     casovac_stop () {
       this.isRunning = false;
       clearInterval(this.timer);
 			this.timer = null;
+    },
+    casovac_up() {
+      this.speed += this.speed < 2 ? 1 : 0;
+      if (this.isRunning) {
+        this.casovac_stop();
+        this.casovac_start();
+      }
+    },
+    casovac_dwn() {
+      this.speed -= this.speed > 0 ? 1 : 0;
+      if (this.isRunning) {
+        this.casovac_stop();
+        this.casovac_start();
+      }
     }
   },
   template: `
     <div class="row">
       <div class="col-2 bg-dark text-white">
-        {{time_u}}<br />
-        <button @click="casovac_start" v-if="!isRunning" class="btn btn-outline-warning btn-sm">Spusť</button>
-        <button @click="casovac_stop" v-if="isRunning" class="btn btn-outline-warning btn-sm">Stop</button>
+        <div class="btn-group btn-group-sm" role="group" aria-label="...">                                                                                    
+          <button @click="casovac_dwn" class="btn btn-outline-info btn-sm" :class="speed == 0 ? 'disabled' : ''"><</button>
+          <button class="btn btn-outline-info btn-sm disabled" >{{time_u}}</button>
+          <button @click="casovac_up" class="btn btn-outline-info btn-sm" :class="speed == 2 ? 'disabled' : ''">></button>
+          <button class="btn btn-sm disabled" :class="speedClass">{{speed}}</button>                                                                                    
+        </div><br />
+        <button @click="casovac_start" v-if="!isRunning" class="btn btn-outline-success btn-sm">Spusť</button>
+        <button @click="casovac_stop" v-if="isRunning" class="btn btn-outline-danger btn-sm">Stop</button>
       </div>
       <div class="col-4 bg-info h-3">{{text_v}}</div>
       <div class="col-6 bg-primary h-3">{{text_i}}</div>
