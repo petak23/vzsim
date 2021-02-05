@@ -25,11 +25,12 @@
 	<link rel="shortcut icon" href="{$basePath}/favicon.ico">
 	{block head}{/block}
 </head>
-<body>
+
+<body class="d-flex flex-column h-100">
 <div id="app">  
   <header>
     <!-- Fixed navbar -->
-    <nav n:snippet="page-title" class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
+    <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
       {*<a class="navbar-brand" href="#">Fixed navbar</a>*}
       <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span> <span class="navbar-toggler-text">Ponuka</span>
@@ -63,7 +64,7 @@
     </div>
   </main>
         
-  <footer n:snippet="page-footer" class="footer mt-auto bg-dark text-center">
+  <footer class="footer mt-auto bg-dark text-center">
     <p class="text-muted text-center w-100 mb-0">
       &copy; Ing. Peter VOJTECH <a href="http://petak23.echo-msz.eu" title="petak23.echo-msz.eu">petak23.echo-msz.eu</a> - 2021 - {date('Y')}
       &nbsp;|&nbsp;<a href="http://nette.org" title="Nette Framework">Nette Framework</a>
