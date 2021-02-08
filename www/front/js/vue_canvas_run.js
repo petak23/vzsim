@@ -460,14 +460,14 @@ Vue.component('mycanvas', {
           if (m === "P" && (pr.sm & 8) === 0) { // Posunová
             this.cesta_z = pr;
             this.$emit('text_g', "Začiatok cesty:" + this.cesta_z.key + "("+ this.cesta_z.xs + ")" + "<||>" + m);
-            this.cesta_z.stav += 16;
-            this.cesta_z.n[0] = 1;
+            this.cesta_z.stav += 16;      // Označ návestidlo
+            this.cesta_z.n[0] = 1;        // Ulož typ cesty
             this.prvok_N(this.cesta_z);
-          } else if (m === "V") {  //Vlaková
+          } else if (m === "V") {               //Vlaková
             this.cesta_z = pr;
             this.$emit('text_g', "Začiatok cesty:" + this.cesta_z.key + "("+ this.cesta_z.xs + ")" + "<||>" + m);
-            this.cesta_z.stav += 32;
-            this.cesta_z.n[0] = 2;
+            this.cesta_z.stav += 32;      // Označ návestidlo
+            this.cesta_z.n[0] = 2;        // Ulož typ cesty
             this.prvok_N(this.cesta_z);
           }
         } else if (this.cesta_z === null && pr.id_prvky_kluc === 8) { //NE
@@ -532,7 +532,7 @@ Vue.component('mycanvas', {
           if (pr.xs === this.cesta_k.xs) {      // Je koniec cesty?
             final = 0;
             if (pr.odk > 0) {                            // Existujú k prvku prvky UO alebo MO
-              prvky_odkaz = prvky_odkaz.concat(this.najdiOdkazy(xs, sm0));
+              prvky_odkaz = prvky_odkaz.concat(this.najdiOdkazy(xs));
             }
           } else {                              // Najdi nasledujúci
             switch (pr.id_prvky_kluc) {
@@ -543,7 +543,7 @@ Vue.component('mycanvas', {
                 var k = pr.c[0];                             // Cesta úseku
                 k = (sm0 === 1) ? (k & 15) : (k >> 8);       // Číslo cesty v smere ku koncu cesty
                 if (pr.odk > 0) {                            // Existujú k prvku prvky UO alebo MO
-                  prvky_odkaz = prvky_odkaz.concat(this.najdiOdkazy(xs, sm0));
+                  prvky_odkaz = prvky_odkaz.concat(this.najdiOdkazy(xs));
                 }
                 xs += this.dx[k] + this.dy[k] * this.xmax_s; // Nájdi ďaľší prvok
                 cisvch = 10 - k;                             // Nájdi číslo vchodu pre nasledujúci úsek
@@ -577,6 +577,9 @@ Vue.component('mycanvas', {
                     //this.myprv[pomv].sm = (v1 > 3) ? (pp.sm & 3) | v1 : (pp.sm & 12) | v1;
                   }*/
                   prvky_odvrat.push(pr.c[2]);
+                }
+                if (pr.odk > 0) {                            // Existujú k prvku prvky UO alebo MO
+                  prvky_odkaz = prvky_odkaz.concat(this.najdiOdkazy(xs));
                 }
                 k = pr.c[this.mycst[cislo_cesty].vyh[cisvyh]-1] & 4095; // Spočítaj číslo odchodu z prvku (num. klávesnica)
                 k = ((k >> 8) === cisvch) ? k & 15 : k >> 8;            // ok
@@ -650,11 +653,11 @@ Vue.component('mycanvas', {
         });
       }
     },
-    najdiOdkazy(xs, sm) {
+    najdiOdkazy(xs) {
       var odkazy = [];
-      Object.keys(this.myprv).forEach(xos => {
-        var pr = this.myprv[xos];
-        if (pr.n[sm-1] === xs && pr.id_prvky_kluc === 4 ) 
+      Object.keys(this.myprv).forEach(xos => {    // Prejdi všetky prvky
+        var pr = this.myprv[xos];                 // Len pre skrátenie zápisu
+        if (pr.id_prvky_kluc === 4 && (pr.n[0] === xs || pr.n[1] === xs)) 
           odkazy.push(xos);
       });
       return odkazy;
