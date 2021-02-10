@@ -6,6 +6,7 @@ Vue.component('mycanvas', {
     vlaky: String,
     xmax_s: String,
     ymax_s: String,
+    urob: Object
   },
   data: function () {
     return {
@@ -58,40 +59,7 @@ Vue.component('mycanvas', {
     this.canvas = c.getContext('2d');
     //this.mriezka(this.xmax_s, this.ymax_s);
     Object.keys(this.myprv).forEach(xs => {
-      var pr = this.myprv[xs];
-      switch (pr.id_prvky_kluc) {
-        case 1:
-        case 2:
-        case 3:
-        case 4:
-        case 5: this.prvok_XB(pr);  
-          break;
-        case 6: 
-        case 8: this.prvok_N(pr);
-          break;
-        case 10:
-        case 11: this.prvok_XP(pr);
-          break;
-        case 12: this.prvok_MA(pr);
-          break;
-        case 13: this.prvok_MR(pr);
-          break;
-        case 14: this.prvok_KS(pr);
-          break;
-        case 15: this.prvok_UU(pr);
-          break;
-        case 16: this.prvok_VN(pr);
-          break;
-        case 18: this.prvok_ZB(pr);
-          break;
-        case 19: this.prvok_TS(pr);
-          break;
-        case 20: this.prvok_SB(pr);
-          break;
-        case 21: //MZ
-        default:
-          break;
-      }
+      this.kresli_prvok(this.myprv[xs]);
 		});
   },
   methods: {
@@ -161,14 +129,14 @@ Vue.component('mycanvas', {
       var a = ((pr.c[0] & 4095) & 15) % 10;  
       this.drawLine(xxs, yys, xxs + this.kr2x*this.dx[a], yys + this.kr2y*this.dy[a], 3, '#999');
       switch (a) {
-       case 1: this.drawLine(xxs - this.kr2x + 2, yys - this.kr2y + 2, xxs + this.kr2x - 2, yys + this.kr2y + 2, 3, '#999'); break;
-       case 9: this.drawLine(xxs - this.kr2x + 2, yys - this.kr2y + 2, xxs + this.kr2x - 2, yys + this.kr2y + 2, 3, '#999'); break;
-       case 2: this.drawLine(xxs - this.kr2x + 2, yys, xxs + this.kr2x - 2, yys, 3, '#999'); break;
-       case 8: this.drawLine(xxs - this.kr2x + 2, yys, xxs + this.kr2x - 2, yys, 3, '#999'); break;
-       case 3: this.drawLine(xxs - this.kr2x + 2, yys + this.kr2y - 2, xxs + this.kr2x - 2, yys - this.kr2y + 2, 3, '#999'); break;
-       case 7: this.drawLine(xxs - this.kr2x + 2, yys + this.kr2y - 2, xxs + this.kr2x - 2, yys - this.kr2y + 2, 3, '#999'); break;
-       case 4: this.drawLine(xxs, yys - this.kr2y + 2, xxs, yys + this.kr2y - 2, 3, '#999'); break;
-       case 6: this.drawLine(xxs, yys - this.kr2y + 2, xxs, yys + this.kr2y - 2, 3, '#999'); break;
+        case 1: this.drawLine(xxs - this.kr2x + 2, yys - this.kr2y + 2, xxs + this.kr2x - 2, yys + this.kr2y + 2, 3, '#999'); break;
+        case 9: this.drawLine(xxs - this.kr2x + 2, yys - this.kr2y + 2, xxs + this.kr2x - 2, yys + this.kr2y + 2, 3, '#999'); break;
+        case 2: this.drawLine(xxs - this.kr2x + 2, yys, xxs + this.kr2x - 2, yys, 3, '#999'); break;
+        case 8: this.drawLine(xxs - this.kr2x + 2, yys, xxs + this.kr2x - 2, yys, 3, '#999'); break;
+        case 3: this.drawLine(xxs - this.kr2x + 2, yys + this.kr2y - 2, xxs + this.kr2x - 2, yys - this.kr2y + 2, 3, '#999'); break;
+        case 7: this.drawLine(xxs - this.kr2x + 2, yys + this.kr2y - 2, xxs + this.kr2x - 2, yys - this.kr2y + 2, 3, '#999'); break;
+        case 4: this.drawLine(xxs, yys - this.kr2y + 2, xxs, yys + this.kr2y - 2, 3, '#999'); break;
+        case 6: this.drawLine(xxs, yys - this.kr2y + 2, xxs, yys + this.kr2y - 2, 3, '#999'); break;
       }
     },
     prvok_MA(pr) { /* AUTOBLOK */
@@ -616,44 +584,15 @@ Vue.component('mycanvas', {
     },
     postav_cestu(cesta) {
       cesta.prvky_cesty.forEach(xs => {
-        if (xs === cesta.zc) this.myprv[xs].stav = cesta.typ;
-        //Zapíš do prvkov záver cesty okrem návestidiel
-        if (this.myprv[xs].id_prvky_kluc !== 6 && this.myprv[xs].id_prvky_kluc !== 8) {
-          this.myprv[xs].stav = cesta.typ;
-        }
-        var pr = this.myprv[xs];
-        switch (pr.id_prvky_kluc) {
-          case 1:
-          case 2:
-          case 3:
-          case 4:
-          case 5: this.prvok_XB(pr);  
-            break;
-          case 6: 
-          case 8: this.prvok_N(pr);
-            break;
-          case 10:
-          case 11: this.prvok_XP(pr);
-            break;
-          case 12: this.prvok_MA(pr);
-            break;
-          case 13: this.prvok_MR(pr);
-            break;
-          case 14: this.prvok_KS(pr);
-            break;
-          case 15: this.prvok_UU(pr);
-            break;
-          case 16: this.prvok_VN(pr);
-            break;
-          case 18: this.prvok_ZB(pr);
-            break;
-          case 19: this.prvok_TS(pr);
-            break;
-          case 20: this.prvok_SB(pr);
-            break;
-          case 21: //MZ
-          default:
-            break;
+        if (xs === cesta.zc) {
+          this.prvok_N(this.myprv[xs]);
+          this.$emit('udalost', {cas: 10, xs: xs, nst: cesta.typ});
+        } else {
+          //Zapíš do prvkov záver cesty okrem návestidiel
+          if (this.myprv[xs].id_prvky_kluc !== 6 && this.myprv[xs].id_prvky_kluc !== 8) {
+            this.myprv[xs].stav = cesta.typ;
+          }
+          this.kresli_prvok(this.myprv[xs]);
         }
       });
       if (cesta.prvky_odkaz.length) {       //Ak mám odkazy
@@ -663,32 +602,105 @@ Vue.component('mycanvas', {
         });
       }
     },
+    kresli_prvok(pr) {
+      switch (pr.id_prvky_kluc) {
+        case 1:
+        case 2:
+        case 3:
+        case 4:
+        case 5: this.prvok_XB(pr);  
+          break;
+        case 6: 
+        case 8: this.prvok_N(pr);
+          break;
+        case 10:
+        case 11: this.prvok_XP(pr);
+          break;
+        case 12: this.prvok_MA(pr);
+          break;
+        case 13: this.prvok_MR(pr);
+          break;
+        case 14: this.prvok_KS(pr);
+          break;
+        case 15: this.prvok_UU(pr);
+          break;
+        case 16: this.prvok_VN(pr);
+          break;
+        case 18: this.prvok_ZB(pr);
+          break;
+        case 19: this.prvok_TS(pr);
+          break;
+        case 20: this.prvok_SB(pr);
+          break;
+//        case 21: //MZ
+//        default:
+//          break;
+      }
+    },
     najdiOdkazy(pr) {
       var odkazy = [];
       Object.keys(this.myprv).forEach(xos => {    // Prejdi všetky prvky
         var pro = this.myprv[xos];                // Len pre skrátenie zápisu
         if (pro.id_prvky_kluc === 4) {            // Najdi odkazy v stanici
-          switch (pr.id_prvky_kluc) {
-            case 16:                              // Odkazy na výhybku
-              if (pro.n[pro.sm-1] === pr.xs) {    // Pre správnu cestu
-                odkazy.push(xos);
-              }
-              break;
-            default:                              // Pre ostatné prvky
-              if ((pro.n[0] === pr.xs || pro.n[1] === pr.xs)) odkazy.push(xos);
+          if (pr.id_prvky_kluc === 16) {          // Odkazy na výhybku
+            if (pro.n[pro.sm-1] === pr.xs) {      // Pre správnu cestu
+              odkazy.push(xos);
+            }
+          } else {                                // Pre ostatné prvky
+            if ((pro.n[0] === pr.xs || pro.n[1] === pr.xs)) odkazy.push(xos);
           }
           
         }
       });
       return odkazy;
     }
+  },
+  watch: {
+    urob: function (newUrob, oldUrob) {
+      this.myprv[newUrob.xs].stav = newUrob.nst;  // Zmeň stav prvku
+      this.kresli_prvok(this.myprv[newUrob.xs]);  // Vykresli ho
+    }
   }
+});
+
+Vue.component('nastavenie', {
+  props: {
+    text_v: String
+  },
+  template: `
+    <div class="col-4 bg-info h-3">{{text_v}}</div>
+    `
 });
 
 Vue.component('zoznam', {
   props: {
-    text_v: String,
     text_i: String
+  },
+  data: function () {
+    return {
+      vlaky: ["Os  7815 120m 120km/h PP -> ZA", 
+              "Ex    75  80m 160km/h PP -> ZA", 
+              "Mn 81238 420m  80km/h Mn -> PC", 
+              "R    602 200m 140km/h ZA -> PC", 
+              "Vn 62201 620m  90km/h PP -> ZA", 
+              "Ex    74  80m 160km/h ZA -> PP",
+              "Mn 81238 420m  80km/h Mn -> PC", 
+              "R    602 200m 140km/h ZA -> PC", 
+              "Vn 62201 620m  90km/h PP -> ZA", 
+              "Ex    74  80m 160km/h ZA -> PP", 
+            ]
+    }
+  },
+  template: `
+    <div class="col-6 bg-primary zoznam">
+      <ul><li v-for="vl in vlaky">{{vl}}</li></ul>
+    </div>
+    `
+});
+
+Vue.component('casovac', {
+  props: {
+    udalost: Object
   },
   data: function () {
     return {
@@ -697,7 +709,8 @@ Vue.component('zoznam', {
       timer:null,
       isRunning: false,
       interval: [200, 130, 60],
-      speed: 0
+      speed: 0,
+      casova_fronta: [],
     };
   },
   computed: {
@@ -727,62 +740,144 @@ Vue.component('zoznam', {
     }
   },
   methods: {
-    casovac_start () {
+    casovacStart () {
       this.isRunning = true;
       if (!this.timer) {
         this.timer = setInterval( () => {
           this.time += 2;
+          this.test_fronta();
         }, this.interval[this.speed] );
       }
     },
-    casovac_stop () {
+    casovacStop () {
       this.isRunning = false;
       clearInterval(this.timer);
 			this.timer = null;
     },
-    casovac_up() {
+    casovacUp() {
       this.speed += this.speed < 2 ? 1 : 0;
       if (this.isRunning) {
-        this.casovac_stop();
-        this.casovac_start();
+        this.casovacStop();
+        this.casovacStart();
       }
     },
-    casovac_dwn() {
+    casovacDown() {
       this.speed -= this.speed > 0 ? 1 : 0;
       if (this.isRunning) {
-        this.casovac_stop();
-        this.casovac_start();
+        this.casovacStop();
+        this.casovacStart();
+      }
+    }, 
+    test_fronta() {
+      if (this.casova_fronta.length && this.casova_fronta[0].cas <= this.time) { // Zisti či sa má udiať prvý prvok fronty
+        var first = this.casova_fronta.shift();     // Vyber prvý prvok z poľa
+        this.$emit("urob", first);                  // Odošli na spracovanie
       }
     }
   },
+  watch: {
+    udalost: function (newUdalost, oldUdalost) {
+      newUdalost.cas += this.time;
+      this.casova_fronta.push(newUdalost);
+      this.casova_fronta.sort(function(a, b){return a.time - b.time});
+    }
+  },
   template: `
-    <div class="row">
-      <div class="col-2 bg-dark text-white">
-        <div class="btn-group btn-group-sm" role="group" aria-label="...">                                                                                    
-          <button @click="casovac_dwn" class="btn btn-outline-info btn-sm" :class="speed == 0 ? 'disabled' : ''"><</button>
-          <button class="btn btn-outline-info btn-sm disabled" >{{time_u}}</button>
-          <button @click="casovac_up" class="btn btn-outline-info btn-sm" :class="speed == 2 ? 'disabled' : ''">></button>
-          <button class="btn btn-sm disabled" :class="speedClass">{{speed}}</button>                                                                                    
-        </div><br />
-        <button @click="casovac_start" v-if="!isRunning" class="btn btn-outline-success btn-sm">Spusť</button>
-        <button @click="casovac_stop" v-if="isRunning" class="btn btn-outline-danger btn-sm">Stop</button>
-      </div>
-      <div class="col-4 bg-info h-3">{{text_v}}</div>
-      <div class="col-6 bg-primary h-3">{{text_i}}</div>
+    <div class="col-2 bg-dark text-white">
+      <div class="btn-group btn-group-sm" role="group" aria-label="...">                                                                                    
+        <button @click="casovacDown" class="btn btn-outline-info btn-sm" :class="speed == 0 ? 'disabled' : ''">
+          <i class="bi bi-arrow-down">
+        </button>
+        <button class="btn btn-outline-info btn-sm disabled" >{{time_u}}</button>
+        <button @click="casovacUp" class="btn btn-outline-info btn-sm" :class="speed == 2 ? 'disabled' : ''">
+          <i class="bi bi-arrow-up"></i>
+        </button>
+        <button class="btn btn-sm disabled" :class="speedClass">{{speed}}</button>                                                                                    
+      </div><br />
+      <button @click="casovacStart" v-if="!isRunning" class="btn btn-outline-success btn-sm">Spusť</button>
+      <button @click="casovacStop" v-if="isRunning" class="btn btn-outline-danger btn-sm">Stop</button>
     </div>
     `
 });
 
 Vue.component('info', {
   props: 
-    ['text_g', 'text_r']
+    ['text_r']
   ,
   data: function () {
     return {
       textr: '',
+      textrv: false
+    }
+  },
+  methods: {
+    skry_info() {
+      this.textrv = false;
+      this.$emit('text_r_clr', true);
+    },
+    zobraz_info(info) {
+      this.textrv = info.length > 0 ? true : false;
+      this.textr = info;
+    }
+  },
+  computed: {
+    infoClass: function () {
+      return this.text_r.length > 0 ? "bg-info" : "bg-transparent";
+    }
+  },
+  watch: {
+    text_r: function (newText_r, oldText_r) {
+      this.textrv = this.text_r.length > 0 ? true : false;
+      this.textr = newText_r;
+    },
+  },
+  template: `
+    <div class="col-6 mt-1 min-h-my"
+          :class="infoClass" @click="skry_info">{{textr}}</div>
+    `
+});
+
+Vue.component('errors', {
+  props: 
+    ['text_r']
+  ,
+  data: function () {
+    return {
+      textr: '',
+      textrv: false
+    }
+  },
+  methods: {
+    skry_r() {
+      this.textrv = false;
+      this.$emit('text_r_clr', true);
+    }
+  },
+  computed: {
+    redClass: function () {
+      return this.text_r.length > 0 ? "bg-danger" : "bg-transparent";
+    }
+  },
+  watch: {
+    text_r: function (newText_r, oldText_r) {
+      this.textrv = this.text_r.length > 0 ? true : false;
+      this.textr = newText_r;
+    },
+  },
+  template: `
+    <div class="col-6 mt-1 errors text-white"
+          :class="redClass" @click="skry_r">{{textr}}</div>
+    `
+});
+
+Vue.component('statusbar', {
+  props: 
+    ['text_g']
+  ,
+  data: function () {
+    return {
       textg: '',
       textgv: false,
-      textrv: false,
       timer:null
     }
   },
@@ -790,10 +885,6 @@ Vue.component('info', {
     skry_g() {
       this.textgv = false;
       this.$emit('text_g_clr', true);
-    },
-    skry_r() {
-      this.textrv = false;
-      this.$emit('text_r_clr', true);
     },
     start_g() {
       if (!this.timer) {
@@ -804,7 +895,7 @@ Vue.component('info', {
           clearInterval(this.timer);
           this.timer = null;
           this.stop();
-        }, 3000 );
+        }, 53000 );
 			}
     },
     stop () {
@@ -816,16 +907,9 @@ Vue.component('info', {
     activeClass: function () {
       var sp = this.text_g.split("<||>");
       return sp[1] === 'V' ? 'bg-success' : (sp[1] === 'P' ? 'bg-light' : 'bg-transparent');
-    },
-    redClass: function () {
-      return this.text_r.length > 0 ? "bg-danger" : "bg-transparent";
     }
   },
   watch: {
-    text_r: function (newText_r, oldText_r) {
-      this.textrv = this.text_r.length > 0 ? true : false;
-      this.textr = newText_r;
-    },
     text_g: function(newText_g, oldText_g) {
       this.textgv = this.text_g.length > 0 ? true : false;
       var sp = newText_g.split("<||>");
@@ -833,15 +917,9 @@ Vue.component('info', {
       this.start_g();
     }
   },
-
   template: `
-    <div class="row">
-      <div  class="col-6 mt-1 min-h-my" 
+      <div  class="col-6 mt-1 status-bar" 
             :class="activeClass" @click="skry_g">{{textg}}</div>
-
-      <div class="col-6 mt-1 min-h-my text-white"
-            :class="redClass" @click="skry_r">{{textr}}</div>
-    </div>
     `
 });
 
@@ -849,7 +927,9 @@ new Vue({
   el: '#app',
   data: {
     text_g: "",
-    text_r: ""
+    text_r: "",
+    udalost: null,
+    urob: null,
   },
   methods: {
     text_r_clear() {

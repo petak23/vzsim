@@ -2,7 +2,14 @@
 {block content}
 <section class="row hlavna-plocha">
   <article class="col-12 vrchny-panel">
-    <zoznam></zoznam>
+    <div class="row">
+      <casovac
+        :udalost="udalost"
+        @urob="urob = $event"
+      ></casovac>
+      <nastavenie></nastavenie>
+      <zoznam></zoznam>
+    </div>
   </article>
   <article class="col-12 stred">
     <mycanvas 
@@ -13,17 +20,24 @@
       ymax_s=28
       @text_g="text_g = $event"
       @text_r="text_r = $event"
+      @udalost="udalost = $event"
+      :urob="urob"
     >
     </mycanvas>
   </article>
-  <article class="col-12 dolny-panel">
+  <article class="col-12 row dolny-panel ">
     <info 
+      
+    >
+    </info>
+    <statusbar
       :text_g=text_g
+      @text_g_clr="text_g_clear"
+    ></statusbar>
+    <errors
       :text_r=text_r
       @text_r_clr="text_r_clear"
-      @text_g_clr="text_g_clear"
-      >
-    </info>
+    ></errors>
   </article>
 </section>
 {/block}

@@ -1,6 +1,6 @@
 body {
-   font-family: 'Roboto', sans-serif;
-   font-weight: 400;
+  font-family: 'Roboto', sans-serif;
+  font-weight: 400;
 }
 .main {
   margin-top: 2.5rem;
@@ -48,11 +48,26 @@ a[href^="error:"] {
 }
 
 .vrchny-panel {
-  height: 8rem;
+  height: 9rem;
   border-bottom: 3px #007bff solid;
   background-color: #002752;
   margin-bottom: .5rem;
   padding-top: .2rem;
+}
+
+.zoznam {
+  font-size: 80%;
+  color: #fff;
+  max-height: 8.5rem;
+  line-height: 1rem;
+  padding: .25em 1em;
+  overflow: auto;
+  columns: 20em; /* https://www.vzhurudolu.cz/prirucka/css-multicolumn */
+}
+.zoznam ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
 }
 
 .stred {
@@ -68,6 +83,10 @@ a[href^="error:"] {
   font-size: 12px;
 }
 
-.dolny-panel .min-h-my {
-  min-height: 2rem;
+.errors {
+  height: max-content;
+}
+.status-bar {
+  height: 1.5rem;
+  padding: .2rem .75rem;
 }
