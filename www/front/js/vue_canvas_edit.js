@@ -40,7 +40,7 @@ Vue.component('mycanvas', {
     this.mriezka(this.xmax_s, this.ymax_s);
     Object.keys(this.myprv).forEach(xs => {
       var pr = this.myprv[xs];
-      console.log(pr);
+//      console.log(pr);
       switch (pr.id_prvky_kluc) {
         case 1:
         case 2:
@@ -70,9 +70,9 @@ Vue.component('mycanvas', {
           break;
         case 20: this.prvok_SB(pr);
           break;
-        case 21: //MZ
-        default:
-          break;
+//        case 21: //MZ
+//        default:
+//          break;
       }
 		});
   },
@@ -143,14 +143,14 @@ Vue.component('mycanvas', {
       var a = ((pr.c[0] & 4095) & 15) % 10;  
       this.drawLine(xxs, yys, xxs + this.kr2x*this.dx[a], yys + this.kr2y*this.dy[a], 3, '#999');
       switch (a) {
-       case 1: this.drawLine(xxs - this.kr2x + 2, yys - this.kr2y + 2, xxs + this.kr2x - 2, yys + this.kr2y + 2, 3, '#999'); break;
-       case 9: this.drawLine(xxs - this.kr2x + 2, yys - this.kr2y + 2, xxs + this.kr2x - 2, yys + this.kr2y + 2, 3, '#999'); break;
-       case 2: this.drawLine(xxs - this.kr2x + 2, yys, xxs + this.kr2x - 2, yys, 3, '#999'); break;
-       case 8: this.drawLine(xxs - this.kr2x + 2, yys, xxs + this.kr2x - 2, yys, 3, '#999'); break;
-       case 3: this.drawLine(xxs - this.kr2x + 2, yys + this.kr2y - 2, xxs + this.kr2x - 2, yys - this.kr2y + 2, 3, '#999'); break;
-       case 7: this.drawLine(xxs - this.kr2x + 2, yys + this.kr2y - 2, xxs + this.kr2x - 2, yys - this.kr2y + 2, 3, '#999'); break;
-       case 4: this.drawLine(xxs, yys - this.kr2y + 2, xxs, yys + this.kr2y - 2, 3, '#999'); break;
-       case 6: this.drawLine(xxs, yys - this.kr2y + 2, xxs, yys + this.kr2y - 2, 3, '#999'); break;
+        case 1: this.drawLine(xxs - this.kr2x + 2, yys - this.kr2y + 2, xxs + this.kr2x - 2, yys + this.kr2y + 2, 3, '#999'); break;
+        case 9: this.drawLine(xxs - this.kr2x + 2, yys - this.kr2y + 2, xxs + this.kr2x - 2, yys + this.kr2y + 2, 3, '#999'); break;
+        case 2: this.drawLine(xxs - this.kr2x + 2, yys, xxs + this.kr2x - 2, yys, 3, '#999'); break;
+        case 8: this.drawLine(xxs - this.kr2x + 2, yys, xxs + this.kr2x - 2, yys, 3, '#999'); break;
+        case 3: this.drawLine(xxs - this.kr2x + 2, yys + this.kr2y - 2, xxs + this.kr2x - 2, yys - this.kr2y + 2, 3, '#999'); break;
+        case 7: this.drawLine(xxs - this.kr2x + 2, yys + this.kr2y - 2, xxs + this.kr2x - 2, yys - this.kr2y + 2, 3, '#999'); break;
+        case 4: this.drawLine(xxs, yys - this.kr2y + 2, xxs, yys + this.kr2y - 2, 3, '#999'); break;
+        case 6: this.drawLine(xxs, yys - this.kr2y + 2, xxs, yys + this.kr2y - 2, 3, '#999'); break;
       }
     },
     prvok_MA(pr) { /* AUTOBLOK */
@@ -334,10 +334,9 @@ Vue.component('mycanvas', {
     kresliText(xxs, yys, smer_txt, text, farba) {
       var ctx = this.canvas;
       ctx.fillStyle = farba;
-      ctx.font = "14px Verdana";
-      var korekcia_y = 0;
-      var smer = ['center','middle'];
       var smu = (smer_txt & 15);
+      /*var korekcia_y = 0;
+      var smer = ['center','middle'];
       switch (smu) {
         case 1: smer = ['right', 'top']; break;
         case 2: smer = ['center', 'top']; break;
@@ -350,7 +349,12 @@ Vue.component('mycanvas', {
         case 9: smer = ['left', 'bottom']; break;
       }
       ctx.textAlign = smer[0];
-      ctx.textBaseline = smer[1];
+      ctx.textBaseline = smer[1];*/
+      var korekcia_y = (smu >= 4 && smu <= 6) ? -2 : 0;
+      var align = ['right', 'center', 'left'];
+      var valign = ['top', 'middle', 'bottom'];
+      ctx.textAlign = align[smu % 3];
+      ctx.textBaseline = valign[parseInt(smu / 3)];
       ctx.strokeStyle = farba;
       ctx.font = "14px Verdana";
       ctx.fillText(text, xxs + this.dx[smu] * this.kr2x, yys + this.dy[smu] * this.kr2y + korekcia_y);

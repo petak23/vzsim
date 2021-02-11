@@ -56,7 +56,8 @@ a[href^="error:"] {
 }
 
 .zoznam {
-  font-size: 80%;
+  font-family: monospace;
+  font-size: 14px;
   color: #fff;
   max-height: 8.5rem;
   line-height: 1rem;
@@ -87,6 +88,14 @@ a[href^="error:"] {
   height: max-content;
 }
 .status-bar {
-  height: 1.5rem;
-  padding: .2rem .75rem;
+  font-size: 12px;
+  height: 1rem;
+  padding: 0;
+}
+.status-bar > div {
+  padding: .05rem .5rem;
+}
+
+nav.edit-second-nav {
+  padding: 1rem;
 }

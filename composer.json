@@ -31,7 +31,7 @@
 		"latte/latte": "^2.5",
 		"tracy/tracy": "^2.6",
 		"texy/texy": "^3.1",
-		"dg/adminer-custom": "^1.24",
+		"dg/adminer-custom": "^1.26",
 		"contributte/webpack": "^2.0"
 	},
 	"require-dev": {

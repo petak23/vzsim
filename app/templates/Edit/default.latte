@@ -1,10 +1,18 @@
 {block title}Oblasť: {$oblast->name}{/block}
 {block content}
 <section class="row">
-  <article class="col-12">
-    <a n:href="Edit:import $oblast->id" title="Import"><small>Import</small></a>
-  </article>{*dump $prvky}{dump $jprvky*}
-  <article class="col-12">
+  <nav class="col-12 btn-group btn-group-sm edit-second-nav" role="group">
+    <a n:href="Edit:import $oblast->id" title="Import" class="btn btn-outline-primary">
+      <small>Import</small>
+    </a>
+    <a n:href="Edit:Generuj $oblast->id" title="Generuj" class="btn btn-outline-warning">
+      <small>Generuj</small>
+    </a>
+    <a href="#" title="Nastavenia" class="btn btn-outline-success">
+      <small>Nastavenia</small>
+    </a>
+  </nav>{*dump $prvky}{dump $jprvky*}
+  <article class="col-12 text-center">
     <mycanvas 
       prvky="{$jprvky}"
       xmax_s=63
@@ -40,8 +48,8 @@
             <td>{$p->y}</td>
             <td>{if $vyh}{$p->c0}{else}{$p->c0|uprav}{/if}</td>
             <td>{if $vyh}{$p->c1}{else}{$p->c1|uprav}{/if}</td>
-            <td>{if $vyh}{$p->c2}{else}{$p->c2|uprav}{/if}</td>
-            <td>{if $vyh}{$p->c3}{else}{$p->c3|uprav}{/if}</td>
+            <td>{$p->c2}</td>
+            <td>{$p->c3}</td>
             <td>{$p->dl}</td>
             <td>{$p->n0}</td>
             <td>{$p->n1}</td>

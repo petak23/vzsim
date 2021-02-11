@@ -7,7 +7,7 @@ use Nette\Utils\Json;
 
 /**
  * Prezenter pre editáciu oblasti.
- * Posledna zmena(last change): 01.02.2021
+ * Posledna zmena(last change): 11.02.2021
  *
  *	Modul: FRONT
  *
@@ -15,7 +15,7 @@ use Nette\Utils\Json;
  * @copyright  Copyright (c) 2021 - 2021 Ing. Peter VOJTECH ml.
  * @license
  * @link       http://petak23.echo-msz.eu
- * @version 1.0.2
+ * @version 1.0.3
  */
 class EditPresenter extends BasePresenter {
   
@@ -49,24 +49,68 @@ class EditPresenter extends BasePresenter {
     $this->template->addFilter('uprav', function ($c){
       $out = "";
       $o = $oc = 0;
-      if ($c > 65535) { // 2^16 - odvrat
-        $o = floor($c / 65536);
-        $c = $c % 65536;
-        $oc = floor($c / 4096); // 2^12 - odvratná cesta
-        $ooc = (($oc & 1) ? "c1" : "").(($oc >> 1 & 1) ? " c2" : "").(($oc >> 2 & 1) ? " c3" : "").(($oc >> 3 & 1) ? " c4" : "");
-        $c = $c % 4096;
-        $out = "O:".$o." | OC:".$ooc." | ";
-      }
       $out .= "C:".floor(($c >> 8) & 15).",".floor(($c >> 4) & 15).",".floor($c & 15);
       return $out;
     });
   }
 
+  public function actionGeneruj(int $id_oblast = 0) {
+    
+  }
+
   public function rtoArray($prvky) {
     $out = [];
     foreach($prvky as $p) {
-      $out[] = $p->toArray();
+      $out[$p->xs] = [
+        'id_prvky_kluc' => $p->id_prvky_kluc,
+        'xs' => $p->xs,
+        'y' => $p->y,
+        'c' => [$p->c0, $p->c1, $p->c2, $p->c3],
+        'dl' => $p->dl,
+        'n' => [$p->n0, $p->n1],
+        'sm' => $p->sm,
+        'rezim' => $p->rezim,
+        'odk' => $p->odk,
+        'oznacenie' => $p->oznacenie,
+        'stav' => 0,
+        'key' => $p->prvky_kluc->key
+      ];
+      if ($p->id_prvky_kluc == 14) {   //Pre KS dopln KO
+        for ($i = 1; $i <= (($p->c0 >> 4)+1); $i++) { //Smer 1 (->)
+          $out[($p->xs - $i)] = [
+            'id_prvky_kluc' => 22,
+            'xs' => $p->xs - $i,
+            'y' => 0,
+            'c' => [$p->xs, 0, 0, 0],
+            'dl' => 0,
+            'n' => [0, 0],
+            'sm' => 0,
+            'rezim' => 0,
+            'odk' => 0,
+            'oznacenie' => '',
+            'stav' => 0,
+            'key' => 'KO'
+          ];
+        }
+        for ($i = 1; $i <= (($p->c0 & 15)+1); $i++) { //Smer 2 (<-)
+          $out[($p->xs + $i)] = [
+            'id_prvky_kluc' => 22,
+            'xs' => $p->xs + $i,
+            'y' => 0,
+            'c' => [$p->xs, 0, 0, 0],
+            'dl' => 0,
+            'n' => [0, 0],
+            'sm' => 0,
+            'rezim' => 0,
+            'odk' => 0,
+            'oznacenie' => '',
+            'stav' => 0,
+            'key' => 'KO'
+          ];
+        }
+      }           
     }
+//    dumpe($out);
     return $out;
   }
   

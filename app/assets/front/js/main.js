@@ -1,5 +1,5 @@
 import jquery from 'jquery';
-import 'bootstrap/dist/js/bootstrap.bundle';
+import bootstrap from 'bootstrap';
 import naja from 'naja';
 import netteForms from 'nette-forms';
 

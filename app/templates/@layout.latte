@@ -50,10 +50,8 @@
     <div class="container-fluid">
       <div class="row">
         <div n:snippet="flash" class="col-12 flash-messages">
-          <div n:foreach="$flashes as $flash" class="alert alert-{$flash->type} alert-dismissible" role="alert">
-            <button type="button" class="close" data-dismiss="alert">
-              <span aria-hidden="true">&times;</span><span class="sr-only">Zatvor</span>
-            </button>
+          <div n:foreach="$flashes as $flash" class="alert alert-{$flash->type} alert-dismissible fade show" role="alert">
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             {$flash->message}
           </div>
         </div>

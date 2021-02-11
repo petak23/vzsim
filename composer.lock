@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "7101844606c2d0b77c116ad770d84918",
+    "content-hash": "5c3eeb1cf1778e7ebc05a56ed2af1d85",
     "packages": [
         {
             "name": "contributte/webpack",
@@ -75,16 +75,16 @@
         },
         {
             "name": "dg/adminer-custom",
-            "version": "v1.25.0",
+            "version": "v1.26.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/dg/adminer-custom.git",
-                "reference": "a7e1ff1b4439a30d239d7f2969b513ce199f1f47"
+                "reference": "21aef4fe55d90a0d5598ba530edb6489c4bd59c7"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/dg/adminer-custom/zipball/a7e1ff1b4439a30d239d7f2969b513ce199f1f47",
-                "reference": "a7e1ff1b4439a30d239d7f2969b513ce199f1f47",
+                "url": "https://api.github.com/repos/dg/adminer-custom/zipball/21aef4fe55d90a0d5598ba530edb6489c4bd59c7",
+                "reference": "21aef4fe55d90a0d5598ba530edb6489c4bd59c7",
                 "shasum": ""
             },
             "type": "library",
@@ -101,9 +101,9 @@
                 "sqlite"
             ],
             "support": {
-                "source": "https://github.com/dg/adminer-custom/tree/v1.25.0"
+                "source": "https://github.com/dg/adminer-custom/tree/v1.26.0"
             },
-            "time": "2020-12-21T02:07:33+00:00"
+            "time": "2021-02-07T21:54:49+00:00"
         },
         {
             "name": "latte/latte",

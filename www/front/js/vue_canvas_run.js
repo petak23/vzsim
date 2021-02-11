@@ -320,23 +320,12 @@ Vue.component('mycanvas', {
     kresliText(xxs, yys, smer_txt, text, farba) {
       var ctx = this.canvas;
       ctx.fillStyle = farba;
-      ctx.font = "14px Verdana";
-      var korekcia_y = 0;
-      var smer = ['center','middle'];
       var smu = (smer_txt & 15);
-      switch (smu) {
-        case 1: smer = ['right', 'top']; break;
-        case 2: smer = ['center', 'top']; break;
-        case 3: smer = ['left', 'top']; break;
-        case 4: smer = ['right', 'middle']; korekcia_y = -2; break;
-        case 5: smer = ['center', 'middle']; korekcia_y = -2; break;
-        case 6: smer = ['left', 'middle']; korekcia_y = -2; break;
-        case 7: smer = ['right', 'bottom']; break;
-        case 8: smer = ['center', 'bottom']; break;
-        case 9: smer = ['left', 'bottom']; break;
-      }
-      ctx.textAlign = smer[0];
-      ctx.textBaseline = smer[1];
+      var korekcia_y = (smu >= 4 && smu <= 6) ? -2 : 0;
+      var align = ['right', 'center', 'left'];
+      var valign = ['top', 'middle', 'bottom'];
+      ctx.textAlign = align[smu % 3];
+      ctx.textBaseline = valign[parseInt(smu / 3)];
       ctx.strokeStyle = farba;
       ctx.font = "14px Verdana";
       ctx.fillText(text, xxs + this.dx[smu] * this.kr2x, yys + this.dy[smu] * this.kr2y + korekcia_y);
@@ -517,9 +506,6 @@ Vue.component('mycanvas', {
                 break;
               case 4: //UO
               case 5: //MO
-//                var k = (sm0 === 1) ? (pr.c[0] & 15) : (pr.c[0] >> 8); // Číslo cesty v smere ku koncu cesty
-//                xs += this.dx[k] + this.dy[k] * this.xmax_s; // Nájdi ďaľší prvok
-//                cisvch = 10 - k;                             // Nájdi číslo vchodu pre nasledujúci úsek
                 xs = pr.n[sm0-1];                            // Nájdi ďaľší prvok
                 break;
               case 6: //NH
@@ -575,6 +561,11 @@ Vue.component('mycanvas', {
       while (final > 0)
 
       if (cislo_cesty) {                                      // Ak mám cestu
+        prvky_odvrat.forEach(x => {
+          if (prvky_cesty.indexOf(x) > -1) {
+            
+          }
+        });
         this.mycst[cislo_cesty].prvky_cesty = prvky_cesty;    // Do cesty vlož jej prvky
         this.mycst[cislo_cesty].prvky_odvrat = prvky_odvrat;  // Do cesty vlož odvratné výhybky
         this.mycst[cislo_cesty].prvky_odkaz = prvky_odkaz;    // Do cesty vlož odkazy na prvky
@@ -632,9 +623,6 @@ Vue.component('mycanvas', {
           break;
         case 20: this.prvok_SB(pr);
           break;
-//        case 21: //MZ
-//        default:
-//          break;
       }
     },
     najdiOdkazy(pr) {
@@ -643,9 +631,7 @@ Vue.component('mycanvas', {
         var pro = this.myprv[xos];                // Len pre skrátenie zápisu
         if (pro.id_prvky_kluc === 4) {            // Najdi odkazy v stanici
           if (pr.id_prvky_kluc === 16) {          // Odkazy na výhybku
-            if (pro.n[pro.sm-1] === pr.xs) {      // Pre správnu cestu
-              odkazy.push(xos);
-            }
+            if (pro.n[pro.sm-1] === pr.xs) odkazy.push(xos);// Pre správnu cestu
           } else {                                // Pre ostatné prvky
             if ((pro.n[0] === pr.xs || pro.n[1] === pr.xs)) odkazy.push(xos);
           }
@@ -704,20 +690,23 @@ Vue.component('casovac', {
   },
   data: function () {
     return {
-      time: 288000, // v desatinách sekund 8:00 * 60 * 60 * 10
-      button_txt: "Spusť",
-      timer:null,
-      isRunning: false,
-      interval: [200, 130, 60],
-      speed: 0,
-      casova_fronta: [],
+      time: 863900,//288000,             // Počiatočný čas v desatinách sekúnd 8:00 = 8 * 60 * 60 * 10
+      button_txt: "Spusť",      // Text tlačítka na spustenie času
+      timer:null,               // Timer
+      isRunning: false,         // Príznak či hodiny bežia
+      interval: [200, 130, 60], // rýchlosť behu hodín - dĺžka trvania 200ms
+      speed: 0,                 // Číslo rýchlosti od 0 do 2
+      casova_fronta: [],        // Časová fronta pre udalosti
+      den: 0,                   // Deň v týždni 0=pondelok ... 6=nedeľa
+      den_skr: ["Po", "Ut", "St", "Št", "Pi", "So", "Ne"], //Skratky dní v týždni
+      first_run: false          // Prvé spustenie hodín
     };
   },
   computed: {
     time_u: function () {
-      let mytime = Math.round(this.time /10);
+      let mytime = parseInt(this.time /10);
       let time = mytime / 60;
-      let secondes = Math.round((mytime - parseInt((mytime / 60)) * 60));
+      let secondes = parseInt((mytime - parseInt((mytime / 60)) * 60));
       let minutes = parseInt(parseInt((mytime / 60)) % 60);
       let hours = parseInt(time / 60);
       if (hours < 10) {
@@ -733,20 +722,31 @@ Vue.component('casovac', {
     },
     speedClass: function () {
       switch (this.speed) {
-        case 0: return "btn-outline-success"; break;
-        case 1: return "btn-outline-warning"; break;
-        case 2: return "btn-outline-danger"; break;
+        case 0: return "bg-success"; break;
+        case 1: return "bg-warning"; break;
+        case 2: return "bg-danger"; break;
       }
+    },
+    speedWidth: function () {
+      return ((this.speed + 1)/3 * 100)+"%";
     }
   },
   methods: {
     casovacStart () {
       this.isRunning = true;
+      this.first_run = true;
       if (!this.timer) {
-        this.timer = setInterval( () => {
+        this.timer = setInterval( () => {   // Funkcia spúšťaná pravidelne pri behu časovača
           this.time += 2;
+          if (this.time >= 863999) { // Prešiel som cez polnoc (24*60*60*10)=864000
+            this.den += this.den < 6 ? 1 : -6 // Pripočítaj deň ak je Ne -> Po
+            Object.keys(this.casova_fronta).forEach(cs => { // Prepočítaj časovú frontu 
+              this.casova_fronta[cs].cas -= this.casova_fronta[cs].cas >= 864000 ? 864000 : 0;
+            });
+            this.time -= 864000;     // Zmeň čas
+          }
           this.test_fronta();
-        }, this.interval[this.speed] );
+        }, this.interval[this.speed]);
       }
     },
     casovacStop () {
@@ -767,6 +767,12 @@ Vue.component('casovac', {
         this.casovacStop();
         this.casovacStart();
       }
+    },
+    denUp() {
+      if (!this.first_run) this.den += this.den < 6 ? 1 : 0;
+    },
+    denDown() {
+      if (!this.first_run) this.den -= this.den > 0 ? 1 : 0;
     }, 
     test_fronta() {
       if (this.casova_fronta.length && this.casova_fronta[0].cas <= this.time) { // Zisti či sa má udiať prvý prvok fronty
@@ -784,18 +790,34 @@ Vue.component('casovac', {
   },
   template: `
     <div class="col-2 bg-dark text-white">
-      <div class="btn-group btn-group-sm" role="group" aria-label="...">                                                                                    
+      <div class="btn-group btn-group-sm" role="group" aria-label="dni" v-if="!first_run">
+        <button @click="denDown" class="btn btn-outline-info btn-sm" :class="den == 0 ? 'disabled' : ''">
+          <i class="fas fa-long-arrow-alt-down"></i>
+        </button>
+        <button class="btn btn-outline-info btn-sm disabled">{{den_skr[den]}}</button>
+        <button @click="denUp" class="btn btn-outline-info btn-sm" :class="den == 7 ? 'disabled' : ''">
+          <i class="fas fa-long-arrow-alt-up"></i>
+        </button>
+      </div>
+      <br v-if="!first_run" />
+      <div class="btn-group btn-group-sm" role="group" aria-label="hodiny">
+        <button class="btn btn-outline-info btn-sm disabled" v-if="first_run">{{den_skr[den]}}</button>
         <button @click="casovacDown" class="btn btn-outline-info btn-sm" :class="speed == 0 ? 'disabled' : ''">
-          <i class="bi bi-arrow-down">
+          <i class="fas fa-level-down-alt"></i>
         </button>
         <button class="btn btn-outline-info btn-sm disabled" >{{time_u}}</button>
         <button @click="casovacUp" class="btn btn-outline-info btn-sm" :class="speed == 2 ? 'disabled' : ''">
-          <i class="bi bi-arrow-up"></i>
+          <i class="fas fa-level-up-alt"></i>
         </button>
-        <button class="btn btn-sm disabled" :class="speedClass">{{speed}}</button>                                                                                    
-      </div><br />
-      <button @click="casovacStart" v-if="!isRunning" class="btn btn-outline-success btn-sm">Spusť</button>
-      <button @click="casovacStop" v-if="isRunning" class="btn btn-outline-danger btn-sm">Stop</button>
+        <button @click="casovacStart" v-if="!isRunning" class="btn btn-outline-danger btn-sm"><i class="fas fa-power-off"></i></button>
+        <button @click="casovacStop" v-if="isRunning" class="btn btn-outline-success btn-sm"><i class="fas fa-power-off"></i></button>                                                                                    
+      </div>
+      <div class="progress" style="height: 5px">
+        <div class="progress-bar" role="progressbar"
+              :class="speedClass" 
+              v-bind:style="{width: speedWidth}" 
+              aria-valuemin="0" aria-valuemax="2"></div>
+      </div>
     </div>
     `
 });
@@ -822,12 +844,12 @@ Vue.component('info', {
   },
   computed: {
     infoClass: function () {
-      return this.text_r.length > 0 ? "bg-info" : "bg-transparent";
+      return (typeof this.text_r !== 'undefined' && this.text_r.length > 0) ? "bg-info" : "bg-transparent";
     }
   },
   watch: {
     text_r: function (newText_r, oldText_r) {
-      this.textrv = this.text_r.length > 0 ? true : false;
+      this.textrv = (typeof this.text_r !== 'undefined' && this.text_r.length > 0) ? true : false;
       this.textr = newText_r;
     },
   },
@@ -918,8 +940,7 @@ Vue.component('statusbar', {
     }
   },
   template: `
-      <div  class="col-6 mt-1 status-bar" 
-            :class="activeClass" @click="skry_g">{{textg}}</div>
+      <div :class="activeClass" @click="skry_g">{{textg}}</div>
     `
 });
 
