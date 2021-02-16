@@ -7,7 +7,7 @@ use Nette\Utils\Json;
 
 /**
  * Prezenter pre editáciu oblasti.
- * Posledna zmena(last change): 11.02.2021
+ * Posledna zmena(last change): 12.02.2021
  *
  *	Modul: FRONT
  *
@@ -15,7 +15,7 @@ use Nette\Utils\Json;
  * @copyright  Copyright (c) 2021 - 2021 Ing. Peter VOJTECH ml.
  * @license
  * @link       http://petak23.echo-msz.eu
- * @version 1.0.3
+ * @version 1.0.4
  */
 class EditPresenter extends BasePresenter {
   
@@ -33,6 +33,11 @@ class EditPresenter extends BasePresenter {
   private $aktualna_oblast;
 
   private $prvky;
+  private $cesty;
+              //0  1  2  3  4 5 6  7  8  9
+  private $dx = [0,-1, 0, 1,-1,0,1,-1, 0, 1]; //posun x
+  private $dy = [0, 1, 1, 1, 0,0,0,-1,-1,-1]; //posun y
+  private $xmax = 63;
   
   public function actionDefault(int $id = 0) {
     if (($this->aktualna_oblast = $this->oblast->find($id)) === null) {
@@ -54,9 +59,112 @@ class EditPresenter extends BasePresenter {
     });
   }
 
-  public function actionGeneruj(int $id_oblast = 0) {
-    
+  public function actionGeneruj(int $id = 0) {
+    if (($this->aktualna_oblast = $this->oblast->find($id)) === null) {
+      $this->flashRedirect("Homepage:", "Požadovanú oblasť som nenašiel!", "warning");
+    }
+    $this->prvky = $this->rtoArray($this->oblast_prvky->findBy(['id_oblast'=>$id]));
+    $this->cesty = $this->oblast_cesty->findBy(['id_oblast'=>$id]);
+    foreach($this->cesty as $cesta) {
+      if ($cesta->prvky_cesty == null)
+        $this->test_cesty($cesta);
+    }
+    $this->flashRedirect(["Edit:", $id], "Vygenerované v poriadku!", "success");
   }
+
+  private function test_cesty($cesta) {
+    $cisvyh = 0;                              // Poradové číslo výhybky vrámci cesty
+    $pr = $this->prvky[$cesta->zc];           // Aktuálne testovaný prvok cesty
+    $sm0 = ($pr['sm'] & 3);                   // Smer cesty
+    $prvky_cesty[] = $cesta->zc;              // Pole prvkov cesty
+    $prvky_odvrat = [];                       // Pole odvratov
+    $prvky_odkaz = [];                        // Pole odkazov pre danú cestu
+    $xs = $pr['c'][0];                        // Počiatočné xs z položky csn NH alebo NE
+    $cisvch = ($pr['sm'] & 3) == 1 ? 4 : 6;   // Nájdenie čísla "vchodu" do nasledujúcej bunky podľa num. klávesnice
+    $rychl = 255;                             // Max. rýchlosť cesty
+    $final = 50;                              // Max. počet prvkov cesty
+    do {
+      $pr = $this->prvky[$xs];                // Do "pr" daj info o aktuálnom prvku
+      if (isset($pr)) {
+        if ($pr['id_prvky_kluc'] != 4) array_push($prvky_cesty, $pr['xs']); // Ak prvok existuje a nie je UO tak vlož do poľa
+        if ($pr['xs'] == $cesta->kc) {        // Je koniec cesty?
+          $final = 0;
+          //if (pr.odk > 0) {                   // Existujú k prvku prvky UO 
+          //  prvky_odkaz = prvky_odkaz.concat(this.najdiOdkazy(pr));
+          //}
+        } else {                              // Najdi nasledujúci
+          switch ($pr['id_prvky_kluc']) {
+            case 1: //UB
+            case 3: //KB
+              $k = ($sm0 == 1) ? ($pr['c'][0] & 15) : ($pr['c'][0] >> 8); // Číslo cesty v smere ku koncu cesty
+              //if (pr.odk > 0) {                            // Existujú k prvku prvky UO 
+              //  prvky_odkaz = prvky_odkaz.concat(this.najdiOdkazy(pr));
+              //}
+              $xs += $this->dx[$k] + $this->dy[$k] * $this->xmax; // Nájdi ďaľší prvok
+              $cisvch = 10 - $k;                             // Nájdi číslo vchodu pre nasledujúci úsek
+              if ($rychl > $pr['n'][1]) $rychl = $pr['n'][1];        // Test maximálnej rýchlosti
+              break;
+            case 4: //UO
+            case 5: //MO
+              $xs = $pr['n'][$sm0 - 1];                            // Nájdi ďaľší prvok
+              break;
+            case 6: //NH
+            case 8: //NE
+              switch ($sm0) {
+                case 1: $xs = $pr['c'][($pr['sm'] & 3)-1]; break;
+                case 2: $xs = $pr['c'][2-($pr['sm'] & 3)]; break;
+              }
+              break;
+            case 10: //UP
+              $xs += $this->dx[10 - $cisvch];
+              if ($rychl > $pr['n'][1]) $rychl = $pr['n'][1];        // Test maximálnej rýchlosti
+              break;
+            case 14: //KS;
+              switch ($cisvch) {
+                case 4: $xs +=($pr['c'][0] & 15) + 2; break;
+                case 6: $xs -=($pr['c'][1] >> 4) - 2; break;
+              }
+              if ($rychl > $pr['n'][1]) $rychl = $pr['n'][1];        // Test maximálnej rýchlosti
+              break;
+            case 16: //VN;
+              $pol = $cesta->vyhybky[$cisvyh]; // Poloha výhybky pre danú cestu
+              if ($pr['c'][2] > 0) {                           // Existuje odvrat resp. spolupracujúca výh.
+                array_push($prvky_odvrat, $pr['c'][2]);
+              }
+              if ($rychl > $pr['n'][2-$pol]) $rychl = $pr['n'][2-$pol];       // Test maximálnej rýchlosti
+              //if (($pr['odk'] & $pol) > 0) {                             // Existujú k prvku prvky UO
+              //  prvky_odkaz = prvky_odkaz.concat(this.najdiOdkazy(pr));
+              //}
+              $k = $pr['c'][$pol-1] & 4095;                     // Spočítaj číslo odchodu z prvku (num. klávesnica)
+              $k = ($sm0 === 1) ? $k & 15 : $k >> 8;            // ok       
+              $xs += $this->dx[$k] + $this->dy[$k] * $this->xmax;   // Nájdenie xs nasledujúceho prvku
+              $cisvyh++;
+              $cisvch = 10 - $k;
+              break;
+          }
+        }
+        $final--;
+      } else {
+        $final = 0;
+        $cislo_cesty = 0;
+      }
+    }
+    while ($final > 0);
+
+//    prvky_odvrat.forEach(x => {
+//        if (prvky_cesty.indexOf(x) > -1) {        
+//        }
+//      });
+      $cesta_new = $this->oblast_cesty->oprav($cesta->id, [
+        'prvky_cesty' => implode('|', $prvky_cesty),      // Do cesty vlož jej prvky
+        'prvky_odvrat' => implode('|', $prvky_odvrat),    // Do cesty vlož odvratné výhybky
+        //'prvky_odkaz' => implode('|', $prvky_odkaz);      // Do cesty vlož odkazy na prvky
+        'vmax' => $rychl                                  // Do cesty vlož max. rýchlosť
+      ]);
+    //dumpe($cesta_new);
+    return $cesta_new;
+  }
+
 
   public function rtoArray($prvky) {
     $out = [];

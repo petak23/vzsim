@@ -318,16 +318,16 @@ Vue.component('mycanvas', {
     * @param String text Text na vypísanie 
     * @param color farba Farba textu */
     kresliText(xxs, yys, smer_txt, text, farba) {
-      var ctx = this.canvas;
-      ctx.fillStyle = farba;
       var smu = (smer_txt & 15);
       var korekcia_y = (smu >= 4 && smu <= 6) ? -2 : 0;
       var align = ['right', 'center', 'left'];
       var valign = ['top', 'middle', 'bottom'];
-      ctx.textAlign = align[smu % 3];
+      var ctx = this.canvas;
+      ctx.fillStyle = farba;
+      ctx.textAlign = align[(smu % 3)-1];
       ctx.textBaseline = valign[parseInt(smu / 3)];
       ctx.strokeStyle = farba;
-      ctx.font = "14px Verdana";
+      ctx.font = "14px sans-serif";
       ctx.fillText(text, xxs + this.dx[smu] * this.kr2x, yys + this.dy[smu] * this.kr2y + korekcia_y);
     },
     
@@ -339,7 +339,7 @@ Vue.component('mycanvas', {
       ctx.fillRect(xxs - this.kr2x + 1, yys - this.kr2y + 1, 2*this.kr2x - 2, 2*this.kr2y - 2);
       ctx.textAlign = 'center';
       ctx.textBaseline = "middle";
-      ctx.font = "14px Courier New";
+      ctx.font = "14px sans-serif";
       if (pr.n[1] === 1) {  //Ak je viditeľný 
         var p = 3 - 2 * pr.sm;
         ctx.fillStyle = '#66DE57'; ctx.strokeStyle = '#66DE57'; //Základný stav voľný - zelená
@@ -357,55 +357,52 @@ Vue.component('mycanvas', {
       var yys = this.kroky*(this.suy(pr.xs) + 0.5);
       var ctx = this.canvas;
       ctx.lineWidth = "1";
-      ctx.strokeStyle = '#8888FF';
+      ctx.strokeStyle = '#88f';
       ctx.fillStyle = '#000';
-      ctx.font = "14px Verdana";
+      ctx.font = "14px sans-serif";
       var b = pr.sm >> 1; //b-pocet riadkov
-      switch ((pr.sm & 1)) {
-        case 0:
-          ctx.strokeRect(xxs - this.kr2x, yys - this.kr2y + 1, 6 * this.kr2x, 2*this.kr2y * (b + 1) - 2);
-          ctx.textAlign = 'right';
-          ctx.textBaseline = 'middle';
-          ctx.strokeStyle = '#FFE498';
-          if (pr.stav === 0) {
-            for (var i = 0; i <= b; i++) { 
-              if (pr.c[i] > 0) { 
-                ctx.fillText(pr.c[i], xxs + this.kr2x * 5, yys - 2 + i * (2*this.kr2y - 1));
-              } 
-            }
-          } else {
-            ctx.fillText(pr.c[3], xxs + this.kr2x * 5, yys - 1);
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-            ctx.fillText("?", xxs + 2 * this.kr2x, yys + 2*this.kr2y - 2);
-            ctx.strokeStyle = '#8888FF'; 
-            ctx.fillText("A", xxs, yys + 2*this.kr2y - 2);
-            ctx.strokeStyle = '#FF8888'; 
-            ctx.fillText("N", xxs + this.kr2x * 4, yys + 2*this.kr2y - 2);
+      if ((pr.sm & 1) === 0) {
+        ctx.strokeRect(xxs - this.kr2x, yys - this.kr2y + 1, 6 * this.kr2x, 2*this.kr2y * (b + 1) - 2);
+        ctx.textAlign = 'right';
+        ctx.textBaseline = 'middle';
+        ctx.strokeStyle = '#FFE498';
+        if (pr.stav === 0) {
+          for (var i = 0; i <= b; i++) { 
+            if (pr.c[i] > 0) { 
+              ctx.fillText(pr.c[i], xxs + this.kr2x * 5, yys - 2 + i * (2*this.kr2y - 1));
+            } 
           }
-          break;
-        case 1:
-          ctx.strokeRect(xxs - this.kr2x, yys + this.kr2y - 1, 6 * this.kr2x, 2 - 2*this.kr2y * (b + 1));
-          ctx.textAlign = 'right';
+        } else {
+          ctx.fillText(pr.c[3], xxs + this.kr2x * 5, yys - 1);
+          ctx.textAlign = 'center';
           ctx.textBaseline = 'middle';
-          ctx.strokeStyle = '#FFE498';
-          if (pr.stav === 0) {
-            for (var i = 0; i <= b; i++) { 
-              if (pr.c[i] > 0) { 
-                ctx.fillText(pr.c[i], xxs + this.kr2x * 5, yys - 2 - i * (2*this.kr2y - 1));
-              }
+          ctx.fillText("?", xxs + 2 * this.kr2x, yys + 2*this.kr2y - 2);
+          ctx.strokeStyle = '#8888FF'; 
+          ctx.fillText("A", xxs, yys + 2*this.kr2y - 2);
+          ctx.strokeStyle = '#FF8888'; 
+          ctx.fillText("N", xxs + this.kr2x * 4, yys + 2*this.kr2y - 2);
+        }
+      } else {
+        ctx.strokeRect(xxs - this.kr2x, yys + this.kr2y - 1, 6 * this.kr2x, 2 - 2*this.kr2y * (b + 1));
+        ctx.textAlign = 'right';
+        ctx.textBaseline = 'middle';
+        ctx.strokeStyle = '#FFE498';
+        if (pr.stav === 0) {
+          for (var i = 0; i <= b; i++) { 
+            if (pr.c[i] > 0) { 
+              ctx.fillText(pr.c[i], xxs + this.kr2x * 5, yys - 2 - i * (2*this.kr2y - 1));
             }
-          } else {
-            ctx.fillText(pr.c[3], xxs + this.kr2x * 5, yys - 2*this.kr2y - 1);
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-            ctx.fillText("?", xxs + 2 * this.kr2x, yys - 3);
-            ctx.strokeStyle = '#8888FF'; 
-            ctx.fillText("A", xxs, yys - 3);
-            ctx.strokeStyle = '#FF8888'; 
-            ctx.fillText("N", xxs + this.kr2x * 4, yys - 3);
           }
-          break;
+        } else {
+          ctx.fillText(pr.c[3], xxs + this.kr2x * 5, yys - 2*this.kr2y - 1);
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText("?", xxs + 2 * this.kr2x, yys - 3);
+          ctx.strokeStyle = '#8888FF'; 
+          ctx.fillText("A", xxs, yys - 3);
+          ctx.strokeStyle = '#FF8888'; 
+          ctx.fillText("N", xxs + this.kr2x * 4, yys - 3);
+        }
       }
     },
     get_mouse(m, e) {
@@ -437,7 +434,6 @@ Vue.component('mycanvas', {
         } else if (this.cesta_z !== null && (pr.id_prvky_kluc === 3 || pr.id_prvky_kluc === 14 || pr.id_prvky_kluc === 22)) {
           this.cesta_k = (pr.id_prvky_kluc !== 22) ? pr : this.myprv[pr.c[0]]; // Pre prípad kliku na KO
           var cesta = this.test_cesta(this.cesta_z, this.cesta_k);
-          console.log(cesta);
           if (cesta !== null) {
             if (cesta !== 0) { // Mám cestu a nie je obsadená
               this.$emit('text_g', "Staviam cestu:" + cesta.zc + " -> " + cesta.kc + " t:" + cesta.typ + " v:" + cesta.vyh + "<||>" + (cesta.typ === 2 ? "V" : "P"));
@@ -471,111 +467,34 @@ Vue.component('mycanvas', {
           cislo_cesty = s;                      // Zapíš číslo nájdenej cesty
         }
       });
-      if (cislo_cesty === 0) { return null; }   // Cestu som nenašiel skonč
-      var cisvyh = 0;                           // Poradové číslo výhybky vrámci cesty
-      var pr = this.myprv[cesta_z.xs];          // Aktuálne testovaný prvok cesty
-      var sm0 = (this.myprv[cesta_z.xs].sm & 3);// Smer cesty
-      var prvky_cesty = [cesta_z.xs];           // Pole prvkov cesty
-      var prvky_odvrat = [];                    // Pole odvratov
-      var prvky_odkaz = [];                     // Pole odkazov pre danú cestu
-      var xs = cesta_z.c[0];                    // Počiatočné xs z položky csn NH alebo NE
-      this.myprv[cesta_z.xs].c[3] = cesta_k.xs; // Zapíš do návestidla koniec cesty
-      var cisvch = (pr.sm & 3) === 1 ? 4 : 6;   // Nájdenie čísla "vchodu" do nasledujúcej bunky podľa num. klávesnice
-      var rychl = 255;                          // Max. rýchlosť cesty
-      var final = 50;                           // Max. počet prvkov cesty
-      do {
-        pr = this.myprv[xs];                    // Do pr daj info o aktuálnom prvku
-        if (typeof pr !== 'undefined' && pr.stav === 0) { // Volný úsek
-          if (pr.id_prvky_kluc !== 4) prvky_cesty.push(pr.xs); // Ak prvok existuje a nie je UO tak vlož do poľa
-          if (pr.xs === this.cesta_k.xs) {      // Je koniec cesty?
-            final = 0;
-            if (pr.odk > 0) {                   // Existujú k prvku prvky UO 
-              prvky_odkaz = prvky_odkaz.concat(this.najdiOdkazy(pr));
-            }
-          } else {                              // Najdi nasledujúci
-            switch (pr.id_prvky_kluc) {
-              case 1: //UB
-              case 3: //KB
-                var k = (sm0 === 1) ? (pr.c[0] & 15) : (pr.c[0] >> 8); // Číslo cesty v smere ku koncu cesty
-                if (pr.odk > 0) {                            // Existujú k prvku prvky UO 
-                  prvky_odkaz = prvky_odkaz.concat(this.najdiOdkazy(pr));
-                }
-                xs += this.dx[k] + this.dy[k] * this.xmax_s; // Nájdi ďaľší prvok
-                cisvch = 10 - k;                             // Nájdi číslo vchodu pre nasledujúci úsek
-                if (rychl > pr.n[1]) rychl = pr.n[1];        // Test maximálnej rýchlosti
-                break;
-              case 4: //UO
-              case 5: //MO
-                xs = pr.n[sm0-1];                            // Nájdi ďaľší prvok
-                break;
-              case 6: //NH
-              case 8: //NE
-                switch (sm0) {
-                  case 1: xs = pr.c[(pr.sm & 3)-1]; break;
-                  case 2: xs = pr.c[2-(pr.sm & 3)]; break;
-                }
-                break;
-              case 10: //UP
-                xs += this.dx[10 - cisvch];
-                if (rychl > pr.n[1]) rychl = pr.n[1];        // Test maximálnej rýchlosti
-                break;
-              case 14: //KS;
-                //pr.c[3] = pre_vlak;
-                switch (cisvch) {
-                  case 4: xs +=(pr.c[0] & 15) + 2; break;
-                  case 6: xs -=(pr.c[1] >> 4) - 2; break;
-                }
-                if (rychl > pr.n[1]) rychl = pr.n[1];        // Test maximálnej rýchlosti
-                break;
-              case 16: //VN;
-                pr.sm = this.mycst[cislo_cesty].vyh[cisvyh]; // Poloha výhybky pre danú cestu
-                if (pr.c[2] > 0) {                           // Existuje odvrat resp. spolupracujúca výh.
-/*                  var psv = this.myprv[pr.c[2]];             // Prvok spolupracujúcej(odvratnej) výhybky
-                  if ((psv.sm & 3 !== pr.sm & 3) && psv.stav >= 1 && psv.stav <= 6) { // Je spolup. výh. prestavená inak
-                    //obsad;                                                          // a odvratná cesta nie je voľná 
-                    final = 0;
-                    return null; 
-                  } else {
-                    //this.myprv[pomv].sm = (v1 > 3) ? (pp.sm & 3) | v1 : (pp.sm & 12) | v1;
-                  }*/
-                  prvky_odvrat.push(pr.c[2]);
-                }
-                if (rychl > pr.n[2-pr.sm]) rychl = pr.n[2-pr.sm];       // Test maximálnej rýchlosti
-                if ((pr.odk & pr.sm) > 0) {                             // Existujú k prvku prvky UO
-                  prvky_odkaz = prvky_odkaz.concat(this.najdiOdkazy(pr));
-                }
-                k = pr.c[pr.sm-1] & 4095;                     // Spočítaj číslo odchodu z prvku (num. klávesnica)
-                k = (sm0 === 1) ? k & 15 : k >> 8;            // ok
-                xs += this.dx[k] + this.dy[k] * this.xmax_s;            // Nájdenie xs nasledujúceho prvku
-                cisvyh++;
-                cisvch = 10 - k;
-                break;
-            }
-          }
-          final--;
-        } else {
-          final = 0;
-          cislo_cesty = 0;
-        }
-      }
-      while (final > 0)
-
-      if (cislo_cesty) {                                      // Ak mám cestu
-        prvky_odvrat.forEach(x => {
-          if (prvky_cesty.indexOf(x) > -1) {
-            
+      if (cislo_cesty != 0 && this.mycst[cislo_cesty].prvky_cesty.length > 0) { // Cesta existuje a mám prvky cesty
+        this.myprv[cesta_z.xs].c[3] = cesta_k.xs; // Zapíš do návestidla koniec cesty
+        var cisvyh = 0;                           // Poradové číslo výhybky vrámci cesty
+        var volnost = true;
+        this.mycst[cislo_cesty].prvky_cesty.forEach(x => {  // Zisti volnost cesty
+          var pr = this.myprv[x];
+          if ((pr.stav & 15) != 0) {         // Je prvok obsadený? Dôležité sú stavy od 1..15 po zmazaní vyšších bitov
+            volnost = false;
           }
         });
-        this.mycst[cislo_cesty].prvky_cesty = prvky_cesty;    // Do cesty vlož jej prvky
-        this.mycst[cislo_cesty].prvky_odvrat = prvky_odvrat;  // Do cesty vlož odvratné výhybky
-        this.mycst[cislo_cesty].prvky_odkaz = prvky_odkaz;    // Do cesty vlož odkazy na prvky
-        this.mycst[cislo_cesty].vmax = rychl;                 // Do cesty vlož max. rýchlosť
+        if (volnost) {                            // Cesta je volná
+          this.mycst[cislo_cesty].prvky_cesty.forEach(x => {
+            if (this.myprv[x].id_prvky_kluc === 16) {          // Do prvkov výhybiek zapíš ich polohu
+              this.myprv[x].sm = this.mycst[cislo_cesty].vyh[cisvyh];
+              cisvyh++;
+            }
+          });
+          this.mycst[cislo_cesty].prvky_odkaz = [];
+          return this.mycst[cislo_cesty];
+        } else { return 0;}                       // Cesta existuje ale je obsadená
+      } else {                                    // Cesta neexzistuje alebo nemá prvky
+        return null;
       }
-      return cislo_cesty !== 0 ? this.mycst[cislo_cesty] : 0;
+      
     },
     postav_cestu(cesta) {
       cesta.prvky_cesty.forEach(xs => {
-        if (xs === cesta.zc) {
+        if (xs == cesta.zc) {
           this.prvok_N(this.myprv[xs]);
           this.$emit('udalost', {cas: 10, xs: xs, nst: cesta.typ});
         } else {
@@ -623,6 +542,34 @@ Vue.component('mycanvas', {
           break;
         case 20: this.prvok_SB(pr);
           break;
+      }
+      if (pr.odk != 0 && pr.id_prvky_kluc < 17) {
+        var odkazy = pr.odk.split("|");
+        if (pr.id_prvky_kluc == 16) {  // Výhybky
+          var i;
+          var cast = 0;
+          for (i = 0; i < odkazy.length; i++) {
+            if (odkazy[i] == "a") {
+              cast = 1;
+            } else if (odkazy[i] == "b") {
+              cast = 2;
+            } else {
+              if (cast == 0) {
+                this.myprv[odkazy[i]].stav = pr.stav;
+                this.prvok_XB(this.myprv[odkazy[i]]);  
+              } else if (cast == pr.sm) {
+                this.myprv[odkazy[i]].stav = pr.stav;
+                this.prvok_XB(this.myprv[odkazy[i]]);  
+              }
+            }
+          }
+        } else {
+          odkazy.forEach(x => {
+            var po = this.myprv[x];
+            po.stav = pr.stav;
+            this.prvok_XB(po);
+          });
+        }
       }
     },
     najdiOdkazy(pr) {

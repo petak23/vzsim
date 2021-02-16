@@ -46,7 +46,7 @@ Vue.component('mycanvas', {
         case 2:
         case 3:
         case 4:
-        case 5: this.prvok_XB(pr);  
+        case 5: this.prvok_XB(pr);
           break;
         case 6: 
         case 8: this.prvok_N(pr);
@@ -90,10 +90,10 @@ Vue.component('mycanvas', {
     mriezka() {
       var i;
       for (i = 0; i <= this.xmax_s; i++) {
-        this.drawLine((i*this.krokx), 0, (i*this.krokx), (this.ymax_s * this.kroky), 1, "#555555");
+        this.drawLine((i*this.krokx), 0, (i*this.krokx), (this.ymax_s * this.kroky), 1, "#555");
       }
       for (i = 0; i <= this.ymax_s; i++) {
-        this.drawLine(0, (i*this.kroky), (this.xmax_s * this.krokx), (i*this.kroky), 1, "#555555");
+        this.drawLine(0, (i*this.kroky), (this.xmax_s * this.krokx), (i*this.kroky), 1, "#555");
       }
     },
     sux(xs) { // x súradnica
@@ -122,6 +122,7 @@ Vue.component('mycanvas', {
         case  2: out = ['#1f1', '#1f1']; break; //vlak-zaver
         case  3: out = ['#f33', '#f33']; break; //obsadeny
         case  4: out = ['#f3d', '#f3d']; break; //porucha
+        case 72: out = ['#fc1', '#fc1']; break; //Označenie odkazov
         default: out = ['#999', '#999']; break; 
       }
       return out;
@@ -133,7 +134,9 @@ Vue.component('mycanvas', {
       a[0] = ((pr.c[0] & 4095) >> 8) % 10;
       a[1] = (((pr.c[0] & 4095) >> 4) & 15) % 10;
       a[2] = ((pr.c[0] & 4095) & 15) % 10;
-      var col = this.farbaStav(pr.stav, pr.id_prvky_kluc === 3 ? 1 : 0);
+      var ook = pr.id_prvky_kluc === 4 || pr.id_prvky_kluc === 5;
+      console.log("ook:"+ook+" pr.id_prvky_kluc:"+pr.id_prvky_kluc);
+      var col = this.farbaStav(ook ? 72 : pr.stav, pr.id_prvky_kluc === 3 ? 1 : 0);
       this.drawLine(xxs+this.kr2x*this.dx[a[0]], yys+this.kr2y*this.dy[a[0]], xxs+this.kr2x*this.dx[a[1]], yys+this.kr2y*this.dy[a[1]], 3, col[0]); 
       this.drawLine(xxs+this.kr2x*this.dx[a[1]], yys+this.kr2y*this.dy[a[1]], xxs+this.kr2x*this.dx[a[2]], yys+this.kr2y*this.dy[a[2]], 3, col[0]);
     },
@@ -206,27 +209,20 @@ Vue.component('mycanvas', {
       ctx.fillRect(xxs - k_l - (3 * this.kr2x), yys - this.kr2y + 2, (6 * this.kr2x) + k_l + k_r, 2*this.kr2y - 4);
       //nastupiste
       if ((pr.sm & 1) === 1) { this.drawLine(xxs - 3 * this.kr2x, yys + this.kr2y, xxs + 3 * this.kr2x, yys + this.kr2y, 2, '#FF9F03'); }
-      if ((pr.sm & 2) === 2) { this.drawLine(xxs - 3 * this.kr2x, yys - this.kr2y, xxs + 3 * this.kr2x, yys - this.kr2y, 2, '#FF9F03'); }
-      var fa_u, fa_v;
-      switch (pr.y) {
-        case 1: fa_v = '#f33'; fa_u = '#fff703'; break;//stoji a nema
-        case 2: fa_v = '#f33'; fa_u = '#000'; break;//stoji a ma>3
-        case 3: fa_v = '#fff703'; fa_u = '#000'; break;//1 min do odchodu
-        default: fa_v = '#000'; fa_u = '#DCDCDC';
-      }
+      if ((pr.sm & 2) === 2) { this.drawLine(xxs - 3 * this.kr2x, yys - this.kr2y, xxs + 3 * this.kr2x, yys - this.kr2y, 2, '#FF9F03'); } 
       var text_w_pol = ctx.measureText(ss).width / 2 + 4;
-      if (pr.y > 0) { 
-        ctx.fillStyle = fa_v;
+      /*if (pr.y > 0) { 
+        ctx.fillStyle = '#000';
         ctx.fillRect(xxs - k_l - (3 * this.kr2x) + 1, yys - this.kr2y + 2, xxs + (3 * this.kr2x) + k_r - 1, yys + this.kr2y - 2);     
-      }
+      }*/
       var col = this.farbaStav(pr.stav & 15);
       if (b === 0) { 
         this.drawLine(xxs - k_l  - (3 * this.kr2x), yys, xxs + k_r + (3 * this.kr2x), yys, 3, col[0]);
       } else {
         this.drawLine(xxs - k_l - (3 * this.kr2x), yys, xxs - text_w_pol, yys, 3, col[0]);
         this.drawLine(xxs + k_r + (3 * this.kr2x), yys, xxs + text_w_pol, yys, 3, col[0]);
-        ctx.fillStyle = fa_u;
-        ctx.font = "14px Verdana";
+        ctx.fillStyle = '#ddd';
+        ctx.font = "14px sans-serif";
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
         ctx.fillText(ss, xxs, yys+1); 
@@ -332,31 +328,16 @@ Vue.component('mycanvas', {
     * @param String text Text na vypísanie 
     * @param color farba Farba textu */
     kresliText(xxs, yys, smer_txt, text, farba) {
-      var ctx = this.canvas;
-      ctx.fillStyle = farba;
       var smu = (smer_txt & 15);
-      /*var korekcia_y = 0;
-      var smer = ['center','middle'];
-      switch (smu) {
-        case 1: smer = ['right', 'top']; break;
-        case 2: smer = ['center', 'top']; break;
-        case 3: smer = ['left', 'top']; break;
-        case 4: smer = ['right', 'middle']; korekcia_y = -2; break;
-        case 5: smer = ['center', 'middle']; korekcia_y = -2; break;
-        case 6: smer = ['left', 'middle']; korekcia_y = -2; break;
-        case 7: smer = ['right', 'bottom']; break;
-        case 8: smer = ['center', 'bottom']; break;
-        case 9: smer = ['left', 'bottom']; break;
-      }
-      ctx.textAlign = smer[0];
-      ctx.textBaseline = smer[1];*/
       var korekcia_y = (smu >= 4 && smu <= 6) ? -2 : 0;
       var align = ['right', 'center', 'left'];
       var valign = ['top', 'middle', 'bottom'];
-      ctx.textAlign = align[smu % 3];
+      var ctx = this.canvas;
+      ctx.fillStyle = farba;
+      ctx.textAlign = align[(smu % 3)-1];
       ctx.textBaseline = valign[parseInt(smu / 3)];
       ctx.strokeStyle = farba;
-      ctx.font = "14px Verdana";
+      ctx.font = "14px sans-serif";
       ctx.fillText(text, xxs + this.dx[smu] * this.kr2x, yys + this.dy[smu] * this.kr2y + korekcia_y);
     },
     
@@ -368,7 +349,7 @@ Vue.component('mycanvas', {
       ctx.fillRect(xxs - this.kr2x + 1, yys - this.kr2y + 1, 2*this.kr2x - 2, 2*this.kr2y - 2);
       ctx.textAlign = 'center';
       ctx.textBaseline = "middle";
-      ctx.font = "14px Courier New";
+      ctx.font = "14px sans-serif";
       if (pr.n[1] === 1) {  //Ak je viditeľný 
         var p = 3 - 2 * pr.sm;
         ctx.fillStyle = '#66DE57'; ctx.strokeStyle = '#66DE57'; //Základný stav voľný - zelená
@@ -386,55 +367,30 @@ Vue.component('mycanvas', {
       var yys = this.kroky*(this.suy(pr.xs) + 0.5);
       var ctx = this.canvas;
       ctx.lineWidth = "1";
-      ctx.strokeStyle = '#8888FF';
+      ctx.strokeStyle = '#88f';
       ctx.fillStyle = '#000';
       ctx.font = "14px Verdana";
       var b = pr.sm >> 1; //b-pocet riadkov
-      switch ((pr.sm & 1)) {
-        case 0:
-          ctx.strokeRect(xxs - this.kr2x, yys - this.kr2y + 1, 6 * this.kr2x, 2*this.kr2y * (b + 1) - 2);
-          ctx.textAlign = 'right';
-          ctx.textBaseline = 'middle';
-          ctx.strokeStyle = '#FFE498';
-          if (pr.stav === 0) {
-           for (var i = 0; i <= b; i++) { 
-             if (pr.c[i] > 0) { 
-               ctx.fillText(pr.c[i], xxs + this.kr2x * 5, yys - 2 + i * (2*this.kr2y - 1));
-             } 
-           }
-          } else {
-            ctx.fillText(pr.c[3], xxs + this.kr2x * 5, yys - 1);
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-            ctx.fillText("?", xxs + 2 * this.kr2x, yys + 2*this.kr2y - 2);
-            ctx.strokeStyle = '#8888FF'; 
-            ctx.fillText("A", xxs, yys + 2*this.kr2y - 2);
-            ctx.strokeStyle = '#FF8888'; 
-            ctx.fillText("N", xxs + this.kr2x * 4, yys + 2*this.kr2y - 2);
+      if ((pr.sm & 1) === 0) {
+        ctx.strokeRect(xxs - this.kr2x, yys - this.kr2y + 1, 6 * this.kr2x, 2*this.kr2y * (b + 1) - 2);
+        ctx.textAlign = 'right';
+        ctx.textBaseline = 'middle';
+        ctx.strokeStyle = '#fe9';
+        for (var i = 0; i <= b; i++) { 
+          if (pr.c[i] > 0) { 
+            ctx.fillText(pr.c[i], xxs + this.kr2x * 5, yys - 2 + i * (2*this.kr2y - 1));
+          } 
+        }
+      } else {
+        ctx.strokeRect(xxs - this.kr2x, yys + this.kr2y - 1, 6 * this.kr2x, 2 - 2*this.kr2y * (b + 1));
+        ctx.textAlign = 'right';
+        ctx.textBaseline = 'middle';
+        ctx.strokeStyle = '#FFE498';
+        for (var i = 0; i <= b; i++) { 
+          if (pr.c[i] > 0) { 
+            ctx.fillText(pr.c[i], xxs + this.kr2x * 5, yys - 2 - i * (2*this.kr2y - 1));
           }
-         break;
-       case 1:
-          ctx.strokeRect(xxs - this.kr2x, yys + this.kr2y - 1, 6 * this.kr2x, 2 - 2*this.kr2y * (b + 1));
-          ctx.textAlign = 'right';
-          ctx.textBaseline = 'middle';
-          ctx.strokeStyle = '#FFE498';
-          if (pr.stav === 0) {
-           for (var i = 0; i <= b; i++) { 
-             if (pr.c[i] > 0) { 
-               ctx.fillText(pr.c[i], xxs + this.kr2x * 5, yys - 2 - i * (2*this.kr2y - 1));
-             }
-           }
-          } else {
-            ctx.fillText(pr.c[3], xxs + this.kr2x * 5, yys - 2*this.kr2y - 1);
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-            ctx.fillText("?", xxs + 2 * this.kr2x, yys - 3);
-            ctx.strokeStyle = '#8888FF'; 
-            ctx.fillText("A", xxs, yys - 3);
-            ctx.strokeStyle = '#FF8888'; 
-            ctx.fillText("N", xxs + this.kr2x * 4, yys - 3);
-          }
-         break;
+        }
       }
     }
   }

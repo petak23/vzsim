@@ -7,7 +7,7 @@ use Nette\Utils\Json;
 
 /**
  * Prezenter pre beh simulácie.
- * Posledna zmena(last change): 22.01.2021
+ * Posledna zmena(last change): 12.02.2021
  *
  *	Modul: FRONT
  *
@@ -15,7 +15,7 @@ use Nette\Utils\Json;
  * @copyright  Copyright (c) 2021 - 2021 Ing. Peter VOJTECH ml.
  * @license
  * @link       http://petak23.echo-msz.eu
- * @version 1.0.0
+ * @version 1.0.1
  */
 class RunPresenter extends BasePresenter {
   
@@ -83,6 +83,9 @@ class RunPresenter extends BasePresenter {
         'zc' => $c->zc,
         'kc' => $c->kc,
         'vyh' => $c->vyhybky,
+        'prvky_cesty' => explode('|', $c->prvky_cesty),
+        'prvky_odvrat' => explode('|', $c->prvky_odvrat),    
+        'vmax' => $c->vmax
       ];
     }
     return $out;
