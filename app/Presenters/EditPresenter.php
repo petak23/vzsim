@@ -7,7 +7,7 @@ use Nette\Utils\Json;
 
 /**
  * Prezenter pre editáciu oblasti.
- * Posledna zmena(last change): 12.02.2021
+ * Posledná zmena(last change): 17.02.2021
  *
  *	Modul: FRONT
  *
@@ -15,7 +15,7 @@ use Nette\Utils\Json;
  * @copyright  Copyright (c) 2021 - 2021 Ing. Peter VOJTECH ml.
  * @license
  * @link       http://petak23.echo-msz.eu
- * @version 1.0.4
+ * @version 1.0.5
  */
 class EditPresenter extends BasePresenter {
   
@@ -66,7 +66,7 @@ class EditPresenter extends BasePresenter {
     $this->prvky = $this->rtoArray($this->oblast_prvky->findBy(['id_oblast'=>$id]));
     $this->cesty = $this->oblast_cesty->findBy(['id_oblast'=>$id]);
     foreach($this->cesty as $cesta) {
-      if ($cesta->prvky_cesty == null)
+      //if ($cesta->prvky_cesty == null)
         $this->test_cesty($cesta);
     }
     $this->flashRedirect(["Edit:", $id], "Vygenerované v poriadku!", "success");
@@ -89,17 +89,11 @@ class EditPresenter extends BasePresenter {
         if ($pr['id_prvky_kluc'] != 4) array_push($prvky_cesty, $pr['xs']); // Ak prvok existuje a nie je UO tak vlož do poľa
         if ($pr['xs'] == $cesta->kc) {        // Je koniec cesty?
           $final = 0;
-          //if (pr.odk > 0) {                   // Existujú k prvku prvky UO 
-          //  prvky_odkaz = prvky_odkaz.concat(this.najdiOdkazy(pr));
-          //}
         } else {                              // Najdi nasledujúci
           switch ($pr['id_prvky_kluc']) {
             case 1: //UB
             case 3: //KB
               $k = ($sm0 == 1) ? ($pr['c'][0] & 15) : ($pr['c'][0] >> 8); // Číslo cesty v smere ku koncu cesty
-              //if (pr.odk > 0) {                            // Existujú k prvku prvky UO 
-              //  prvky_odkaz = prvky_odkaz.concat(this.najdiOdkazy(pr));
-              //}
               $xs += $this->dx[$k] + $this->dy[$k] * $this->xmax; // Nájdi ďaľší prvok
               $cisvch = 10 - $k;                             // Nájdi číslo vchodu pre nasledujúci úsek
               if ($rychl > $pr['n'][1]) $rychl = $pr['n'][1];        // Test maximálnej rýchlosti
@@ -132,9 +126,6 @@ class EditPresenter extends BasePresenter {
                 array_push($prvky_odvrat, $pr['c'][2]);
               }
               if ($rychl > $pr['n'][2-$pol]) $rychl = $pr['n'][2-$pol];       // Test maximálnej rýchlosti
-              //if (($pr['odk'] & $pol) > 0) {                             // Existujú k prvku prvky UO
-              //  prvky_odkaz = prvky_odkaz.concat(this.najdiOdkazy(pr));
-              //}
               $k = $pr['c'][$pol-1] & 4095;                     // Spočítaj číslo odchodu z prvku (num. klávesnica)
               $k = ($sm0 === 1) ? $k & 15 : $k >> 8;            // ok       
               $xs += $this->dx[$k] + $this->dy[$k] * $this->xmax;   // Nájdenie xs nasledujúceho prvku
@@ -151,17 +142,17 @@ class EditPresenter extends BasePresenter {
     }
     while ($final > 0);
 
-//    prvky_odvrat.forEach(x => {
-//        if (prvky_cesty.indexOf(x) > -1) {        
-//        }
-//      });
-      $cesta_new = $this->oblast_cesty->oprav($cesta->id, [
-        'prvky_cesty' => implode('|', $prvky_cesty),      // Do cesty vlož jej prvky
-        'prvky_odvrat' => implode('|', $prvky_odvrat),    // Do cesty vlož odvratné výhybky
-        //'prvky_odkaz' => implode('|', $prvky_odkaz);      // Do cesty vlož odkazy na prvky
-        'vmax' => $rychl                                  // Do cesty vlož max. rýchlosť
-      ]);
-    //dumpe($cesta_new);
+    $out = [];                                          // Vypusť z odvratov prvky, ktoré sú súčasť cesty
+    foreach($prvky_odvrat as $p) {
+      if (!in_array($p, $prvky_cesty)) {
+        $out[] = $p;
+      }
+    }
+    $cesta_new = $this->oblast_cesty->oprav($cesta->id, [
+      'prvky_cesty' => implode('|', $prvky_cesty),      // Do cesty vlož jej prvky
+      'prvky_odvrat' => implode('|', $out),             // Do cesty vlož odvratné výhybky
+      'vmax' => $rychl                                  // Do cesty vlož max. rýchlosť
+    ]);
     return $cesta_new;
   }
 

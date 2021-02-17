@@ -241,7 +241,7 @@ Vue.component('mycanvas', {
       ctx.lineWidth = "1";
       ctx.strokeStyle = fa_s;
       ctx.fillStyle = fa_v;
-      ctx.fillRect(xxs - (this.kr2x / 2), yys - this.kr2y, this.kr2x, 2*this.kr2y);
+      ctx.fillRect(xxs - this.kr2x, yys - this.kr2y, 2*this.kr2x, 2*this.kr2y);
       ctx.stroke();
       var a = [[0, 0, 0], [0, 0, 0]];
       for (var i = 0;  i < 2; i++) {
@@ -469,47 +469,51 @@ Vue.component('mycanvas', {
       });
       if (cislo_cesty != 0 && this.mycst[cislo_cesty].prvky_cesty.length > 0) { // Cesta existuje a mám prvky cesty
         this.myprv[cesta_z.xs].c[3] = cesta_k.xs; // Zapíš do návestidla koniec cesty
-        var cisvyh = 0;                           // Poradové číslo výhybky vrámci cesty
+        //var cisvyh = 0;                           // Poradové číslo výhybky vrámci cesty
         var volnost = true;
         this.mycst[cislo_cesty].prvky_cesty.forEach(x => {  // Zisti volnost cesty
-          var pr = this.myprv[x];
-          if ((pr.stav & 15) != 0) {         // Je prvok obsadený? Dôležité sú stavy od 1..15 po zmazaní vyšších bitov
+          if ((this.myprv[x].stav & 15) != 0) {             // Je prvok obsadený? Dôležité sú stavy od 1..15 po zmazaní vyšších bitov
             volnost = false;
           }
         });
-        if (volnost) {                            // Cesta je volná
-          this.mycst[cislo_cesty].prvky_cesty.forEach(x => {
-            if (this.myprv[x].id_prvky_kluc === 16) {          // Do prvkov výhybiek zapíš ich polohu
-              this.myprv[x].sm = this.mycst[cislo_cesty].vyh[cisvyh];
-              cisvyh++;
-            }
-          });
-          this.mycst[cislo_cesty].prvky_odkaz = [];
-          return this.mycst[cislo_cesty];
-        } else { return 0;}                       // Cesta existuje ale je obsadená
-      } else {                                    // Cesta neexzistuje alebo nemá prvky
+        return (volnost) ? this.mycst[cislo_cesty] : 0; // Cesta je volná ta vrat cestu inak 0
+      } else {                                          // Cesta neexzistuje alebo nemá prvky
         return null;
       }
       
     },
     postav_cestu(cesta) {
-      cesta.prvky_cesty.forEach(xs => {
-        if (xs == cesta.zc) {
-          this.prvok_N(this.myprv[xs]);
-          this.$emit('udalost', {cas: 10, xs: xs, nst: cesta.typ});
-        } else {
-          //Zapíš do prvkov záver cesty okrem návestidiel
-          if (this.myprv[xs].id_prvky_kluc !== 6 && this.myprv[xs].id_prvky_kluc !== 8) {
-            this.myprv[xs].stav = cesta.typ;
+      var vyh = 0;                              // Počet momentálne nesprávne prestavených výhybiek
+      var cisvyh = 0;                           // Poradové číslo výhybky vrámci cesty
+      var for_emit = [];
+      cesta.prvky_cesty.forEach(xs => {         // Ošetri polohu výhybiek
+        if (this.myprv[xs].id_prvky_kluc == 16) {  // Prvok je VN?
+          if (this.myprv[xs].sm != cesta.vyh[cisvyh]) {  // Nie je správne prestavený
+            vyh++;
+            if (vyh < 4) {                      // Max sa prestavuje najviac 3 výhybky
+              this.myprv[xs].sm = parseInt(cesta.vyh[cisvyh]) + 64;
+              this.prvok_VN(this.myprv[xs]);
+              for_emit.push({xs: xs, sm: cesta.vyh[cisvyh]});
+            }
           }
-          this.kresli_prvok(this.myprv[xs]);
+          cisvyh++;
         }
       });
-      if (cesta.prvky_odkaz.length) {       //Ak mám odkazy
-        cesta.prvky_odkaz.forEach(xo => {
-          this.myprv[xo].stav = cesta.typ;
-          this.prvok_XB(this.myprv[xo]);
+      if (vyh == 0) { // Všetky výhybky sú správne prestavené
+        cesta.prvky_cesty.forEach(xs => {
+          if (xs == cesta.zc) {
+            this.prvok_N(this.myprv[xs]);
+            this.$emit('udalost', {cas: 10, xs: xs, nst: cesta.typ, do: 0});
+          } else {
+            //Zapíš do prvkov záver cesty okrem návestidiel
+            if (this.myprv[xs].id_prvky_kluc !== 6 && this.myprv[xs].id_prvky_kluc !== 8) {
+              this.myprv[xs].stav = cesta.typ;
+            }
+            this.kresli_prvok(this.myprv[xs]);
+          }
         });
+      } else {
+        this.$emit('udalost', {cas: 25, xs: for_emit, nst: cesta});
       }
     },
     kresli_prvok(pr) {
@@ -590,8 +594,19 @@ Vue.component('mycanvas', {
   },
   watch: {
     urob: function (newUrob, oldUrob) {
-      this.myprv[newUrob.xs].stav = newUrob.nst;  // Zmeň stav prvku
-      this.kresli_prvok(this.myprv[newUrob.xs]);  // Vykresli ho
+      if (!!newUrob.xs && newUrob.xs.constructor === Array) { // Je to pole? https://stackoverflow.com/questions/4775722/how-to-check-if-an-object-is-an-array
+        newUrob.xs.forEach(pr => {
+          if (this.myprv[pr.xs].id_prvky_kluc == 16 && pr.sm > 0) { // Je to VN a prestavuje sa
+            this.myprv[pr.xs].sm = pr.sm;     // Zmenň polohu výhybky
+            this.kresli_prvok(this.myprv[pr.xs]);  // Vykresli VN
+            this.postav_cestu(newUrob.nst);
+          }
+        });
+      } else {
+        this.myprv[newUrob.xs].stav = newUrob.nst;  // Zmeň stav prvku
+        this.kresli_prvok(this.myprv[newUrob.xs]);  // Vykresli ho
+      }
+
     }
   }
 });
@@ -632,12 +647,10 @@ Vue.component('zoznam', {
 });
 
 Vue.component('casovac', {
-  props: {
-    udalost: Object
-  },
+  props: ['udalost'],
   data: function () {
     return {
-      time: 863900,//288000,             // Počiatočný čas v desatinách sekúnd 8:00 = 8 * 60 * 60 * 10
+      time: 288000,             // Počiatočný čas v desatinách sekúnd 8:00 = 8 * 60 * 60 * 10
       button_txt: "Spusť",      // Text tlačítka na spustenie času
       timer:null,               // Timer
       isRunning: false,         // Príznak či hodiny bežia

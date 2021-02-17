@@ -10,13 +10,13 @@ use Nette\Security;
 
 /**
  * Sign in form
- * Last change 06.10.2020
+ * Last change 16.02.2021
  * 
  * @author     Ing. Peter VOJTECH ml. <petak23@gmail.com>
- * @copyright  Copyright (c) 2012 - 2020 Ing. Peter VOJTECH ml.
+ * @copyright  Copyright (c) 2012 - 2021 Ing. Peter VOJTECH ml.
  * @license
  * @link       http://petak23.echo-msz.eu
- * @version    1.1.0
+ * @version    1.1.1
  */
 class SignInFormFactory {
   /** @var User */
@@ -39,8 +39,8 @@ class SignInFormFactory {
   }
   
   /**
-   * Prihlasovaci formular
-   * @var string $language Skratka aktualneho jazyka
+   * Prihlasovací formulár
+   * @var string $language Skratka aktuálneho jazyka
    * @return Form */
   public function create($language): Form  {
     $form = new Form();
@@ -48,29 +48,29 @@ class SignInFormFactory {
     $this->texts->setLanguage($language);
     $form->setTranslator($this->texts);
     $form->addText('email', 'SignInForm_email')
-         ->setHtmlType('email')
-         ->setAttribute('autofocus', 'autofocus')
-         ->setHtmlAttribute('size', 0)->setHtmlAttribute('maxlength', 100)
-         ->setHtmlAttribute('placeholder', 'SignInForm_email')
-         ->addRule(Form::EMAIL, 'Musíte zadať platnú e-mailovú adresu!')
-				 ->setRequired('SignInForm_email_req');
+          ->setHtmlType('email')
+          ->setAttribute('autofocus', 'autofocus')
+          ->setHtmlAttribute('size', 0)->setHtmlAttribute('maxlength', 100)
+          ->setHtmlAttribute('placeholder', 'SignInForm_email')
+          ->addRule(Form::EMAIL, 'Musíte zadať platnú e-mailovú adresu!')
+          ->setRequired('SignInForm_email_req');
 		$form->addPassword('password', 'SignInForm_password')
-         ->setHtmlAttribute('size', 0)
-         ->setHtmlAttribute('placeholder', 'SignInForm_password')
-         ->addRule(Form::MIN_LENGTH, 'SignInForm_password_min_lenght', 3)
-				 ->setRequired('SignInForm_password_req');
+          ->setHtmlAttribute('size', 0)
+          ->setHtmlAttribute('placeholder', 'SignInForm_password')
+          ->addRule(Form::MIN_LENGTH, 'SignInForm_password_min_lenght', 3)
+          ->setRequired('SignInForm_password_req');
 		$form->addCheckbox('remember', 'SignInForm_remember');
     $form->addSubmit('login', 'SignInForm_login')
-         ->setAttribute('class', 'btn btn-success')
-         ->onClick[] = [$this, 'signInFormSubmitted'];
+          ->setAttribute('class', 'btn btn-success')
+          ->onClick[] = [$this, 'signInFormSubmitted'];
     $form->addSubmit('forgottenPassword', 'SignInForm_forgottenPassword')
-         ->setAttribute('class', 'btn btn-link');
+          ->setAttribute('class', 'btn btn-link');
 		return $form;
 	}
   
   /** 
-   * Overenie po prihlaseni
-   * @param \Nette\Forms\Controls\SubmitButton $button Data formulara */
+   * Overenie po prihlásení
+   * @param \Nette\Forms\Controls\SubmitButton $button Data formulára */
 	public function signInFormSubmitted(\Nette\Forms\Controls\SubmitButton $button) {
     $values = $button->getForm()->getValues();
     try {
