@@ -8,14 +8,15 @@
         @urob="urob = $event"
       ></casovac>
       <nastavenie></nastavenie>
-      <zoznam></zoznam>
+      <zoznam
+        vlaky="{$jvlaky}"
+      ></zoznam>
     </div>
   </article>
   <article class="col-12 stred">
     <mycanvas 
       prvky="{$jprvky}"
       cesty="{$jcesty}"
-      vlaky="{$jvlaky}"
       xmax_s=63
       ymax_s=28
       @text_g="text_g = $event"

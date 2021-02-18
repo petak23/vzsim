@@ -3,7 +3,7 @@ Vue.component('mycanvas', {
   props: {
     prvky: String,
     cesty: String,
-    vlaky: String,
+//    vlaky: String,
     xmax_s: String,
     ymax_s: String,
     urob: Object
@@ -38,9 +38,9 @@ Vue.component('mycanvas', {
     mycst() {
       return JSON.parse(this.cesty);
     },
-    myvlk() {
-      return JSON.parse(this.vlaky);
-    },
+//    myvlk() {
+//      return JSON.parse(this.vlaky);
+//    },
     xmax() {
       return (this.xmax_s * this.krokx);
     },
@@ -483,17 +483,30 @@ Vue.component('mycanvas', {
       
     },
     postav_cestu(cesta) {
-      var vyh = 0;                              // Počet momentálne nesprávne prestavených výhybiek
-      var cisvyh = 0;                           // Poradové číslo výhybky vrámci cesty
-      var for_emit = [];
-      cesta.prvky_cesty.forEach(xs => {         // Ošetri polohu výhybiek
-        if (this.myprv[xs].id_prvky_kluc == 16) {  // Prvok je VN?
-          if (this.myprv[xs].sm != cesta.vyh[cisvyh]) {  // Nie je správne prestavený
-            vyh++;
-            if (vyh < 4) {                      // Max sa prestavuje najviac 3 výhybky
-              this.myprv[xs].sm = parseInt(cesta.vyh[cisvyh]) + 64;
+      var vyh = 0;                                    // Počet momentálne nesprávne prestavených výhybiek
+      var cisvyh = 0;                                 // Poradové číslo výhybky vrámci cesty
+      var for_emit = [];                              // Pole prvkov pre $emit
+      var dvojica = [];                               // Pole pre dvojicu výhybiek
+      cesta.prvky_cesty.forEach(xs => {               // Ošetri polohu výhybiek
+        var pr = this.myprv[xs];                      // Pre skrátenie zápisov
+        if (pr.id_prvky_kluc == 16) {                 // Prvok je VN?
+          if (pr.sm != cesta.vyh[cisvyh]) {           // Nie je správne prestavený
+            if (vyh < 4 && this.myprv[xs].sm < 64) {  // Max sa prestavuje najviac 3 výhybky a neprestavuje sa
+              this.myprv[xs].sm = parseInt(cesta.vyh[cisvyh]) + 64; // Príznak prestavovania
               this.prvok_VN(this.myprv[xs]);
-              for_emit.push({xs: xs, sm: cesta.vyh[cisvyh]});
+              if (pr.c[2] > 0 && dvojica.length == 0) { // Výhybka má dvojicu a je prvá
+                dvojica.push(pr.xs); 
+              } else if (pr.c[2] > 0 && dvojica.length > 0) {         // Výhybka má dvojicu a je druhá
+                dvojica.push(pr.xs);
+                for_emit.push({cas: 50, xs: dvojica, sm: cesta.vyh[cisvyh]}); // Priprav pre $emit
+                dvojica = [];                         // Vymazanie poľa
+                vyh++;
+              } else {
+                for_emit.push({cas: 25, xs: xs, sm: cesta.vyh[cisvyh]});  // Priprav pre $emit
+                vyh++;
+              }
+            } else if (this.myprv[xs].sm >= 64) {     // Ak sa prestavuje tak započítaj
+              vyh++;
             }
           }
           cisvyh++;
@@ -503,7 +516,7 @@ Vue.component('mycanvas', {
         cesta.prvky_cesty.forEach(xs => {
           if (xs == cesta.zc) {
             this.prvok_N(this.myprv[xs]);
-            this.$emit('udalost', {cas: 10, xs: xs, nst: cesta.typ, do: 0});
+            this.$emit('udalost', {cas: 10, xs: xs, nst: cesta});
           } else {
             //Zapíš do prvkov záver cesty okrem návestidiel
             if (this.myprv[xs].id_prvky_kluc !== 6 && this.myprv[xs].id_prvky_kluc !== 8) {
@@ -513,7 +526,9 @@ Vue.component('mycanvas', {
           }
         });
       } else {
-        this.$emit('udalost', {cas: 25, xs: for_emit, nst: cesta});
+        if (for_emit.length > 0) {
+          this.$emit('udalost', {cas: 25, prvky: for_emit, nst: cesta});
+        }
       }
     },
     kresli_prvok(pr) {
@@ -595,18 +610,23 @@ Vue.component('mycanvas', {
   watch: {
     urob: function (newUrob, oldUrob) {
       if (!!newUrob.xs && newUrob.xs.constructor === Array) { // Je to pole? https://stackoverflow.com/questions/4775722/how-to-check-if-an-object-is-an-array
-        newUrob.xs.forEach(pr => {
-          if (this.myprv[pr.xs].id_prvky_kluc == 16 && pr.sm > 0) { // Je to VN a prestavuje sa
-            this.myprv[pr.xs].sm = pr.sm;     // Zmenň polohu výhybky
-            this.kresli_prvok(this.myprv[pr.xs]);  // Vykresli VN
-            this.postav_cestu(newUrob.nst);
+        newUrob.xs.forEach(xs => {
+          if (this.myprv[xs].id_prvky_kluc == 16 && newUrob.sm > 0) { // Je to VN a prestavuje sa
+            this.myprv[xs].sm = newUrob.sm;     // Zmeň polohu výhybky
+            this.kresli_prvok(this.myprv[xs]);  // Vykresli VN
           }
         });
+        this.postav_cestu(newUrob.nst);
       } else {
-        this.myprv[newUrob.xs].stav = newUrob.nst;  // Zmeň stav prvku
-        this.kresli_prvok(this.myprv[newUrob.xs]);  // Vykresli ho
+        if (this.myprv[newUrob.xs].id_prvky_kluc == 16 && newUrob.sm > 0) { // Je to VN a prestavuje sa
+          this.myprv[newUrob.xs].sm = newUrob.sm;     // Zmeň polohu výhybky
+          this.kresli_prvok(this.myprv[newUrob.xs]);  // Vykresli VN
+          this.postav_cestu(newUrob.nst);
+        } else {
+          this.myprv[newUrob.xs].stav = newUrob.nst.typ;  // Zmeň stav prvku
+          this.kresli_prvok(this.myprv[newUrob.xs]);  // Vykresli ho
+        }
       }
-
     }
   }
 });
@@ -622,26 +642,90 @@ Vue.component('nastavenie', {
 
 Vue.component('zoznam', {
   props: {
-    text_i: String
+    text_i: String,
+    vlaky: String,
   },
-  data: function () {
-    return {
-      vlaky: ["Os  7815 120m 120km/h PP -> ZA", 
-              "Ex    75  80m 160km/h PP -> ZA", 
-              "Mn 81238 420m  80km/h Mn -> PC", 
-              "R    602 200m 140km/h ZA -> PC", 
-              "Vn 62201 620m  90km/h PP -> ZA", 
-              "Ex    74  80m 160km/h ZA -> PP",
-              "Mn 81238 420m  80km/h Mn -> PC", 
-              "R    602 200m 140km/h ZA -> PC", 
-              "Vn 62201 620m  90km/h PP -> ZA", 
-              "Ex    74  80m 160km/h ZA -> PP", 
-            ]
+  computed: {
+    myvlk() {
+      return JSON.parse(this.vlaky);
+    },
+  },
+  filters: {
+    cislovlaku: function (value) {
+      if (!value) return ''
+      value = value.toString()
+      var typ_vlaku;
+      switch (value.length) {
+      case 1:
+      case 2: typ_vlaku ='EC';
+        break;
+      case 3: typ_vlaku = (['1','2','3','4','5'].includes(value[0])) ? 'IC' : 'R';
+        break;
+      case 4:
+              if ((value[0]='1') && (['0','1','2','3','4','5','6'].includes(value[1]))) { typ_vlaku ='Rp'
+              } else {
+                typ_vlaku = ((value[0]='1') && (['7','8','9'].includes(value[1]))) ? 'Zr' : 'Os';
+                if ((value[0]='2')&&(value[1]='8')&&(value[2]='8')) typ_vlaku = 'Sv';
+              }
+        break;
+      case 5:
+        switch (parseInt(value[0])) {
+          case 1: typ_vlaku = (['0','1','2','3','4','5','6'].includes(value[2])) ? 'R' : 'Os';
+            break;
+          case 2: typ_vlaku ='Os';
+          case 3:
+          case 4: typ_vlaku='Pn';
+            break;
+          case 5:
+            switch (parseInt(value[3])) {
+              case 0: typ_vlaku ='Nex';
+                break;
+              case 1:
+              case 2: typ_vlaku ='Rn';
+                break;
+              case 3:
+              case 4: typ_vlaku='KPS';
+                break;
+              case 5:
+              case 6:
+              case 7: typ_vlaku='Sn';
+                break;
+              case 8:
+              case 9: typ_vlaku='Vn';
+            }
+          case 6: typ_vlaku ='Pn';
+            break;
+          case 7: typ_vlaku ='Lv';
+            break;
+          case 8: typ_vlaku = (['0','1','2','3','4','5','6','7'].includes(value[3])) ? 'Mn' : 'Vl';
+            break;
+          case 9: typ_vlaku = 'Pv';
+        }
+        break;
+      }
+      for (var i = value.length; i < 5; i++) {
+        value = "\u00A0"+value;
+      }
+      for (var i = typ_vlaku.length; i < 3; i++) {
+        typ_vlaku += "\u00A0";
+      }
+      return typ_vlaku+value;
+    },
+    dlzkatextpred: function (v, l) {
+      for (var i = v.length; i < l; i++) {
+        v = "\u00A0"+v;
+      }
+      return v;
     }
   },
   template: `
     <div class="col-6 bg-primary zoznam">
-      <ul><li v-for="vl in vlaky">{{vl}}</li></ul>
+      <ul>
+        <li v-for="vl in myvlk">
+          {{vl.cislo | cislovlaku}}, {{vl.dl | dlzkatextpred(3)}}0m, 
+          {{vl.ry | dlzkatextpred(3)}}km/h, {{vl.mz}}<i class="fas fa-long-arrow-alt-right"></i>{{vl.mo}}
+        </li>
+      </ul>
     </div>
     `
 });
@@ -743,9 +827,16 @@ Vue.component('casovac', {
   },
   watch: {
     udalost: function (newUdalost, oldUdalost) {
-      newUdalost.cas += this.time;
-      this.casova_fronta.push(newUdalost);
-      this.casova_fronta.sort(function(a, b){return a.time - b.time});
+      if (!!newUdalost.prvky && newUdalost.prvky.constructor === Array) { // Je to pole? https://stackoverflow.com/questions/4775722/how-to-check-if-an-object-is-an-array
+        newUdalost.prvky.forEach(pr => {
+          pr.cas += this.time;
+          this.casova_fronta.push({cas: pr.cas, xs: pr.xs, nst: newUdalost.nst, sm: pr.sm});
+        });
+      } else {
+        newUdalost.cas += this.time;
+        this.casova_fronta.push(newUdalost);  
+      }
+      this.casova_fronta.sort(function(a, b){return a.cas - b.cas;});
     }
   },
   template: `
