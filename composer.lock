@@ -107,16 +107,16 @@
         },
         {
             "name": "latte/latte",
-            "version": "v2.10.2",
+            "version": "v2.10.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/nette/latte.git",
-                "reference": "2f8dd896472b8a2f2069934f128a02566631d876"
+                "reference": "dd2c58863e830c22a2c6b85af63f37b829d255df"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/nette/latte/zipball/2f8dd896472b8a2f2069934f128a02566631d876",
-                "reference": "2f8dd896472b8a2f2069934f128a02566631d876",
+                "url": "https://api.github.com/repos/nette/latte/zipball/dd2c58863e830c22a2c6b85af63f37b829d255df",
+                "reference": "dd2c58863e830c22a2c6b85af63f37b829d255df",
                 "shasum": ""
             },
             "require": {
@@ -182,9 +182,9 @@
             ],
             "support": {
                 "issues": "https://github.com/nette/latte/issues",
-                "source": "https://github.com/nette/latte/tree/v2.10.2"
+                "source": "https://github.com/nette/latte/tree/v2.10.3"
             },
-            "time": "2021-02-08T08:16:26+00:00"
+            "time": "2021-02-22T11:17:13+00:00"
         },
         {
             "name": "nette/application",
@@ -865,22 +865,22 @@
         },
         {
             "name": "nette/mail",
-            "version": "v3.1.5",
+            "version": "v3.1.6",
             "source": {
                 "type": "git",
                 "url": "https://github.com/nette/mail.git",
-                "reference": "e072486ef2dbb533189f36a53c020f06b7659f4f"
+                "reference": "d5035afcb733ff76b353b8a126a1a6fd560005de"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/nette/mail/zipball/e072486ef2dbb533189f36a53c020f06b7659f4f",
-                "reference": "e072486ef2dbb533189f36a53c020f06b7659f4f",
+                "url": "https://api.github.com/repos/nette/mail/zipball/d5035afcb733ff76b353b8a126a1a6fd560005de",
+                "reference": "d5035afcb733ff76b353b8a126a1a6fd560005de",
                 "shasum": ""
             },
             "require": {
                 "ext-iconv": "*",
                 "nette/utils": "^3.1",
-                "php": ">=7.1"
+                "php": ">=7.1 <8.1"
             },
             "conflict": {
                 "nette/di": "<3.0-stable"
@@ -933,9 +933,9 @@
             ],
             "support": {
                 "issues": "https://github.com/nette/mail/issues",
-                "source": "https://github.com/nette/mail/tree/v3.1.5"
+                "source": "https://github.com/nette/mail/tree/v3.1.6"
             },
-            "time": "2020-11-02T16:08:27+00:00"
+            "time": "2021-02-24T20:29:52+00:00"
         },
         {
             "name": "nette/neon",
@@ -1005,16 +1005,16 @@
         },
         {
             "name": "nette/php-generator",
-            "version": "v3.5.2",
+            "version": "v3.5.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/nette/php-generator.git",
-                "reference": "41dcc5d1cb322835e5950a76515166c90923c6b7"
+                "reference": "119f01a7bd590469cb01b538f20a125a28853626"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/nette/php-generator/zipball/41dcc5d1cb322835e5950a76515166c90923c6b7",
-                "reference": "41dcc5d1cb322835e5950a76515166c90923c6b7",
+                "url": "https://api.github.com/repos/nette/php-generator/zipball/119f01a7bd590469cb01b538f20a125a28853626",
+                "reference": "119f01a7bd590469cb01b538f20a125a28853626",
                 "shasum": ""
             },
             "require": {
@@ -1067,9 +1067,9 @@
             ],
             "support": {
                 "issues": "https://github.com/nette/php-generator/issues",
-                "source": "https://github.com/nette/php-generator/tree/v3.5.2"
+                "source": "https://github.com/nette/php-generator/tree/v3.5.3"
             },
-            "time": "2021-01-19T13:02:23+00:00"
+            "time": "2021-02-24T18:40:21+00:00"
         },
         {
             "name": "nette/robot-loader",

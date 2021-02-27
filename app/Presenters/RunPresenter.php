@@ -7,7 +7,7 @@ use Nette\Utils\Json;
 
 /**
  * Prezenter pre beh simulácie.
- * Posledna zmena(last change): 12.02.2021
+ * Posledna zmena(last change): 25.02.2021
  *
  *	Modul: FRONT
  *
@@ -15,7 +15,7 @@ use Nette\Utils\Json;
  * @copyright  Copyright (c) 2021 - 2021 Ing. Peter VOJTECH ml.
  * @license
  * @link       http://petak23.echo-msz.eu
- * @version 1.0.1
+ * @version 1.0.2
  */
 class RunPresenter extends BasePresenter {
   
@@ -33,6 +33,7 @@ class RunPresenter extends BasePresenter {
   private $aktualna_oblast;
 
   private $prvky;
+  private $jprvky;
   
   private $cesty;
   
@@ -45,6 +46,7 @@ class RunPresenter extends BasePresenter {
     }
     $this->main_menu = array_merge([["nazov"=>"Ukonč oblasť: ".$this->aktualna_oblast->name, "odkaz"=>"Homepage:"]], $this->main_menu);
     $this->prvky = $this->oblast_prvky->findBy(['id_oblast'=>$id]);
+    $this->jprvky = $this->rtoArray($this->prvky);
     $this->cesty = $this->oblast_cesty->findBy(['id_oblast'=>$id]);
     $this->vvlaky = $this->vlaky->findBy(['id_oblast'=>$id]);
   }
@@ -53,7 +55,7 @@ class RunPresenter extends BasePresenter {
     $this->template->oblast = $this->aktualna_oblast;
     $this->template->prvky = $this->prvky;
     $this->template->jcesty = Json::encode($this->ctoArray($this->cesty));
-    $this->template->jprvky = Json::encode($this->rtoArray($this->prvky));
+    $this->template->jprvky = Json::encode($this->jprvky);
     $this->template->jvlaky = Json::encode($this->vtoArray($this->vvlaky));
   }
 
@@ -78,16 +80,33 @@ class RunPresenter extends BasePresenter {
   public function ctoArray($cesty) {
     $out = [];
     foreach($cesty as $c) {
+      $prvky_cesty = explode('|', $c->prvky_cesty);
+      $prvky_odvrat = explode('|', $c->prvky_odvrat);
+      $cisvyh = 0;
+      $prvky_cesty_upd = [];
+      $prvky_odvrat_upd = [];
+      foreach($prvky_cesty as $p) {
+        if ($this->jprvky[$p]['id_prvky_kluc'] == 16) {
+          $prvky_cesty_upd[] = $p."|".$c->vyhybky[$cisvyh];
+          if ($this->jprvky[$p]['c'][2] > 0 && in_array($this->jprvky[$p]['c'][2], $prvky_odvrat)) {
+            $prvky_odvrat_upd[] = $this->jprvky[$p]['c'][2]."|".$c->vyhybky[$cisvyh];
+          }
+          $cisvyh++;
+        } else {
+          $prvky_cesty_upd[] = $p;
+        }
+      }
       $out[$c->id] = [
         'typ' => $c->typ,
         'zc' => $c->zc,
         'kc' => $c->kc,
         'vyh' => $c->vyhybky,
-        'prvky_cesty' => explode('|', $c->prvky_cesty),
-        'prvky_odvrat' => explode('|', $c->prvky_odvrat),    
+        'prvky_cesty' => $prvky_cesty_upd,
+        'prvky_odvrat' => $prvky_odvrat_upd,    
         'vmax' => $c->vmax
       ];
     }
+    //dumpe($out);
     return $out;
   }
   

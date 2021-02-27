@@ -10,25 +10,59 @@ Vue.component('mycanvas', {
   },
   data: function () {
     return {
-      canvas: null,
-      krokx: 16,
-      kroky: 16,
+      canvas: null,         // Kresliaca plocha
+      krokx: 16,            // Veľkosť grafického políčka v px - smer x
+      kroky: 16,            // Veľkosť grafického políčka v px - smer y
          //0  1  2  3  4 5 6  7  8  9
-      dx: [0,-1, 0, 1,-1,0,1,-1, 0, 1], //posun x
-      dy: [0, 1, 1, 1, 0,0,0,-1,-1,-1], //posun y
-      cesta_z: null,
-      cesta_k: null
+      dx: [0,-1, 0, 1,-1,0,1,-1, 0, 1], //relatívny posun x podľa numerickej kl. od stredu
+      dy: [0, 1, 1, 1, 0,0,0,-1,-1,-1], //relatívny posun y
+      cesta_z: null,        // Začiatok cesty
+      cesta_k: null,        // Koniec cesty
+      // --- Kontextové menu
+      viewMenu: false,      // Zobrazenie
+      top: '0px',           // Pozícia
+      left: '0px',
+      menu_nadpis: "",      // Nadpis
+      menu_xs: 0,           // Prvok, pre ktorý je
+      menu_items: [],       // Položky
+      menus: {              // Kontextové menu pre jednotlivé prvky
+        6: [
+            { id: 1, txt: 'STOJ'},
+            { id: 2, txt: 'RC'},
+            { id: 3, txt: 'DN'},
+            { id: 4, txt: 'PC'},
+            { id: 5, txt: 'VC'},
+          ],
+        8: [
+            { id: 1, txt: 'STOJ'},
+            { id: 2, txt: 'RC'},
+            { id: 3, txt: 'DN'},
+            { id: 4, txt: 'PC'},
+          ],
+      },
+      // --- Kontextového menu - Koniec
     };
   },
   template: `
-      <canvas id="editPlace" 
+      <div>
+        <canvas id="editPlace" 
               :width="xmax" 
               :height="ymax" 
               style="background-color: #000" 
               @click.left.ctrl.exact="get_mouse('P', $event)"
               @click.middle="get_mouse('P', $event)"
               @click.left.exact="get_mouse('V', $event)"
-      />
+              @contextmenu.prevent="openMenu"
+        />
+        <ul id="right-click-menu" tabindex="-1"  v-if="viewMenu" 
+            @blur="closeMenu"  
+            :style="{ top:top, left:left}">
+            <li class="nadpis">{{menu_nadpis}}
+            <li v-for="it in menu_items" :key="it.id" @click.left="selectMenu(it.id)">
+              {{ it.txt }}
+            </li>
+        </ul>
+      </div>
     `,
   computed: {
     // Parsovanie JSON-u  na array
@@ -63,6 +97,53 @@ Vue.component('mycanvas', {
 		});
   },
   methods: {
+		// --- Kontextové menu - Sčasti prevzaté: https://codepen.io/SimpleSoftwareIO/pen/yNwYJb
+    setMenu(top, left) { 
+      this.top = top + 'px';
+      this.left = left + 'px';
+    },
+    closeMenu() {
+      this.viewMenu = false;
+      this.menu_xs = 0;
+      this.menu_nadpis = "";
+      this.menu_items = [];
+    },
+    openMenu(e) { 
+      var pr = this.myprv[this.getXs(e.offsetX, e.offsetY)];
+      if (typeof pr !== 'undefined') {
+        if (pr.id_prvky_kluc == 6 || pr.id_prvky_kluc == 8) { // Menu je pre návestidlo
+          this.menu_nadpis = pr.oznacenie != null ? pr.oznacenie : pr.xs;
+          this.menu_xs = pr.xs;
+          this.menu_items = this.menus[pr.id_prvky_kluc];
+          this.viewMenu = true;
+          this.setMenu(e.y, e.x);
+        }
+      }
+    },
+    selectMenu(id) {
+      var pr = this.myprv[this.menu_xs];
+      this.$emit('text_g', "Prijatý príkaz:" + this.menus[pr.id_prvky_kluc][id-1].txt + " pre prvok:" + pr.xs +"<||>P");
+      switch (this.menus[pr.id_prvky_kluc][id-1].txt) {
+        case 'STOJ':  this.myprv[this.menu_xs].stav = 0;
+                      this.kresli_prvok(this.myprv[this.menu_xs]);
+          break;
+        case 'RC':  this.myprv[this.menu_xs].stav = 5;
+                    this.kresli_prvok(this.myprv[this.menu_xs]);
+                    this.$emit('udalost', {cas: 50, xs: pr.xs, nst: 0, kc: pr.c[3], do: 'rusCestu'});
+          break;
+        case 'DN':  if (pr.c[3] > 0) {                                          // Je v návestidle zapísaný koniec cesty
+                      this.myprv[this.menu_xs].stav = this.myprv[pr.c[0]].stav; // Stav nastav podľa prvku za návestidlom
+                      this.kresli_prvok(this.myprv[this.menu_xs]);
+                    }
+          break;
+        case 'VC': this.zaciatok_cesty(pr, 'V');
+          break;
+        case 'PC': this.zaciatok_cesty(pr, 'P');
+          break;
+      }
+      this.closeMenu();
+    },
+		// --- Kontextové menu - Koniec
     drawLine(x1, y1, x2, y2, w, s) {
       let ctx = this.canvas;
       ctx.beginPath();
@@ -115,6 +196,12 @@ Vue.component('mycanvas', {
     prvok_XB(pr) {
       var xxs = this.krokx*(this.sux(pr.xs) + 0.5);
       var yys = this.kroky*(this.suy(pr.xs) + 0.5);
+      var ctx = this.canvas;
+      ctx.beginPath();
+      ctx.strokeStyle = "#000";
+      ctx.fillStyle = "#000";
+      ctx.fillRect(xxs - this.kr2x, yys - this.kr2y, 2*this.kr2x, 2*this.kr2y);
+      ctx.stroke();
       var a = [0, 0, 0];
       a[0] = ((pr.c[0] & 4095) >> 8) % 10;
       a[1] = (((pr.c[0] & 4095) >> 4) & 15) % 10;
@@ -184,7 +271,7 @@ Vue.component('mycanvas', {
       var xxs = this.krokx*(this.sux(pr.xs) + 0.5);
       var yys = this.kroky*(this.suy(pr.xs) + 0.5);
       var ctx = this.canvas;
-      var ss = ((pr.stav & 15) === 0) ? pr.n[0] : pr.c[3]; // Text na koľaji
+      var ss = ((pr.stav & 15) === 0) ? (pr.oznacenie != null ? pr.oznacenie : pr.n[0]) : pr.c[3]; // Text na koľaji
       var b = (ss !== 0) ? String(ss).length : 0;          // Dĺžka textu na koľaji
       var k_l = this.kr2x*(pr.c[0]>>4)*2; 
       var k_r = this.kr2x*(pr.c[0] & 15)*2;
@@ -215,7 +302,7 @@ Vue.component('mycanvas', {
         ctx.font = "14px Verdana";
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
-        ctx.fillText(ss, xxs, yys+1); 
+        ctx.fillText(ss, xxs, yys); 
       }
     },
     
@@ -275,6 +362,7 @@ Vue.component('mycanvas', {
         case 1: pozadie = '#000'; obris = '#fff'; break;    //Posun dovolený
         case 2: pozadie = '#000'; obris = '#1f1'; break;    //Volno
         case 4: pozadie = '#f2d'; obris = '#000'; break;    //Porucha
+        case 5: pozadie = '#00a'; obris = '#999'; break;    //Rušenie cesty
         case 16: pozadie = '#eee'; obris = '#999'; break;   //Označ zač. PC
         case 17: pozadie = '#eee'; obris = '#fff'; break;   //Označ zač. PC + Posun dovolený
         case 18: pozadie = '#eee'; obris = '#1f1'; break;   //Označ zač. PC + volno
@@ -335,21 +423,25 @@ Vue.component('mycanvas', {
       var xxs = this.krokx*(this.sux(pr.xs) + 0.5);
       var yys = this.kroky*(this.suy(pr.xs) + 0.5);
       var ctx = this.canvas;
-      ctx.fillStyle = (pr.n[1] === 1) ? '#000' : '#DCDCDC';
+      ctx.fillStyle = (pr.n[1] === 1) ? ((pr.stav & 4) === 4 ? '#ccc' : '#000') : '#ccc';
       ctx.fillRect(xxs - this.kr2x + 1, yys - this.kr2y + 1, 2*this.kr2x - 2, 2*this.kr2y - 2);
       ctx.textAlign = 'center';
       ctx.textBaseline = "middle";
       ctx.font = "14px sans-serif";
       if (pr.n[1] === 1) {  //Ak je viditeľný 
-        var p = 3 - 2 * pr.sm;
-        ctx.fillStyle = '#66DE57'; ctx.strokeStyle = '#66DE57'; //Základný stav voľný - zelená
-        if (pr.c[2] > 0) { ctx.strokeStyle = '#EE3355'; ctx.fillStyle = '#000';}                // Obsadený - červená
-        if (pr.dl > 0) { ctx.fillStyle = '#333'; ctx.strokeStyle = '#333'; }                  // Blokovany - čierny
-        if ((pr.stav & 4) === 4) { ctx.fillStyle = '#8888FF'; ctx.strokeStyle = '#8888FF';}      // Zmena smeru na AB - fialový
-        ctx.fillText(((pr.stav & 3) === 1 ? '»':'«'), xxs, yys);
+        //var p = 3 - 2 * pr.sm;
+        ctx.fillStyle = '#66DE57'; ctx.strokeStyle = '#66DE57';               //Základný stav voľný - zelená
+        if (pr.c[2] > 0) { ctx.strokeStyle = '#e35'; ctx.fillStyle = '#e35';} // Obsadený - červená
+        if (pr.dl > 0) { ctx.fillStyle = '#333'; ctx.strokeStyle = '#333'; }  // Blokovany - čierny
+        if ((pr.stav & 4) === 4) {                                            // Zmena smeru - fialový
+          ctx.fillStyle = '#88f'; ctx.strokeStyle = '#88f';
+          ctx.fillText('◊', xxs, yys);
+        } else {    
+          ctx.fillText(((pr.sm & 3) === 1 ? '»':'«'), xxs, yys);
+        }
       } else {  
         ctx.fillStyle = '#333'; ctx.strokeStyle = '#333';
-        ctx.fillText(((pr.stav & 3) === 1 ? '»':'«'), xxs, yys);
+        ctx.fillText(((pr.sm & 3) === 1 ? '»':'«'), xxs, yys);
       } 
     },
     prvok_ZB(pr) {
@@ -412,25 +504,12 @@ Vue.component('mycanvas', {
       if (typeof pr !== 'undefined' ) { //https://stackoverflow.com/questions/2281633/javascript-isset-equivalent
         if (this.cesta_z === null && pr.id_prvky_kluc === 6) { // NH
           if (m === "P" && (pr.sm & 8) === 0) { // Posunová
-            this.cesta_z = pr;
-            this.$emit('text_g', "Začiatok cesty:" + this.cesta_z.key + "("+ this.cesta_z.xs + ")" + "<||>" + m);
-            this.cesta_z.stav += 16;      // Označ návestidlo
-            this.cesta_z.n[0] = 1;        // Ulož typ cesty
-            this.prvok_N(this.cesta_z);
+            this.zaciatok_cesty(pr, m);
           } else if (m === "V") {               //Vlaková
-            this.cesta_z = pr;
-            this.$emit('text_g', "Začiatok cesty:" + this.cesta_z.key + "("+ this.cesta_z.xs + ")" + "<||>" + m);
-            this.cesta_z.stav += 32;      // Označ návestidlo
-            this.cesta_z.n[0] = 2;        // Ulož typ cesty
-            this.prvok_N(this.cesta_z);
+            this.zaciatok_cesty(pr, m);
           }
         } else if (this.cesta_z === null && pr.id_prvky_kluc === 8) { //NE
-          this.cesta_z = pr;
-          m = 'P';
-          this.$emit('text_g', "Začiatok cesty:" + this.cesta_z.key + "("+ this.cesta_z.xs + ")" + "<||>" + m);
-          this.cesta_z.stav += 16;
-          this.cesta_z.n[0] = 1;
-          this.prvok_N(this.cesta_z);
+          this.zaciatok_cesty(pr, 'P');
         } else if (this.cesta_z !== null && (pr.id_prvky_kluc === 3 || pr.id_prvky_kluc === 14 || pr.id_prvky_kluc === 22)) {
           this.cesta_k = (pr.id_prvky_kluc !== 22) ? pr : this.myprv[pr.c[0]]; // Pre prípad kliku na KO
           var cesta = this.test_cesta(this.cesta_z, this.cesta_k);
@@ -460,69 +539,115 @@ Vue.component('mycanvas', {
         }
       }
     },
-    test_cesta(cesta_z, cesta_k) {
+    zaciatok_cesty(cesta_z_pr, typ_cesty) {
+      this.cesta_z = cesta_z_pr;                                  // Ulož začiatok cesty
+      this.$emit('text_g', "Začiatok cesty:" + this.cesta_z.key + "("+ this.cesta_z.xs + ")" + "<||>" + typ_cesty);
+      this.cesta_z.stav += (16 * (typ_cesty == 'V' ? 2 : 1));     // Označ návestidlo podľa typu cesty
+      this.cesta_z.n[0] = (typ_cesty == 'V' ? 2 : 1);             // Ulož typ cesty
+      this.prvok_N(this.cesta_z);
+    },
+    get_cislo_cesty(cesta_z, cesta_k) {
       var cislo_cesty = 0;    // Číslo použitej cesty 
       Object.keys(this.mycst).forEach(s => {    // Nájdenie cesty
         if ((this.mycst[s].zc === cesta_z.xs) && (this.mycst[s].kc === cesta_k.xs) && (this.mycst[s].typ === cesta_z.n[0])) {
           cislo_cesty = s;                      // Zapíš číslo nájdenej cesty
         }
       });
+      return cislo_cesty;
+    },
+    test_cesta(cesta_z, cesta_k) {
+      var cislo_cesty = this.get_cislo_cesty(cesta_z, cesta_k);  // Nájdi číslo cesty
       if (cislo_cesty != 0 && this.mycst[cislo_cesty].prvky_cesty.length > 0) { // Cesta existuje a mám prvky cesty
-        this.myprv[cesta_z.xs].c[3] = cesta_k.xs; // Zapíš do návestidla koniec cesty
-        //var cisvyh = 0;                           // Poradové číslo výhybky vrámci cesty
+        this.myprv[cesta_z.xs].c[3] = cesta_k.xs;                // Zapíš do návestidla koniec cesty
         var volnost = true;
-        this.mycst[cislo_cesty].prvky_cesty.forEach(x => {  // Zisti volnost cesty
-          if ((this.myprv[x].stav & 15) != 0) {             // Je prvok obsadený? Dôležité sú stavy od 1..15 po zmazaní vyšších bitov
+        this.mycst[cislo_cesty].prvky_cesty.forEach(x => {       // Zisti volnost cesty
+          var pro = x.split("|");
+          if ((this.myprv[pro[0]].stav & 15) != 0) {             // Je prvok obsadený? Dôležité sú stavy od 1..15 po zmazaní vyšších bitov
             volnost = false;
           }
+
         });
+        if (this.mycst[cislo_cesty].prvky_odvrat.length > 0) {  // Test volnosti odvratných úsekov
+          this.mycst[cislo_cesty].prvky_odvrat.forEach(x => {
+            var pro = x.split("|");
+            var pr = this.myprv[pro[0]];
+            if ((pr.stav & 15) > 0) {                           // Je prvok obsadený? Dôležité sú stavy od 1..15 po zmazaní vyšších bitov
+              if (pr.id_prvky_kluc == 16 && pr.sm != pro[1]) {  // Odvratná výhybka nie je v správnej polohe
+                volnost = false;
+              }
+            }
+          });
+        }
+        if (cesta_k.c[1] > 0 && this.mycst[cislo_cesty].typ == 2 && (this.myprv[cesta_k.c[1]].stav != 0 || this.myprv[cesta_k.c[1]].c[2] != 0)) { // Blokovaný TS
+          volnost = false;
+        }
         return (volnost) ? this.mycst[cislo_cesty] : 0; // Cesta je volná ta vrat cestu inak 0
       } else {                                          // Cesta neexzistuje alebo nemá prvky
         return null;
       }
-      
     },
     postav_cestu(cesta) {
       var vyh = 0;                                    // Počet momentálne nesprávne prestavených výhybiek
-      var cisvyh = 0;                                 // Poradové číslo výhybky vrámci cesty
       var for_emit = [];                              // Pole prvkov pre $emit
       var dvojica = [];                               // Pole pre dvojicu výhybiek
-      cesta.prvky_cesty.forEach(xs => {               // Ošetri polohu výhybiek
-        var pr = this.myprv[xs];                      // Pre skrátenie zápisov
+      cesta.prvky_cesty.forEach(x => {                // Ošetri polohu výhybiek
+        var pro = x.split("|");                       // Rozlož prvok cesty na xs (a polohu výhybky)
+        var pr = this.myprv[pro[0]];                  // Pre skrátenie zápisov
         if (pr.id_prvky_kluc == 16) {                 // Prvok je VN?
-          if (pr.sm != cesta.vyh[cisvyh]) {           // Nie je správne prestavený
-            if (vyh < 4 && this.myprv[xs].sm < 64) {  // Max sa prestavuje najviac 3 výhybky a neprestavuje sa
-              this.myprv[xs].sm = parseInt(cesta.vyh[cisvyh]) + 64; // Príznak prestavovania
-              this.prvok_VN(this.myprv[xs]);
+          if (pr.sm != pro[1]) {                      // Nie je správne prestavená
+            if (vyh < 4 && this.myprv[pro[0]].sm < 64) {  // Max sa prestavuje najviac 3 výhybky a neprestavuje sa
+              this.myprv[pro[0]].sm = parseInt(pro[1]) + 64; // Príznak prestavovania
+              this.prvok_VN(this.myprv[pro[0]]);
               if (pr.c[2] > 0 && dvojica.length == 0) { // Výhybka má dvojicu a je prvá
-                dvojica.push(pr.xs); 
-              } else if (pr.c[2] > 0 && dvojica.length > 0) {         // Výhybka má dvojicu a je druhá
                 dvojica.push(pr.xs);
-                for_emit.push({cas: 50, xs: dvojica, sm: cesta.vyh[cisvyh]}); // Priprav pre $emit
+                if (cesta.prvky_odvrat.includes(pr.c[2]+"|"+pro[1])) {  // Mám dvojicu ako odvrat
+                  this.myprv[pr.c[2]].sm = parseInt(pro[1]) + 64; // Príznak prestavovania
+                  this.prvok_VN(this.myprv[pr.c[2]]);
+                  dvojica.push(pr.c[2]);
+                  for_emit.push({cas: 50, xs: dvojica, sm: pro[1]}); // Priprav pre $emit
+                  dvojica = [];                       // Vymazanie poľa
+                  vyh++;                              // Dvojica v stave prestavovania
+                } 
+              } else if (pr.c[2] > 0 && dvojica.length > 0) {  // Výhybka má dvojicu a je druhá
+                dvojica.push(pr.xs);
+                for_emit.push({cas: 50, xs: dvojica, sm: pro[1]}); // Priprav pre $emit
                 dvojica = [];                         // Vymazanie poľa
                 vyh++;
               } else {
-                for_emit.push({cas: 25, xs: xs, sm: cesta.vyh[cisvyh]});  // Priprav pre $emit
+                for_emit.push({cas: 25, xs: pro[0], sm: pro[1]});  // Priprav pre $emit
                 vyh++;
               }
-            } else if (this.myprv[xs].sm >= 64) {     // Ak sa prestavuje tak započítaj
+            } else if (this.myprv[pro[0]].sm >= 64) { // Ak sa prestavuje tak započítaj
               vyh++;
             }
           }
-          cisvyh++;
         }
       });
+      
+      var ts = this.myprv[cesta.kc].c[1];
+      if (ts > 0 && cesta.typ == 2) {
+        if (this.myprv[ts].sm != this.myprv[cesta.zc].sm) { // TS je nesprávne
+          this.myprv[ts].stav = 4;
+          this.prvok_TS(this.myprv[ts]);
+          this.$emit('udalost', {cas: 20, xs: ts, nst: cesta, do: 'zmenTS'});
+          vyh++;
+        } else if (vyh == 0) {
+          this.myprv[ts].c[2] |= 1;
+          this.prvok_TS(this.myprv[ts]);
+        }
+      }
       if (vyh == 0) { // Všetky výhybky sú správne prestavené
         cesta.prvky_cesty.forEach(xs => {
-          if (xs == cesta.zc) {
-            this.prvok_N(this.myprv[xs]);
-            this.$emit('udalost', {cas: 10, xs: xs, nst: cesta});
+          var pro = xs.split("|");                        // Rozlož prvok cesty na xs (a polohu výhybky)
+          if (pro[0] == cesta.zc) {                       // Pre počiatočné návestidlo na rozsvietenie o 1s
+            this.prvok_N(this.myprv[pro[0]]);
+            this.$emit('udalost', {cas: 10, xs: pro[0], nst: cesta});
           } else {
             //Zapíš do prvkov záver cesty okrem návestidiel
-            if (this.myprv[xs].id_prvky_kluc !== 6 && this.myprv[xs].id_prvky_kluc !== 8) {
-              this.myprv[xs].stav = cesta.typ;
+            if (this.myprv[pro[0]].id_prvky_kluc !== 6 && this.myprv[pro[0]].id_prvky_kluc !== 8) {
+              this.myprv[pro[0]].stav = cesta.typ;
             }
-            this.kresli_prvok(this.myprv[xs]);
+            this.kresli_prvok(this.myprv[pro[0]]);
           }
         });
       } else {
@@ -531,12 +656,28 @@ Vue.component('mycanvas', {
         }
       }
     },
+    rus_cestu(cesta_z, cesta_k) {
+      var cislo_cesty = this.get_cislo_cesty(this.myprv[cesta_z],this.myprv[cesta_k]);
+      this.myprv[cesta_z].stav = 0;
+      this.kresli_prvok(this.myprv[cesta_z]);
+      this.mycst[cislo_cesty].prvky_cesty.forEach(xs => {
+        var pro = xs.split("|");                        // Rozlož prvok cesty na xs (a polohu výhybky)
+        if (this.myprv[pro[0]].id_prvky_kluc !== 6 && this.myprv[pro[0]].id_prvky_kluc !== 8) {
+          this.myprv[pro[0]].stav = 0;
+        }
+        this.kresli_prvok(this.myprv[pro[0]]);
+      });
+      var ts = this.myprv[cesta_k].c[1];
+      if (ts > 0 && this.mycst[cislo_cesty].typ == 2) {
+        this.myprv[ts].c[2] = (this.myprv[ts].c[2] >> 1) << 1 ;  // Nastavím bit 0 na 0 
+        this.prvok_TS(this.myprv[ts]);
+      }
+    },
     kresli_prvok(pr) {
       switch (pr.id_prvky_kluc) {
         case 1:
         case 2:
         case 3:
-        case 4:
         case 5: this.prvok_XB(pr);  
           break;
         case 6: 
@@ -562,9 +703,9 @@ Vue.component('mycanvas', {
         case 20: this.prvok_SB(pr);
           break;
       }
-      if (pr.odk != 0 && pr.id_prvky_kluc < 17) {
+      if (pr.odk != 0 && pr.id_prvky_kluc < 17) {         // Ak má prvok odkazy
         var odkazy = pr.odk.split("|");
-        if (pr.id_prvky_kluc == 16) {  // Výhybky
+        if (pr.id_prvky_kluc == 16) {                     // Pre výhybky
           var i;
           var cast = 0;
           for (i = 0; i < odkazy.length; i++) {
@@ -573,16 +714,16 @@ Vue.component('mycanvas', {
             } else if (odkazy[i] == "b") {
               cast = 2;
             } else {
-              if (cast == 0) {
+              if (cast == 0) {                            // Vykresli pre nultú časť
                 this.myprv[odkazy[i]].stav = pr.stav;
                 this.prvok_XB(this.myprv[odkazy[i]]);  
-              } else if (cast == pr.sm) {
+              } else if (cast == pr.sm || pr.stav == 0) { // Vykresli ak sa zhoduje alebo pri základnom stave
                 this.myprv[odkazy[i]].stav = pr.stav;
                 this.prvok_XB(this.myprv[odkazy[i]]);  
-              }
+              } 
             }
           }
-        } else {
+        } else {                                          // Pre ostatné prvky
           odkazy.forEach(x => {
             var po = this.myprv[x];
             po.stav = pr.stav;
@@ -609,22 +750,35 @@ Vue.component('mycanvas', {
   },
   watch: {
     urob: function (newUrob, oldUrob) {
-      if (!!newUrob.xs && newUrob.xs.constructor === Array) { // Je to pole? https://stackoverflow.com/questions/4775722/how-to-check-if-an-object-is-an-array
-        newUrob.xs.forEach(xs => {
-          if (this.myprv[xs].id_prvky_kluc == 16 && newUrob.sm > 0) { // Je to VN a prestavuje sa
-            this.myprv[xs].sm = newUrob.sm;     // Zmeň polohu výhybky
-            this.kresli_prvok(this.myprv[xs]);  // Vykresli VN
-          }
-        });
-        this.postav_cestu(newUrob.nst);
+      if (typeof newUrob.do != 'undefined') {
+        switch (newUrob.do) {
+          case "rusCestu": this.rus_cestu(newUrob.xs, newUrob.kc); // Spracovanie pre rušenie cesty
+            break;
+          case "zmenTS": 
+                        this.myprv[newUrob.xs].stav = 0; // Zmeň TS
+                        this.myprv[newUrob.xs].sm = this.myprv[newUrob.nst.zc].sm; // Zmeň smer TS
+                        this.kresli_prvok(this.myprv[newUrob.xs]);  // Vykresli TS
+                        this.postav_cestu(newUrob.nst);
+            break;
+        }
       } else {
-        if (this.myprv[newUrob.xs].id_prvky_kluc == 16 && newUrob.sm > 0) { // Je to VN a prestavuje sa
-          this.myprv[newUrob.xs].sm = newUrob.sm;     // Zmeň polohu výhybky
-          this.kresli_prvok(this.myprv[newUrob.xs]);  // Vykresli VN
+        if (!!newUrob.xs && newUrob.xs.constructor === Array) { // Je to pole? https://stackoverflow.com/questions/4775722/how-to-check-if-an-object-is-an-array
+          newUrob.xs.forEach(xs => {
+            if (this.myprv[xs].id_prvky_kluc == 16 && newUrob.sm > 0) { // Je to VN a prestavuje sa
+              this.myprv[xs].sm = newUrob.sm;     // Zmeň polohu výhybky
+              this.kresli_prvok(this.myprv[xs]);  // Vykresli VN
+            }
+          });
           this.postav_cestu(newUrob.nst);
         } else {
-          this.myprv[newUrob.xs].stav = newUrob.nst.typ;  // Zmeň stav prvku
-          this.kresli_prvok(this.myprv[newUrob.xs]);  // Vykresli ho
+          if (this.myprv[newUrob.xs].id_prvky_kluc == 16 && newUrob.sm > 0) { // Je to VN a prestavuje sa
+            this.myprv[newUrob.xs].sm = newUrob.sm;     // Zmeň polohu výhybky
+            this.kresli_prvok(this.myprv[newUrob.xs]);  // Vykresli VN
+            this.postav_cestu(newUrob.nst);
+          } else {
+            this.myprv[newUrob.xs].stav = newUrob.nst.typ;  // Zmeň stav prvku
+            this.kresli_prvok(this.myprv[newUrob.xs]);  // Vykresli ho
+          }
         }
       }
     }
@@ -968,7 +1122,7 @@ Vue.component('statusbar', {
           clearInterval(this.timer);
           this.timer = null;
           this.stop();
-        }, 53000 );
+        }, 3000 );
 			}
     },
     stop () {
@@ -979,7 +1133,7 @@ Vue.component('statusbar', {
   computed: {
     activeClass: function () {
       var sp = this.text_g.split("<||>");
-      return sp[1] === 'V' ? 'bg-success' : (sp[1] === 'P' ? 'bg-light' : 'bg-transparent');
+      return sp[1] === 'V' ? 'bg-success text-white' : (sp[1] === 'P' ? 'bg-light' : 'bg-transparent');
     }
   },
   watch: {
