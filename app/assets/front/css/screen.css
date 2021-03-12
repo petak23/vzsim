@@ -4,6 +4,7 @@ body {
 }
 .main {
   margin-top: 2.5rem;
+  height: calc(100vh - 4rem);
 }
 .navbar {
   font-size: 90%;
@@ -75,7 +76,6 @@ a[href^="error:"] {
   text-align: center;
 }
 
-
 .dolny-panel {
   height: 8rem;
   border-top: 3px #062c33 solid;
@@ -98,4 +98,16 @@ a[href^="error:"] {
 
 nav.edit-second-nav {
   padding: 1rem;
+}
+
+.users-form {
+  margin: 20% 50% auto 50%;
+  transform: translate(-50%, -50%);
+  width: 21rem;
+  background-color: rgba(220,220,220,.5);
+}
+#app {
+  background: white url('./images/DSC_1992.jpg') no-repeat;
+  background-position: center;
+  background-size: cover;
 }

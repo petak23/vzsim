@@ -14,7 +14,7 @@
  * @param array    $flashes  flash messages
  *}
 <!DOCTYPE html>
-<html>
+<html class="h-100">
 <head>
 	<meta charset="utf-8">
 	<meta name="description" content="">
@@ -27,8 +27,8 @@
 	{block head}{/block}
 </head>
 
-<body class="d-flex flex-column h-100">
-<div id="app">  
+<body class="h-100">
+<div id="app" class="d-flex flex-column h-100">
   <header>
     <!-- Fixed navbar -->
     <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
@@ -49,8 +49,8 @@
   <main role="main" class="flex-shrink-0 main">
     <div class="container-fluid">
       <div class="row">
-        <div n:snippet="flash" class="col-12 flash-messages">
-          <div n:foreach="$flashes as $flash" class="alert alert-{$flash->type} alert-dismissible fade show" role="alert">
+        <div n:snippet="flash" class="col-12 flash-messages" n:inner-foreach="$flashes as $flash">
+          <div n:if="strlen($flash->message) > 0" class="alert alert-{$flash->type} alert-dismissible fade show" role="alert">
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             {$flash->message}
           </div>
@@ -69,11 +69,12 @@
     </p>
   </footer>
 </div>
+</body>
 {*<script src="{webpack main.js}"></script>*}
 <script src="{$basePath}/node_modules/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
 <script src="{$basePath}/node_modules/vue/dist/vue.js"></script>
 {*<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/js/bootstrap.bundle.min.js" integrity="sha384-b5kHyXgcpbZJO/tY9Ul7kGkf1S0CWuKcCD38l8YkeH8z8QjE0GmW1gYU5S9FOnJ0" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>*}
 {block scripts}{/block}
-</body>
+
 </html>

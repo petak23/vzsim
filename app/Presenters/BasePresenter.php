@@ -134,7 +134,7 @@ abstract class BasePresenter extends Presenter {
     $renderer->wrappers['controls']['container'] = 'div class=sign-in-form';
     $renderer->wrappers['pair']['container'] = 'div class="form-group row justify-content-center"';
     $renderer->wrappers['pair']['.error'] = 'has-danger';
-    $renderer->wrappers['control']['container'] = 'div class="col-12 col-sm-6"';
+    $renderer->wrappers['control']['container'] = 'div class="col-12"'; // col-sm-6
     $renderer->wrappers['label']['container'] = 'div class="d-none"';//'div class="col-sm-3 col-form-label"';
     $renderer->wrappers['control']['description'] = 'span class=form-text';
     $renderer->wrappers['control']['errorcontainer'] = 'span class=form-control-feedback';

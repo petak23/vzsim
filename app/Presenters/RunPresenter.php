@@ -7,7 +7,7 @@ use Nette\Utils\Json;
 
 /**
  * Prezenter pre beh simulácie.
- * Posledna zmena(last change): 25.02.2021
+ * Posledna zmena(last change): 10.03.2021
  *
  *	Modul: FRONT
  *
@@ -15,7 +15,7 @@ use Nette\Utils\Json;
  * @copyright  Copyright (c) 2021 - 2021 Ing. Peter VOJTECH ml.
  * @license
  * @link       http://petak23.echo-msz.eu
- * @version 1.0.2
+ * @version 1.0.3
  */
 class RunPresenter extends BasePresenter {
   
@@ -39,11 +39,15 @@ class RunPresenter extends BasePresenter {
   
   private $vvlaky;
 
+  private $oblast_params = [];
+
 
   public function actionDefault(int $id = 0) {
     if (($this->aktualna_oblast = $this->oblast->find($id)) === null) {
       $this->flashRedirect("Homepage:", "Požadovanú oblasť som nenašiel!", "warning");
     }
+    $this->oblast_params = $this->getHttpRequest()->getQuery();
+    unset($this->oblast_params['_fid']);
     $this->main_menu = array_merge([["nazov"=>"Ukonč oblasť: ".$this->aktualna_oblast->name, "odkaz"=>"Homepage:"]], $this->main_menu);
     $this->prvky = $this->oblast_prvky->findBy(['id_oblast'=>$id]);
     $this->jprvky = $this->rtoArray($this->prvky);
@@ -54,6 +58,7 @@ class RunPresenter extends BasePresenter {
   public function renderDefault() {
     $this->template->oblast = $this->aktualna_oblast;
     $this->template->prvky = $this->prvky;
+    $this->template->oblast_params = $this->oblast_params;
     $this->template->jcesty = Json::encode($this->ctoArray($this->cesty));
     $this->template->jprvky = Json::encode($this->jprvky);
     $this->template->jvlaky = Json::encode($this->vtoArray($this->vvlaky));
@@ -121,6 +126,7 @@ class RunPresenter extends BasePresenter {
         'dl' => $p->dl,
         'n' => [$p->n0, $p->n1],
         'sm' => $p->sm,
+        'ts' => $p->ts,
         'rezim' => $p->rezim,
         'odk' => $p->odk,
         'oznacenie' => $p->oznacenie,
@@ -137,6 +143,7 @@ class RunPresenter extends BasePresenter {
             'dl' => 0,
             'n' => [0, 0],
             'sm' => 0,
+            'ts' => 0,
             'rezim' => 0,
             'odk' => 0,
             'oznacenie' => '',
@@ -153,6 +160,7 @@ class RunPresenter extends BasePresenter {
             'dl' => 0,
             'n' => [0, 0],
             'sm' => 0,
+            'ts' => 0,
             'rezim' => 0,
             'odk' => 0,
             'oznacenie' => '',

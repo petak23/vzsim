@@ -4,6 +4,8 @@
   <article class="col-12 vrchny-panel">
     <div class="row">
       <casovac
+        day="{$oblast_params['day']}"
+        hour="{$oblast_params['hour']}"
         :udalost="udalost"
         @urob="urob = $event"
       ></casovac>

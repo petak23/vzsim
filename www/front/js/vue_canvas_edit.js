@@ -40,7 +40,6 @@ Vue.component('mycanvas', {
     this.mriezka(this.xmax_s, this.ymax_s);
     Object.keys(this.myprv).forEach(xs => {
       var pr = this.myprv[xs];
-//      console.log(pr);
       switch (pr.id_prvky_kluc) {
         case 1:
         case 2:
@@ -70,7 +69,8 @@ Vue.component('mycanvas', {
           break;
         case 20: this.prvok_SB(pr);
           break;
-//        case 21: //MZ
+        case 21: this.prvok_MZ(pr);
+          break;
 //        default:
 //          break;
       }
@@ -135,7 +135,6 @@ Vue.component('mycanvas', {
       a[1] = (((pr.c[0] & 4095) >> 4) & 15) % 10;
       a[2] = ((pr.c[0] & 4095) & 15) % 10;
       var ook = pr.id_prvky_kluc === 4 || pr.id_prvky_kluc === 5;
-      console.log("ook:"+ook+" pr.id_prvky_kluc:"+pr.id_prvky_kluc);
       var col = this.farbaStav(ook ? 72 : pr.stav, pr.id_prvky_kluc === 3 ? 1 : 0);
       this.drawLine(xxs+this.kr2x*this.dx[a[0]], yys+this.kr2y*this.dy[a[0]], xxs+this.kr2x*this.dx[a[1]], yys+this.kr2y*this.dy[a[1]], 3, col[0]); 
       this.drawLine(xxs+this.kr2x*this.dx[a[1]], yys+this.kr2y*this.dy[a[1]], xxs+this.kr2x*this.dx[a[2]], yys+this.kr2y*this.dy[a[2]], 3, col[0]);
@@ -201,7 +200,7 @@ Vue.component('mycanvas', {
       var xxs = this.krokx*(this.sux(pr.xs) + 0.5);
       var yys = this.kroky*(this.suy(pr.xs) + 0.5);
       var ctx = this.canvas;
-      var ss = ((pr.stav & 15) === 0) ? pr.n[0] : pr.c[3]; // Text na koľaji
+      var ss = pr.oznacenie != null ? pr.oznacenie : pr.n[0]; // Text na koľaji
       var b = (ss !== 0) ? String(ss).length : 0;          // Dĺžka textu na koľaji
       var k_l = this.kr2x*(pr.c[0]>>4)*2; 
       var k_r = this.kr2x*(pr.c[0] & 15)*2;
@@ -321,6 +320,15 @@ Vue.component('mycanvas', {
       ctx.fillStyle = '#f80';
       ctx.fillRect(xxs - this.kr2x + 1, yys - this.kr2y + 3, 2*this.kr2x - 2, 2*this.kr2y - 6);
       this.kresliText(xxs, yys, pr.n[1], pr.oznacenie, '#ddd');
+    },
+
+    prvok_MZ(pr) { /* MIESTO ZJAVENIA */
+      var xxs = this.krokx*(this.sux(pr.xs) + 0.5);
+      var yys = this.kroky*(this.suy(pr.xs) + 0.5);
+      var ctx = this.canvas;
+      ctx.fillStyle = '#760';
+      ctx.fillRect(xxs - this.kr2x + 1, yys - this.kr2y + 1, 2*this.kr2x - 2, 2*this.kr2y - 2);
+      this.kresliText(xxs, yys+2, 5, pr.n[0] == 0 ? '◊' : (pr.sm == 1 ? '>' : '<'), '#000');
     },
     
     /* Vykreslenie textu so smerom

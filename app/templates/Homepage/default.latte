@@ -1,22 +1,17 @@
 {block title}Oblasti{/block}
 {block content}
 <div class="row">
-  <div class="col-12">
-    <div class="row">
-      <div class="col-12 col-sm-6 col-md-4 col-lg-2 mb-3" n:foreach="$oblast as $m">
-        <div class="card text-center h-100">
-          <div class="card-body">
-            <h5 class="card-title">{$m->name}</h5>
-            <small n:if="$m->description != null">
-              {$m->description}
-            </small>
-          </div>
-          <div class="card-footer bg-info">
-            <a href="{link Edit: $m->id}" title="{$m->name}" class="btn btn-warning">Edituj</a>
-            <a href="{link Run: $m->id}" title="{$m->name}" class="btn btn-success">Spusť</a>
-          </div>
+  <div class="col-12 py-2">
+    <div class="list-group" n:foreach="$oblast as $m">
+      <a href="{link Homepage:oblast $m->id}" class="list-group-item list-group-item-action" aria-current="true" title="{$m->name}">
+        <div class="d-flex w-100 justify-content-between">
+          <h5 class="mb-1">{$m->name}</h5>
+          <small>by: {$m->user_main->priezvisko}</small>
         </div>
-      </div>
-    </div>      
+        <p class="mb-1">{$m->description}</p>
+        <small></small>
+      </a>
+    </div>
   </div>
 </div>
+

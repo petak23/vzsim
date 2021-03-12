@@ -515,7 +515,13 @@ Vue.component('mycanvas', {
           var cesta = this.test_cesta(this.cesta_z, this.cesta_k);
           if (cesta !== null) {
             if (cesta !== 0) { // Mám cestu a nie je obsadená
-              this.$emit('text_g', "Staviam cestu:" + cesta.zc + " -> " + cesta.kc + " t:" + cesta.typ + " v:" + cesta.vyh + "<||>" + (cesta.typ === 2 ? "V" : "P"));
+              var sb_ozn = this.myprv[this.cesta_k.c[2]].oznacenie;
+              if (this.cesta_k.id_prvky_kluc == 14) {
+                var text = this.cesta_k.oznacenie != null ? this.cesta_k.oznacenie : this.cesta_k.n[0];
+              } else {
+                var text = this.cesta_k.oznacenie;
+              }
+              this.$emit('text_g', "Staviam cestu: ŽST: " + sb_ozn + " [ " + this.cesta_z.oznacenie + " -> " + text + " ] <||>" + (cesta.typ === 2 ? "V" : "P"));
               this.postav_cestu(cesta);
             } else {           // Mám cestu ale je obsadená
 
@@ -541,7 +547,7 @@ Vue.component('mycanvas', {
     },
     zaciatok_cesty(cesta_z_pr, typ_cesty) {
       this.cesta_z = cesta_z_pr;                                  // Ulož začiatok cesty
-      this.$emit('text_g', "Začiatok cesty:" + this.cesta_z.key + "("+ this.cesta_z.xs + ")" + "<||>" + typ_cesty);
+      this.$emit('text_g', "Začiatok cesty: " + this.cesta_z.oznacenie + "<||>" + typ_cesty);
       this.cesta_z.stav += (16 * (typ_cesty == 'V' ? 2 : 1));     // Označ návestidlo podľa typu cesty
       this.cesta_z.n[0] = (typ_cesty == 'V' ? 2 : 1);             // Ulož typ cesty
       this.prvok_N(this.cesta_z);
@@ -578,7 +584,7 @@ Vue.component('mycanvas', {
             }
           });
         }
-        if (cesta_k.c[1] > 0 && this.mycst[cislo_cesty].typ == 2 && (this.myprv[cesta_k.c[1]].stav != 0 || this.myprv[cesta_k.c[1]].c[2] != 0)) { // Blokovaný TS
+        if (cesta_k.ts > 0 && this.mycst[cislo_cesty].typ == 2 && (this.myprv[cesta_k.ts].stav != 0 || this.myprv[cesta_k.ts].c[2] != 0)) { // Blokovaný TS
           volnost = false;
         }
         return (volnost) ? this.mycst[cislo_cesty] : 0; // Cesta je volná ta vrat cestu inak 0
@@ -624,7 +630,7 @@ Vue.component('mycanvas', {
         }
       });
       
-      var ts = this.myprv[cesta.kc].c[1];
+      var ts = this.myprv[cesta.kc].ts;
       if (ts > 0 && cesta.typ == 2) {
         if (this.myprv[ts].sm != this.myprv[cesta.zc].sm) { // TS je nesprávne
           this.myprv[ts].stav = 4;
@@ -667,7 +673,7 @@ Vue.component('mycanvas', {
         }
         this.kresli_prvok(this.myprv[pro[0]]);
       });
-      var ts = this.myprv[cesta_k].c[1];
+      var ts = this.myprv[cesta_k].ts;
       if (ts > 0 && this.mycst[cislo_cesty].typ == 2) {
         this.myprv[ts].c[2] = (this.myprv[ts].c[2] >> 1) << 1 ;  // Nastavím bit 0 na 0 
         this.prvok_TS(this.myprv[ts]);
@@ -816,10 +822,10 @@ Vue.component('zoznam', {
       case 3: typ_vlaku = (['1','2','3','4','5'].includes(value[0])) ? 'IC' : 'R';
         break;
       case 4:
-              if ((value[0]='1') && (['0','1','2','3','4','5','6'].includes(value[1]))) { typ_vlaku ='Rp'
+              if ((value[0]=='1') && (['0','1','2','3','4','5','6'].includes(value[1]))) { typ_vlaku ='Rp'
               } else {
-                typ_vlaku = ((value[0]='1') && (['7','8','9'].includes(value[1]))) ? 'Zr' : 'Os';
-                if ((value[0]='2')&&(value[1]='8')&&(value[2]='8')) typ_vlaku = 'Sv';
+                typ_vlaku = ((value[0]=='1') && (['7','8','9'].includes(value[1]))) ? 'Zr' : 'Os';
+                if ((value[0]=='2')&&(value[1]=='8')&&(value[2]=='8')) typ_vlaku = 'Sv';
               }
         break;
       case 5:
@@ -885,11 +891,12 @@ Vue.component('zoznam', {
 });
 
 Vue.component('casovac', {
-  props: ['udalost'],
+  props: ['udalost', 
+          'day',                // Deň v týždni 1=pondelok ... 7=nedeľa
+          'hour'],              // Počiatočný čas v celých hodinách
   data: function () {
     return {
       time: 288000,             // Počiatočný čas v desatinách sekúnd 8:00 = 8 * 60 * 60 * 10
-      button_txt: "Spusť",      // Text tlačítka na spustenie času
       timer:null,               // Timer
       isRunning: false,         // Príznak či hodiny bežia
       interval: [200, 130, 60], // rýchlosť behu hodín - dĺžka trvania 200ms
@@ -966,18 +973,19 @@ Vue.component('casovac', {
         this.casovacStart();
       }
     },
-    denUp() {
-      if (!this.first_run) this.den += this.den < 6 ? 1 : 0;
-    },
-    denDown() {
-      if (!this.first_run) this.den -= this.den > 0 ? 1 : 0;
-    }, 
     test_fronta() {
       if (this.casova_fronta.length && this.casova_fronta[0].cas <= this.time) { // Zisti či sa má udiať prvý prvok fronty
         var first = this.casova_fronta.shift();     // Vyber prvý prvok z poľa
         this.$emit("urob", first);                  // Odošli na spracovanie
       }
-    }
+    },
+    initDateTime: function() { // Počiatočné naplnenie časovača a dňa
+      this.den = this.day - 1;
+      this.time = this.hour * 60 * 60 * 10;
+    },
+  },
+  mounted () {
+    this.initDateTime();
   },
   watch: {
     udalost: function (newUdalost, oldUdalost) {
@@ -995,18 +1003,8 @@ Vue.component('casovac', {
   },
   template: `
     <div class="col-2 bg-dark text-white">
-      <div class="btn-group btn-group-sm" role="group" aria-label="dni" v-if="!first_run">
-        <button @click="denDown" class="btn btn-outline-info btn-sm" :class="den == 0 ? 'disabled' : ''">
-          <i class="fas fa-long-arrow-alt-down"></i>
-        </button>
-        <button class="btn btn-outline-info btn-sm disabled">{{den_skr[den]}}</button>
-        <button @click="denUp" class="btn btn-outline-info btn-sm" :class="den == 7 ? 'disabled' : ''">
-          <i class="fas fa-long-arrow-alt-up"></i>
-        </button>
-      </div>
-      <br v-if="!first_run" />
       <div class="btn-group btn-group-sm" role="group" aria-label="hodiny">
-        <button class="btn btn-outline-info btn-sm disabled" v-if="first_run">{{den_skr[den]}}</button>
+        <button class="btn btn-outline-info btn-sm disabled">{{den_skr[den]}}</button>
         <button @click="casovacDown" class="btn btn-outline-info btn-sm" :class="speed == 0 ? 'disabled' : ''">
           <i class="fas fa-level-down-alt"></i>
         </button>
@@ -1122,7 +1120,7 @@ Vue.component('statusbar', {
           clearInterval(this.timer);
           this.timer = null;
           this.stop();
-        }, 3000 );
+        }, 8000 );
 			}
     },
     stop () {

@@ -1,6 +1,6 @@
 {block title}Oblasť: {$oblast->name}{/block}
 {block content}
-<section class="row">
+<section class="row bg-white">
   <nav class="col-12 btn-group btn-group-sm edit-second-nav" role="group">
     <a n:href="Edit:import $oblast->id" title="Import" class="btn btn-outline-primary">
       <small>Import</small>
@@ -38,6 +38,7 @@
             <th scope="col">sm</th>
             <th scope="col">re</th>
             <th scope="col">odk</th>
+            <th scope="col">Ozn.</th>
           </tr>
         </thead>
         <tbody>
@@ -56,6 +57,7 @@
             <td>{$p->sm}</td>
             <td>{$p->rezim}</td>
             <td>{$p->odk}</td>
+            <td>{if $p->oznacenie != null}{$p->oznacenie}{/if}</td>
           </tr>
         </tbody>
       </table>

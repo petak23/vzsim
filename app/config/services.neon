@@ -30,11 +30,11 @@ services:
 	- App\Presenters\ErrorPresenter(%parameters%)
 	- App\Presenters\HomepagePresenter(%parameters%)
 	- App\Presenters\RunPresenter(%parameters%)
-	- App\Presenters\SignPresenter(%parameters%)
 	- App\Presenters\UserLogPresenter(%parameters%)
 	- App\Presenters\UserPresenter(%parameters%)
 
 # forms
+	- App\Forms\Homepage\FirstRunFormFactory
 	- App\Forms\User\ForgottenPasswordFormFactory
 	- App\Forms\User\SignInFormFactory
 	- App\Forms\User\RegisterFormFactory

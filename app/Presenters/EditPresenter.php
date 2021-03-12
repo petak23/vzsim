@@ -7,7 +7,7 @@ use Nette\Utils\Json;
 
 /**
  * Prezenter pre editáciu oblasti.
- * Posledná zmena(last change): 17.02.2021
+ * Posledná zmena(last change): 10.03.2021
  *
  *	Modul: FRONT
  *
@@ -15,7 +15,7 @@ use Nette\Utils\Json;
  * @copyright  Copyright (c) 2021 - 2021 Ing. Peter VOJTECH ml.
  * @license
  * @link       http://petak23.echo-msz.eu
- * @version 1.0.5
+ * @version 1.0.6
  */
 class EditPresenter extends BasePresenter {
   
@@ -168,6 +168,7 @@ class EditPresenter extends BasePresenter {
         'dl' => $p->dl,
         'n' => [$p->n0, $p->n1],
         'sm' => $p->sm,
+        'ts' => $p->ts,
         'rezim' => $p->rezim,
         'odk' => $p->odk,
         'oznacenie' => $p->oznacenie,
@@ -184,6 +185,7 @@ class EditPresenter extends BasePresenter {
             'dl' => 0,
             'n' => [0, 0],
             'sm' => 0,
+            'ts' => 0,
             'rezim' => 0,
             'odk' => 0,
             'oznacenie' => '',
@@ -200,6 +202,7 @@ class EditPresenter extends BasePresenter {
             'dl' => 0,
             'n' => [0, 0],
             'sm' => 0,
+            'ts' => 0,
             'rezim' => 0,
             'odk' => 0,
             'oznacenie' => '',
