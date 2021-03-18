@@ -4,8 +4,8 @@
   <article class="col-12 vrchny-panel">
     <div class="row">
       <casovac
-        day="{$oblast_params['day']}"
-        hour="{$oblast_params['hour']}"
+        day={$oblast_params['day']}
+        hour={$oblast_params['hour']}
         :udalost="udalost"
         @urob="urob = $event"
       ></casovac>
@@ -47,4 +47,12 @@
 </section>
 {/block}
 {block scripts}
-<script src="{$basePath}/front/js/vue_canvas_run.js"></script>
+<script src="{$basePath}/front/js/run/vue_blok_canvas_run.js"></script>
+<script src="{$basePath}/front/js/run/vue_blok_casovac_run.js"></script>
+<script src="{$basePath}/front/js/run/vue_blok_errors_run.js"></script>
+<script src="{$basePath}/front/js/run/vue_blok_info_run.js"></script>
+<script src="{$basePath}/front/js/run/vue_blok_nastavenie_run.js"></script>
+<script src="{$basePath}/front/js/run/vue_blok_statusbar_run.js"></script>
+<script src="{$basePath}/front/js/run/vue_blok_ui_run.js"></script>
+<script src="{$basePath}/front/js/run/vue_blok_zoznam_run.js"></script>
+<script src="{$basePath}/front/js/run/vue_main_run.js"></script>

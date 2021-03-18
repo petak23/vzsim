@@ -7,7 +7,7 @@ use Nette\Utils\Json;
 
 /**
  * Prezenter pre editáciu oblasti.
- * Posledná zmena(last change): 10.03.2021
+ * Posledná zmena(last change): 15.03.2021
  *
  *	Modul: FRONT
  *
@@ -15,7 +15,7 @@ use Nette\Utils\Json;
  * @copyright  Copyright (c) 2021 - 2021 Ing. Peter VOJTECH ml.
  * @license
  * @link       http://petak23.echo-msz.eu
- * @version 1.0.6
+ * @version 1.0.7
  */
 class EditPresenter extends BasePresenter {
   
@@ -156,6 +156,39 @@ class EditPresenter extends BasePresenter {
     return $cesta_new;
   }
 
+  public function ActionVlaky(int $id) {
+    $vla = $this->vlaky->findAll();
+    foreach ($vla as $v) {
+      $cp = explode(" ", $v->cesta);
+      if (count($cp) > 1) {
+        $cp_miesta = [];
+        $cp_cas = [];
+        if (count($cp) % 2 == 0) {
+          for ($i=0; $i < count($cp); $i++) { 
+            if ($i % 2 == 0) $cp_miesta[] = $cp[$i]; 
+            else $cp_cas[] = $cp[$i];
+          }
+        } else {
+          $j = 0;
+          for ($i=0; $i < count($cp); $i++) { 
+            if ($cp[$i] > 0) {
+              if ($j % 2 == 0) $cp_miesta[] = $cp[$i]; 
+              else $cp_cas[] = $cp[$i];
+              $j++;
+            }
+          }
+        }
+        $cp_miesta = implode("|", $cp_miesta);
+        $cp_cas = implode("|", $cp_cas);
+        $this->vlaky->oprav($v->id, [
+          "cp_miesta" => $cp_miesta,
+          "cp_cas"    => $cp_cas,
+        ]);
+      }
+    }
+
+    $this->flashRedirect(["Edit:", $id], "Vygenerované v poriadku!", "success");
+  }
 
   public function rtoArray($prvky) {
     $out = [];

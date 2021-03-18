@@ -7,7 +7,7 @@ use Nette\Utils\Json;
 
 /**
  * Prezenter pre beh simulácie.
- * Posledna zmena(last change): 10.03.2021
+ * Posledna zmena(last change): 16.03.2021
  *
  *	Modul: FRONT
  *
@@ -15,7 +15,7 @@ use Nette\Utils\Json;
  * @copyright  Copyright (c) 2021 - 2021 Ing. Peter VOJTECH ml.
  * @license
  * @link       http://petak23.echo-msz.eu
- * @version 1.0.3
+ * @version 1.0.4
  */
 class RunPresenter extends BasePresenter {
   
@@ -47,12 +47,14 @@ class RunPresenter extends BasePresenter {
       $this->flashRedirect("Homepage:", "Požadovanú oblasť som nenašiel!", "warning");
     }
     $this->oblast_params = $this->getHttpRequest()->getQuery();
+    $this->oblast_params['hour'] *= 60*60*10;                     // Počiatočný čas v desatinách sekúnd x = x * 60 * 60 * 10
     unset($this->oblast_params['_fid']);
     $this->main_menu = array_merge([["nazov"=>"Ukonč oblasť: ".$this->aktualna_oblast->name, "odkaz"=>"Homepage:"]], $this->main_menu);
     $this->prvky = $this->oblast_prvky->findBy(['id_oblast'=>$id]);
     $this->jprvky = $this->rtoArray($this->prvky);
     $this->cesty = $this->oblast_cesty->findBy(['id_oblast'=>$id]);
     $this->vvlaky = $this->vlaky->findBy(['id_oblast'=>$id]);
+    $this->getActualTrains($this->oblast_params['hour'] / 600);
   }
 
   public function renderDefault() {
@@ -64,7 +66,40 @@ class RunPresenter extends BasePresenter {
     $this->template->jvlaky = Json::encode($this->vtoArray($this->vvlaky));
   }
 
-  public function vtoArray($vlaky) {
+  private function getActualTrains(int $minutes) {
+    //dump($minutes);
+    $av = $this->vlaky->findBy(['id_oblast'=>$this->aktualna_oblast->id, 'cas_z <='.$minutes]);
+    $out = [];
+    foreach ($av as $k => $v) {
+      $cp_cas = explode("|", $v->cp_cas);
+      $cp_miesta = explode("|", $v->cp_miesta);
+      if (end($cp_cas) > $minutes) { // Vlaky bez prečíslovania v oblasti
+        $out[] = $v;
+      } else if ($v->cislo != $v->cislo_p) {
+        $pr = $this->vlaky->findOneBy(['cislo'=>$v->cislo_p]);
+        $cp_cas = explode("|", $pr->cp_cas);
+        $cp_miesta = explode("|", $pr->cp_miesta);
+        if (end($cp_cas) > $minutes) { // Vlaky po prečíslovaní v oblasti
+          $tt = explode("|", $v->cp_kolaj);//end();
+          //dump(end($tt));
+          $ls = $this->oblast_prvky->findOneBy(['id_oblast'=>$this->aktualna_oblast->id,
+                                                'id_prvky_kluc'=>14,
+                                                'c2'=>$pr->mz,
+                                                'oznacenie'=>end($tt)]); //Nájdi správnu KS
+          //dump($ls->xs);
+          $this->jprvky[$ls->xs]["c"][3] = $pr->cislo;
+          $this->jprvky[$ls->xs]["stav"] = 3; // Obsadený
+          $this->jprvky[$ls->xs]["y"] = 2;    // Stojí a má > 3 min 
+          //dump($this->jprvky[$ls->xs]);
+          $out[] = $pr;
+        }
+      }
+    }
+    //dumpe($out);
+    return $out;
+  }
+
+  private function vtoArray($vlaky) {
     $out = [];
     foreach($vlaky as $v) {
       $out[$v->id] = [
@@ -82,7 +117,7 @@ class RunPresenter extends BasePresenter {
     return $out;
   }
   
-  public function ctoArray($cesty) {
+  private function ctoArray($cesty) {
     $out = [];
     foreach($cesty as $c) {
       $prvky_cesty = explode('|', $c->prvky_cesty);
@@ -115,7 +150,7 @@ class RunPresenter extends BasePresenter {
     return $out;
   }
   
-  public function rtoArray($prvky) {
+  private function rtoArray($prvky) {
     $out = [];
     foreach($prvky as $p) {
       $out[$p->xs] = [

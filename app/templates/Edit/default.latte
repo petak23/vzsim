@@ -11,6 +11,9 @@
     <a href="#" title="Nastavenia" class="btn btn-outline-success">
       <small>Nastavenia</small>
     </a>
+    <a n:href="Edit:Vlaky $oblast->id" title="Nastavenia" class="btn btn-outline-warning">
+      <small>Konvertuj vlaky</small>
+    </a>
   </nav>{*dump $prvky}{dump $jprvky*}
   <article class="col-12 text-center">
     <mycanvas 
@@ -70,4 +73,5 @@
 </section>
 {/block}
 {block scripts}
-<script src="{$basePath}/front/js/vue_canvas_edit.js"></script>
+<script src="{$basePath}/front/js/edit/vue_blok_canvas_edit.js"></script>
+<script src="{$basePath}/front/js/edit/vue_main_edit.js"></script>

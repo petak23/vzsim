@@ -7,7 +7,7 @@ use App\Model;
 /**
  * Presenter pre homepage vo FRONT module
  * 
- * Posledna zmena(last change): 12.03.2021
+ * Posledna zmena(last change): 15.03.2021
  *
  *	Modul: FRONT
  *
@@ -15,7 +15,7 @@ use App\Model;
  * @copyright Copyright (c) 2012 - 2021 Ing. Peter VOJTECH ml.
  * @license
  * @link      http://petak23.echo-msz.eu
- * @version 1.0.1
+ * @version 1.0.2
  */
 class HomepagePresenter extends BasePresenter {
   /** @var Model\Oblast @inject */
@@ -39,6 +39,10 @@ class HomepagePresenter extends BasePresenter {
     $this->template->oblast = $this->oblast->findAll();
 	}
 
+  public function actionAdd() {
+    $this->redirect('Homepage:');
+  }
+
   public function actionOblast(int $id) {
     $this->aktivna_oblast = $this->oblast->find($id);
   }
@@ -60,7 +64,11 @@ class HomepagePresenter extends BasePresenter {
         'hour' => $val->hour,
         'save' => 0,
       ];
-      $this->flashOut(!count($form->errors), ['Run:', $params] , '', 'Er');
+      if (!count($form->errors)) {
+        $this->redirect('Run:', $params);
+      } else {
+        $this->flashRedirect('Homepage:', "Pri spustení došlo k chybe. Prosím, skúste to neskôr!", "warning");
+      }
     };
     return $form;
   }

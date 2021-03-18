@@ -1,9 +1,20 @@
+/**
+ * Vue komponenta pre canvas a vykreslovanie plochy v simulácii.
+ * Posledna zmena(last change): 18.03.2021
+ *
+ *	Modul: RUN
+ *
+ * @author Ing. Peter VOJTECH ml. <petak23@gmail.com>
+ * @copyright  Copyright (c) 2021 - 2021 Ing. Peter VOJTECH ml.
+ * @license
+ * @link       http://petak23.echo-msz.eu
+ * @version 1.0.0
+ */
 Vue.component('mycanvas', { 
 //var mycanvas = {  
   props: {
     prvky: String,
     cesty: String,
-//    vlaky: String,
     xmax_s: String,
     ymax_s: String,
     urob: Object
@@ -72,9 +83,6 @@ Vue.component('mycanvas', {
     mycst() {
       return JSON.parse(this.cesty);
     },
-//    myvlk() {
-//      return JSON.parse(this.vlaky);
-//    },
     xmax() {
       return (this.xmax_s * this.krokx);
     },
@@ -271,26 +279,22 @@ Vue.component('mycanvas', {
       var xxs = this.krokx*(this.sux(pr.xs) + 0.5);
       var yys = this.kroky*(this.suy(pr.xs) + 0.5);
       var ctx = this.canvas;
-      var ss = ((pr.stav & 15) === 0) ? (pr.oznacenie != null ? pr.oznacenie : pr.n[0]) : pr.c[3]; // Text na koľaji
+      var ss = ((pr.stav & 15) === 0) ? pr.oznacenie : pr.c[3]; // Text na koľaji
       var b = (ss !== 0) ? String(ss).length : 0;          // Dĺžka textu na koľaji
       var k_l = this.kr2x*(pr.c[0]>>4)*2; 
       var k_r = this.kr2x*(pr.c[0] & 15)*2;
-      ctx.fillStyle = "#000";
-      ctx.fillRect(xxs - k_l - (3 * this.kr2x), yys - this.kr2y + 2, (6 * this.kr2x) + k_l + k_r, 2*this.kr2y - 4);
+      ctx.fillStyle = "#000000";
+      ctx.fillRect(xxs - k_l - (3 * this.kr2x), yys - this.kr2y + 1, (6 * this.kr2x) + k_l + k_r, 2*this.kr2y - 2);
       //nastupiste
       if ((pr.sm & 1) === 1) { this.drawLine(xxs - 3 * this.kr2x, yys + this.kr2y, xxs + 3 * this.kr2x, yys + this.kr2y, 2, '#FF9F03'); }
       if ((pr.sm & 2) === 2) { this.drawLine(xxs - 3 * this.kr2x, yys - this.kr2y, xxs + 3 * this.kr2x, yys - this.kr2y, 2, '#FF9F03'); }
-      var fa_u, fa_v;
-      switch (pr.y) {
-        case 1: fa_v = '#f33'; fa_u = '#fff703'; break;//stoji a nema
-        case 2: fa_v = '#f33'; fa_u = '#000'; break;//stoji a ma>3
-        case 3: fa_v = '#fff703'; fa_u = '#000'; break;//1 min do odchodu
-        default: fa_v = '#000'; fa_u = '#DCDCDC';
-      }
       var text_w_pol = ctx.measureText(ss).width / 2 + 4;
-      if (pr.y > 0) { 
-        ctx.fillStyle = fa_v;
-        ctx.fillRect(xxs - k_l - (3 * this.kr2x) + 1, yys - this.kr2y + 2, xxs + (3 * this.kr2x) + k_r - 1, yys + this.kr2y - 2);     
+      /* pr.y == 1 - stojí a nemá
+       * pr.y == 2 - stojí a má > 3 min do odchodu
+       * pr.y == 3 - 1 min do odchodu */
+      if (pr.y > 0) {
+        ctx.fillStyle = (pr.y == 3 ? '#fff703' : (pr.y == 1 || pr.y == 2 ? '#f33' : '#000'));
+        ctx.fillRect(xxs - k_l - (3 * this.kr2x), yys - this.kr2y + 1, (6 * this.kr2x) + k_l + k_r, 2*this.kr2y - 2);     
       }
       var col = this.farbaStav(pr.stav & 15);
       if (b === 0) { 
@@ -298,11 +302,11 @@ Vue.component('mycanvas', {
       } else {
         this.drawLine(xxs - k_l - (3 * this.kr2x), yys, xxs - text_w_pol, yys, 3, col[0]);
         this.drawLine(xxs + k_r + (3 * this.kr2x), yys, xxs + text_w_pol, yys, 3, col[0]);
-        ctx.fillStyle = fa_u;
+        ctx.fillStyle = (pr.y == 1 ? '#fff703' : (pr.y == 3 || pr.y == 2 ? '#000' : '#ddd'));
         ctx.font = "14px Verdana";
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
-        ctx.fillText(ss, xxs, yys); 
+        ctx.fillText(ss, xxs, yys+1); 
       }
     },
     
@@ -787,380 +791,6 @@ Vue.component('mycanvas', {
           }
         }
       }
-    }
-  }
-});
-
-Vue.component('nastavenie', {
-  props: {
-    text_v: String
-  },
-  template: `
-    <div class="col-4 bg-info h-3">{{text_v}}</div>
-    `
-});
-
-Vue.component('zoznam', {
-  props: {
-    text_i: String,
-    vlaky: String,
-  },
-  computed: {
-    myvlk() {
-      return JSON.parse(this.vlaky);
-    },
-  },
-  filters: {
-    cislovlaku: function (value) {
-      if (!value) return ''
-      value = value.toString()
-      var typ_vlaku;
-      switch (value.length) {
-      case 1:
-      case 2: typ_vlaku ='EC';
-        break;
-      case 3: typ_vlaku = (['1','2','3','4','5'].includes(value[0])) ? 'IC' : 'R';
-        break;
-      case 4:
-              if ((value[0]=='1') && (['0','1','2','3','4','5','6'].includes(value[1]))) { typ_vlaku ='Rp'
-              } else {
-                typ_vlaku = ((value[0]=='1') && (['7','8','9'].includes(value[1]))) ? 'Zr' : 'Os';
-                if ((value[0]=='2')&&(value[1]=='8')&&(value[2]=='8')) typ_vlaku = 'Sv';
-              }
-        break;
-      case 5:
-        switch (parseInt(value[0])) {
-          case 1: typ_vlaku = (['0','1','2','3','4','5','6'].includes(value[2])) ? 'R' : 'Os';
-            break;
-          case 2: typ_vlaku ='Os';
-          case 3:
-          case 4: typ_vlaku='Pn';
-            break;
-          case 5:
-            switch (parseInt(value[3])) {
-              case 0: typ_vlaku ='Nex';
-                break;
-              case 1:
-              case 2: typ_vlaku ='Rn';
-                break;
-              case 3:
-              case 4: typ_vlaku='KPS';
-                break;
-              case 5:
-              case 6:
-              case 7: typ_vlaku='Sn';
-                break;
-              case 8:
-              case 9: typ_vlaku='Vn';
-            }
-          case 6: typ_vlaku ='Pn';
-            break;
-          case 7: typ_vlaku ='Lv';
-            break;
-          case 8: typ_vlaku = (['0','1','2','3','4','5','6','7'].includes(value[3])) ? 'Mn' : 'Vl';
-            break;
-          case 9: typ_vlaku = 'Pv';
-        }
-        break;
-      }
-      for (var i = value.length; i < 5; i++) {
-        value = "\u00A0"+value;
-      }
-      for (var i = typ_vlaku.length; i < 3; i++) {
-        typ_vlaku += "\u00A0";
-      }
-      return typ_vlaku+value;
-    },
-    dlzkatextpred: function (v, l) {
-      for (var i = v.length; i < l; i++) {
-        v = "\u00A0"+v;
-      }
-      return v;
-    }
-  },
-  template: `
-    <div class="col-6 bg-primary zoznam">
-      <ul>
-        <li v-for="vl in myvlk">
-          {{vl.cislo | cislovlaku}}, {{vl.dl | dlzkatextpred(3)}}0m, 
-          {{vl.ry | dlzkatextpred(3)}}km/h, {{vl.mz}}<i class="fas fa-long-arrow-alt-right"></i>{{vl.mo}}
-        </li>
-      </ul>
-    </div>
-    `
-});
-
-Vue.component('casovac', {
-  props: ['udalost', 
-          'day',                // Deň v týždni 1=pondelok ... 7=nedeľa
-          'hour'],              // Počiatočný čas v celých hodinách
-  data: function () {
-    return {
-      time: 288000,             // Počiatočný čas v desatinách sekúnd 8:00 = 8 * 60 * 60 * 10
-      timer:null,               // Timer
-      isRunning: false,         // Príznak či hodiny bežia
-      interval: [200, 130, 60], // rýchlosť behu hodín - dĺžka trvania 200ms
-      speed: 0,                 // Číslo rýchlosti od 0 do 2
-      casova_fronta: [],        // Časová fronta pre udalosti
-      den: 0,                   // Deň v týždni 0=pondelok ... 6=nedeľa
-      den_skr: ["Po", "Ut", "St", "Št", "Pi", "So", "Ne"], //Skratky dní v týždni
-      first_run: false          // Prvé spustenie hodín
-    };
-  },
-  computed: {
-    time_u: function () {
-      let mytime = parseInt(this.time /10);
-      let time = mytime / 60;
-      let secondes = parseInt((mytime - parseInt((mytime / 60)) * 60));
-      let minutes = parseInt(parseInt((mytime / 60)) % 60);
-      let hours = parseInt(time / 60);
-      if (hours < 10) {
-        hours = "0"+hours;
-      }
-      if (minutes < 10) {
-        minutes = "0"+minutes;
-      }
-      if (secondes < 10) {
-        secondes = "0"+secondes;
-      }
-      return hours+":"+minutes+":"+secondes;
-    },
-    speedClass: function () {
-      switch (this.speed) {
-        case 0: return "bg-success"; break;
-        case 1: return "bg-warning"; break;
-        case 2: return "bg-danger"; break;
-      }
-    },
-    speedWidth: function () {
-      return ((this.speed + 1)/3 * 100)+"%";
-    }
-  },
-  methods: {
-    casovacStart () {
-      this.isRunning = true;
-      this.first_run = true;
-      if (!this.timer) {
-        this.timer = setInterval( () => {   // Funkcia spúšťaná pravidelne pri behu časovača
-          this.time += 2;
-          if (this.time >= 863999) { // Prešiel som cez polnoc (24*60*60*10)=864000
-            this.den += this.den < 6 ? 1 : -6 // Pripočítaj deň ak je Ne -> Po
-            Object.keys(this.casova_fronta).forEach(cs => { // Prepočítaj časovú frontu 
-              this.casova_fronta[cs].cas -= this.casova_fronta[cs].cas >= 864000 ? 864000 : 0;
-            });
-            this.time -= 864000;     // Zmeň čas
-          }
-          this.test_fronta();
-        }, this.interval[this.speed]);
-      }
-    },
-    casovacStop () {
-      this.isRunning = false;
-      clearInterval(this.timer);
-			this.timer = null;
-    },
-    casovacUp() {
-      this.speed += this.speed < 2 ? 1 : 0;
-      if (this.isRunning) {
-        this.casovacStop();
-        this.casovacStart();
-      }
-    },
-    casovacDown() {
-      this.speed -= this.speed > 0 ? 1 : 0;
-      if (this.isRunning) {
-        this.casovacStop();
-        this.casovacStart();
-      }
-    },
-    test_fronta() {
-      if (this.casova_fronta.length && this.casova_fronta[0].cas <= this.time) { // Zisti či sa má udiať prvý prvok fronty
-        var first = this.casova_fronta.shift();     // Vyber prvý prvok z poľa
-        this.$emit("urob", first);                  // Odošli na spracovanie
-      }
-    },
-    initDateTime: function() { // Počiatočné naplnenie časovača a dňa
-      this.den = this.day - 1;
-      this.time = this.hour * 60 * 60 * 10;
-    },
-  },
-  mounted () {
-    this.initDateTime();
-  },
-  watch: {
-    udalost: function (newUdalost, oldUdalost) {
-      if (!!newUdalost.prvky && newUdalost.prvky.constructor === Array) { // Je to pole? https://stackoverflow.com/questions/4775722/how-to-check-if-an-object-is-an-array
-        newUdalost.prvky.forEach(pr => {
-          pr.cas += this.time;
-          this.casova_fronta.push({cas: pr.cas, xs: pr.xs, nst: newUdalost.nst, sm: pr.sm});
-        });
-      } else {
-        newUdalost.cas += this.time;
-        this.casova_fronta.push(newUdalost);  
-      }
-      this.casova_fronta.sort(function(a, b){return a.cas - b.cas;});
-    }
-  },
-  template: `
-    <div class="col-2 bg-dark text-white">
-      <div class="btn-group btn-group-sm" role="group" aria-label="hodiny">
-        <button class="btn btn-outline-info btn-sm disabled">{{den_skr[den]}}</button>
-        <button @click="casovacDown" class="btn btn-outline-info btn-sm" :class="speed == 0 ? 'disabled' : ''">
-          <i class="fas fa-level-down-alt"></i>
-        </button>
-        <button class="btn btn-outline-info btn-sm disabled" >{{time_u}}</button>
-        <button @click="casovacUp" class="btn btn-outline-info btn-sm" :class="speed == 2 ? 'disabled' : ''">
-          <i class="fas fa-level-up-alt"></i>
-        </button>
-        <button @click="casovacStart" v-if="!isRunning" class="btn btn-outline-danger btn-sm"><i class="fas fa-power-off"></i></button>
-        <button @click="casovacStop" v-if="isRunning" class="btn btn-outline-success btn-sm"><i class="fas fa-power-off"></i></button>                                                                                    
-      </div>
-      <div class="progress" style="height: 5px">
-        <div class="progress-bar" role="progressbar"
-              :class="speedClass" 
-              v-bind:style="{width: speedWidth}" 
-              aria-valuemin="0" aria-valuemax="2"></div>
-      </div>
-    </div>
-    `
-});
-
-Vue.component('info', {
-  props: 
-    ['text_r']
-  ,
-  data: function () {
-    return {
-      textr: '',
-      textrv: false
-    }
-  },
-  methods: {
-    skry_info() {
-      this.textrv = false;
-      this.$emit('text_r_clr', true);
-    },
-    zobraz_info(info) {
-      this.textrv = info.length > 0 ? true : false;
-      this.textr = info;
-    }
-  },
-  computed: {
-    infoClass: function () {
-      return (typeof this.text_r !== 'undefined' && this.text_r.length > 0) ? "bg-info" : "bg-transparent";
-    }
-  },
-  watch: {
-    text_r: function (newText_r, oldText_r) {
-      this.textrv = (typeof this.text_r !== 'undefined' && this.text_r.length > 0) ? true : false;
-      this.textr = newText_r;
-    },
-  },
-  template: `
-    <div class="col-6 mt-1 min-h-my"
-          :class="infoClass" @click="skry_info">{{textr}}</div>
-    `
-});
-
-Vue.component('errors', {
-  props: 
-    ['text_r']
-  ,
-  data: function () {
-    return {
-      textr: '',
-      textrv: false
-    }
-  },
-  methods: {
-    skry_r() {
-      this.textrv = false;
-      this.$emit('text_r_clr', true);
-    }
-  },
-  computed: {
-    redClass: function () {
-      return this.text_r.length > 0 ? "bg-danger" : "bg-transparent";
-    }
-  },
-  watch: {
-    text_r: function (newText_r, oldText_r) {
-      this.textrv = this.text_r.length > 0 ? true : false;
-      this.textr = newText_r;
-    },
-  },
-  template: `
-    <div class="col-6 mt-1 errors text-white"
-          :class="redClass" @click="skry_r">{{textr}}</div>
-    `
-});
-
-Vue.component('statusbar', {
-  props: 
-    ['text_g']
-  ,
-  data: function () {
-    return {
-      textg: '',
-      textgv: false,
-      timer:null
-    }
-  },
-  methods: {
-    skry_g() {
-      this.textgv = false;
-      this.$emit('text_g_clr', true);
-    },
-    start_g() {
-      if (!this.timer) {
-        this.timer = setInterval( () => { // https://codepen.io/edscode/pen/QXXowy
-          this.textg = "";
-          this.textgv = false;
-          this.$emit('text_g_clr', true);
-          clearInterval(this.timer);
-          this.timer = null;
-          this.stop();
-        }, 8000 );
-			}
-    },
-    stop () {
-      clearInterval(this.timer);
-      this.timer = null;
-    }
-  },
-  computed: {
-    activeClass: function () {
-      var sp = this.text_g.split("<||>");
-      return sp[1] === 'V' ? 'bg-success text-white' : (sp[1] === 'P' ? 'bg-light' : 'bg-transparent');
-    }
-  },
-  watch: {
-    text_g: function(newText_g, oldText_g) {
-      this.textgv = this.text_g.length > 0 ? true : false;
-      var sp = newText_g.split("<||>");
-      this.textg = sp[0];
-      this.start_g();
-    }
-  },
-  template: `
-      <div :class="activeClass" @click="skry_g">{{textg}}</div>
-    `
-});
-
-new Vue({
-  el: '#app',
-  data: {
-    text_g: "",
-    text_r: "",
-    udalost: null,
-    urob: null,
-  },
-  methods: {
-    text_r_clear() {
-      this.text_r = "";
-    },
-    text_g_clear() {
-      this.text_g = "";
     }
   }
 });
