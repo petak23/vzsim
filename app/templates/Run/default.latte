@@ -1,5 +1,12 @@
 {block title}Oblasť: {$oblast->name}{/block}
 {block content}
+<ui_run
+  prvky="{$jprvky}"
+  cesty="{$jcesty}"
+  @status="status = $event"
+  @kresli="kresli = $event"
+  :was_clicked=was_clicked
+></ui_run>
 <section class="row hlavna-plocha">
   <article class="col-12 vrchny-panel">
     <div class="row">
@@ -24,7 +31,9 @@
       @text_g="text_g = $event"
       @text_r="text_r = $event"
       @udalost="udalost = $event"
+      @was_clicked="was_clicked = $event"
       :urob="urob"
+      :kresli=kresli
     >
     </mycanvas>
   </article>
@@ -40,8 +49,8 @@
   </article>
   <article class="col-12 status-bar">
     <statusbar
-      :text_g=text_g
-      @text_g_clr="text_g_clear"
+      :status=status
+      @status_clr="status_clear"
     ></statusbar>
   </article>
 </section>

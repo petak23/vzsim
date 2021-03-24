@@ -1,6 +1,6 @@
 /**
  * Vue komponenta pre stavový riadok v simulácii.
- * Posledna zmena(last change): 18.03.2021
+ * Posledna zmena(last change): 24.03.2021
  *
  *	Modul: RUN
  *
@@ -8,34 +8,30 @@
  * @copyright  Copyright (c) 2021 - 2021 Ing. Peter VOJTECH ml.
  * @license
  * @link       http://petak23.echo-msz.eu
- * @version 1.0.0
+ * @version 1.0.1
  */
 Vue.component('statusbar', {
-  props: 
-    ['text_g']
-  ,
+  props: {
+    status: Object,
+  },
   data: function () {
     return {
-      textg: '',
-      textgv: false,
-      timer:null
+      timer:null,             // Časovač pre zhasnutie status baru
+      interval_of_view: 8000, // Dĺžka zobrazenia info v status bare
     }
   },
   methods: {
     skry_g() {
-      this.textgv = false;
-      this.$emit('text_g_clr', true);
+      this.$emit('status_clr', true);
     },
     start_g() {
       if (!this.timer) {
         this.timer = setInterval( () => { // https://codepen.io/edscode/pen/QXXowy
-          this.textg = "";
-          this.textgv = false;
-          this.$emit('text_g_clr', true);
+          this.$emit('status_clr', true);
           clearInterval(this.timer);
           this.timer = null;
           this.stop();
-        }, 8000 );
+        }, this.interval_of_view );
 			}
     },
     stop () {
@@ -45,19 +41,20 @@ Vue.component('statusbar', {
   },
   computed: {
     activeClass: function () {
-      var sp = this.text_g.split("<||>");
-      return sp[1] === 'V' ? 'bg-success text-white' : (sp[1] === 'P' ? 'bg-light' : 'bg-transparent');
+      return this.status == null ? 'bg-transparent' : (this.status.type === 'V' ? 'bg-success text-white' : (this.status.type === 'P' ? 'bg-light' : 'bg-transparent'));
+    },
+    text_status: function () {
+      return this.status == null ? "" : this.status.txt;
     }
   },
   watch: {
-    text_g: function(newText_g, oldText_g) {
-      this.textgv = this.text_g.length > 0 ? true : false;
-      var sp = newText_g.split("<||>");
-      this.textg = sp[0];
-      this.start_g();
+    status: function(newStatus) {
+      if (newStatus !== null) {
+        this.start_g();
+      }
     }
   },
   template: `
-      <div :class="activeClass" @click="skry_g">{{textg}}</div>
+      <div :class="activeClass" @click="skry_g">{{text_status}}</div>
     `
 });

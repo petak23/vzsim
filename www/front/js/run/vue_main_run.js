@@ -1,6 +1,6 @@
 /**
  * Hlavná časť Vue v simulácii.
- * Posledna zmena(last change): 18.03.2021
+ * Posledna zmena(last change): 24.03.2021
  *
  *	Modul: RUN
  *
@@ -8,22 +8,26 @@
  * @copyright  Copyright (c) 2021 - 2021 Ing. Peter VOJTECH ml.
  * @license
  * @link       http://petak23.echo-msz.eu
- * @version 1.0.0
+ * @version 1.0.1
  */
 new Vue({
   el: '#app',
   data: {
-    text_g: "",
     text_r: "",
     udalost: null,
     urob: null,
+
+    // Premenné pre posielané $event-y
+    was_clicked: null,  // canvas -> UI
+    kresli: null,       // UI -> canvas
+    status: null,       // UI -> statusbar
   },
   methods: {
     text_r_clear() {
       this.text_r = "";
     },
-    text_g_clear() {
-      this.text_g = "";
+    status_clear() {
+      this.status = null;
     }
   }
 });

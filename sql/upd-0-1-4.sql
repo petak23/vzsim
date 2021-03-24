@@ -1,0 +1,1 @@
+UPDATE `oblast_prvky` SET `c2` = '1158' WHERE `id` = '347';
