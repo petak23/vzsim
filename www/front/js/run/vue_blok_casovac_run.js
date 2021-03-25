@@ -122,6 +122,12 @@ Vue.component('casovac', {
   mounted () {
     this.initCasovac();
   },
+  created() {
+    this.timer = setInterval( () => {
+      this.casovacStop();
+      this.casovacStart();
+    }, 1000);
+  },
   watch: {
     udalost: function (newUdalost, oldUdalost) {
       if (!!newUdalost.prvky && newUdalost.prvky.constructor === Array) { // Je to pole? https://stackoverflow.com/questions/4775722/how-to-check-if-an-object-is-an-array
