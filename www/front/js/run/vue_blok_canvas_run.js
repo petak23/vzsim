@@ -1,6 +1,6 @@
 /**
  * Vue komponenta pre canvas a vykreslovanie plochy v simulácii.
- * Posledna zmena(last change): 23.03.2021
+ * Posledna zmena(last change): 25.03.2021
  *
  *	Modul: RUN
  *
@@ -8,7 +8,7 @@
  * @copyright  Copyright (c) 2021 - 2021 Ing. Peter VOJTECH ml.
  * @license
  * @link       http://petak23.echo-msz.eu
- * @version 1.0.1
+ * @version 1.0.2
  */
 Vue.component('mycanvas', { 
 //var mycanvas = {  
@@ -132,25 +132,7 @@ Vue.component('mycanvas', {
     },
     selectMenu(id) {
       var pr = this.myprv[this.menu_xs];
-      this.$emit('text_g', "Prijatý príkaz:" + this.menus[pr.id_prvky_kluc][id-1].txt + " pre prvok:" + pr.xs +"<||>P");
-      switch (this.menus[pr.id_prvky_kluc][id-1].txt) {
-        case 'STOJ':  this.myprv[this.menu_xs].stav = 0;
-                      this.kresli_prvok(this.myprv[this.menu_xs]);
-          break;
-        case 'RC':  this.myprv[this.menu_xs].stav = 5;
-                    this.kresli_prvok(this.myprv[this.menu_xs]);
-                    this.$emit('udalost', {cas: 50, xs: pr.xs, nst: pr.c[3], do: 'rusCestu'});
-          break;
-        case 'DN':  if (pr.c[3] > 0) {                                          // Je v návestidle zapísaný koniec cesty
-                      this.myprv[this.menu_xs].stav = this.myprv[pr.c[0]].stav; // Stav nastav podľa prvku za návestidlom
-                      this.kresli_prvok(this.myprv[this.menu_xs]);
-                    }
-          break;
-        case 'VC': this.zaciatok_cesty(pr, 'V');
-          break;
-        case 'PC': this.zaciatok_cesty(pr, 'P');
-          break;
-      }
+      this.$emit('context_menu', {prvok: pr, pol: this.menus[pr.id_prvky_kluc][id-1].txt});
       this.closeMenu();
     },
 		// --- Kontextové menu - Koniec
@@ -167,10 +149,10 @@ Vue.component('mycanvas', {
     mriezka() {
       var i;
       for (i = 0; i <= this.xmax_s; i++) {
-        this.drawLine((i*this.krokx), 0, (i*this.krokx), (this.ymax_s * this.kroky), 1, "#555555");
+        this.drawLine((i*this.krokx), 0, (i*this.krokx), (this.ymax_s * this.kroky), 1, "#555");
       }
       for (i = 0; i <= this.ymax_s; i++) {
-        this.drawLine(0, (i*this.kroky), (this.xmax_s * this.krokx), (i*this.kroky), 1, "#555555");
+        this.drawLine(0, (i*this.kroky), (this.xmax_s * this.krokx), (i*this.kroky), 1, "#555");
       }
     },
     sux(xs) { // x súradnica
@@ -512,93 +494,8 @@ Vue.component('mycanvas', {
         this.$emit('was_clicked', {prvok: null, mod: ""});
       }
     },
-    postav_cestu(cesta) {
-      var vyh = 0;                                    // Počet momentálne nesprávne prestavených výhybiek
-      var for_emit = [];                              // Pole prvkov pre $emit
-      var dvojica = [];                               // Pole pre dvojicu výhybiek
-      cesta.prvky_cesty.forEach(x => {                // Ošetri polohu výhybiek
-        var pro = x.split("|");                       // Rozlož prvok cesty na xs (a polohu výhybky)
-        var pr = this.myprv[pro[0]];                  // Pre skrátenie zápisov
-        if (pr.id_prvky_kluc == 16) {                 // Prvok je VN?
-          if (pr.sm != pro[1]) {                      // Nie je správne prestavená
-            if (vyh < 4 && this.myprv[pro[0]].sm < 64) {  // Max sa prestavuje najviac 3 výhybky a neprestavuje sa
-              this.myprv[pro[0]].sm = parseInt(pro[1]) + 64; // Príznak prestavovania
-              this.prvok_VN(this.myprv[pro[0]]);
-              if (pr.c[2] > 0 && dvojica.length == 0) { // Výhybka má dvojicu a je prvá
-                dvojica.push(pr.xs);
-                if (cesta.prvky_odvrat.includes(pr.c[2]+"|"+pro[1])) {  // Mám dvojicu ako odvrat
-                  this.myprv[pr.c[2]].sm = parseInt(pro[1]) + 64; // Príznak prestavovania
-                  this.prvok_VN(this.myprv[pr.c[2]]);
-                  dvojica.push(pr.c[2]);
-                  for_emit.push({cas: 50, xs: dvojica, sm: pro[1]}); // Priprav pre $emit
-                  dvojica = [];                       // Vymazanie poľa
-                  vyh++;                              // Dvojica v stave prestavovania
-                } 
-              } else if (pr.c[2] > 0 && dvojica.length > 0) {  // Výhybka má dvojicu a je druhá
-                dvojica.push(pr.xs);
-                for_emit.push({cas: 50, xs: dvojica, sm: pro[1]}); // Priprav pre $emit
-                dvojica = [];                         // Vymazanie poľa
-                vyh++;
-              } else {
-                for_emit.push({cas: 25, xs: pro[0], sm: pro[1]});  // Priprav pre $emit
-                vyh++;
-              }
-            } else if (this.myprv[pro[0]].sm >= 64) { // Ak sa prestavuje tak započítaj
-              vyh++;
-            }
-          }
-        }
-      });
-      
-      var ts = this.myprv[cesta.kc].ts;
-      if (ts > 0 && cesta.typ == 2) {
-        if (this.myprv[ts].sm != this.myprv[cesta.zc].sm) { // TS je nesprávne
-          this.myprv[ts].stav = 4;
-          this.prvok_TS(this.myprv[ts]);
-          this.$emit('udalost', {cas: 20, xs: ts, cesta: cesta, do: 'zmenTS'});
-          vyh++;
-        } else if (vyh == 0) {
-          this.myprv[ts].c[2] |= 1;
-          this.prvok_TS(this.myprv[ts]);
-        }
-      }
-      if (vyh == 0) { // Všetky výhybky sú správne prestavené
-        cesta.prvky_cesty.forEach(xs => {
-          var pro = xs.split("|");                        // Rozlož prvok cesty na xs (a polohu výhybky)
-          if (pro[0] == cesta.zc) {                       // Pre počiatočné návestidlo na rozsvietenie o 1s
-            this.$emit('udalost', {cas: 10, xs: pro[0], nst: cesta.typ, do: 'zmenPrvok'});
-          } else {
-            //Zapíš do prvkov záver cesty okrem návestidiel
-            if (this.myprv[pro[0]].id_prvky_kluc !== 6 && this.myprv[pro[0]].id_prvky_kluc !== 8) {
-              this.myprv[pro[0]].stav = cesta.typ;
-            }
-            this.kresli_prvok(this.myprv[pro[0]]);
-          }
-        });
-      } else {
-        if (for_emit.length > 0) {
-          this.$emit('udalost', {cas: 25, prvky: for_emit, cesta: cesta, do: 'prestavVN'});
-        }
-      }
-    },
-    rus_cestu(cesta_z, cesta_k) {
-      var cislo_cesty = this.get_cislo_cesty(this.myprv[cesta_z],this.myprv[cesta_k]);
-      this.myprv[cesta_z].stav = 0;
-      this.kresli_prvok(this.myprv[cesta_z]);
-      this.mycst[cislo_cesty].prvky_cesty.forEach(xs => {
-        var pro = xs.split("|");                        // Rozlož prvok cesty na xs (a polohu výhybky)
-        if (this.myprv[pro[0]].id_prvky_kluc !== 6 && this.myprv[pro[0]].id_prvky_kluc !== 8) {
-          this.myprv[pro[0]].stav = 0;
-        }
-        this.kresli_prvok(this.myprv[pro[0]]);
-      });
-      var ts = this.myprv[cesta_k].ts;
-      if (ts > 0 && this.mycst[cislo_cesty].typ == 2) {
-        this.myprv[ts].c[2] = (this.myprv[ts].c[2] >> 1) << 1 ;  // Nastavím bit 0 na 0 
-        this.prvok_TS(this.myprv[ts]);
-      }
-    },
     kresli_prvok(pr) {
+      this.myprv[pr.xs] = pr; //Aktualizuj údaje o prvku
       switch (pr.id_prvky_kluc) {
         case 1:
         case 2:
@@ -672,49 +569,20 @@ Vue.component('mycanvas', {
       });
       return odkazy;
     },
-    prestavVN(xs, sm) {         // Slúži na grafické ukončenie prestavovania VN
-      if (this.myprv[xs].id_prvky_kluc == 16 && sm > 0) { // Je to VN a prestavuje sa
-        this.myprv[xs].sm = sm;                           // Zmeň polohu výhybky
-        this.kresli_prvok(this.myprv[xs]);                // Vykresli VN
-      }
-    }
   },
   watch: {
     kresli: function (newKresli) {
       if (newKresli !== null) {
         if (typeof newKresli.prvok !== 'undefined') {
-          this.kresli_prvok(newKresli.prvok);
-        } else if (typeof newKresli.cesta !== 'undefined') {
-          this.postav_cestu(newKresli.cesta);
+          if (newKresli.prvok.constructor === Array) { // Je to pole? https://stackoverflow.com/questions/4775722/how-to-check-if-an-object-is-an-array
+            newKresli.prvok.forEach(pr => {
+              this.kresli_prvok(pr);
+            });
+          } else {
+            this.kresli_prvok(newKresli.prvok);
+          }
         }
       }
     },
-    urob: function (newUrob) {
-      switch (newUrob.do) {
-        case "rusCestu": this.rus_cestu(newUrob.xs, newUrob.nst); // Spracovanie pre rušenie cesty
-          break;
-        case "zmenTS": 
-              this.myprv[newUrob.xs].stav = 0; // Zmeň TS
-              this.myprv[newUrob.xs].sm = this.myprv[newUrob.cesta.zc].sm; // Zmeň smer TS
-              this.kresli_prvok(this.myprv[newUrob.xs]);  // Vykresli TS
-              this.postav_cestu(newUrob.cesta);
-          break;
-        case 'zmenPrvok': 
-              this.myprv[newUrob.xs].stav = newUrob.nst;  // Zmeň stav prvku
-              this.kresli_prvok(this.myprv[newUrob.xs]);  // Vykresli ho
-          break;
-        case 'prestavVN':
-              if (!!newUrob.xs && newUrob.xs.constructor === Array) { // Je to pole? https://stackoverflow.com/questions/4775722/how-to-check-if-an-object-is-an-array
-                newUrob.xs.forEach(xs => {
-                  this.prestavVN(xs, newUrob.sm);
-                });
-              } else {
-                this.prestavVN(newUrob.xs, newUrob.sm);
-              }
-              this.postav_cestu(newUrob.cesta);
-          break;
-        default: console.log(newUrob.do);
-      }
-    }
   }
 });

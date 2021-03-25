@@ -5,7 +5,11 @@
   cesty="{$jcesty}"
   @status="status = $event"
   @kresli="kresli = $event"
+  @error="error = $event"
+  @udalost="udalost = $event"
+  :urob=urob
   :was_clicked=was_clicked
+  :context_menu=context_menu
 ></ui_run>
 <section class="row hlavna-plocha">
   <article class="col-12 vrchny-panel">
@@ -13,7 +17,7 @@
       <casovac
         day={$oblast_params['day']}
         hour={$oblast_params['hour']}
-        :udalost="udalost"
+        :udalost=udalost
         @urob="urob = $event"
       ></casovac>
       <nastavenie></nastavenie>
@@ -28,11 +32,8 @@
       cesty="{$jcesty}"
       xmax_s=63
       ymax_s=28
-      @text_g="text_g = $event"
-      @text_r="text_r = $event"
-      @udalost="udalost = $event"
       @was_clicked="was_clicked = $event"
-      :urob="urob"
+      @context_menu="context_menu = $event"
       :kresli=kresli
     >
     </mycanvas>
@@ -43,8 +44,8 @@
     >
     </info>
     <errors
-      :text_r=text_r
-      @text_r_clr="text_r_clear"
+      :error=error
+      @error_clr="error_clear"
     ></errors>
   </article>
   <article class="col-12 status-bar">
@@ -55,6 +56,7 @@
   </article>
 </section>
 {/block}
+
 {block scripts}
 <script src="{$basePath}/front/js/run/vue_blok_canvas_run.js"></script>
 <script src="{$basePath}/front/js/run/vue_blok_casovac_run.js"></script>
