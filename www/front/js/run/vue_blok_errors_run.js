@@ -1,6 +1,6 @@
 /**
  * Vue komponenta pre výpis chybových hlásení v simulácii.
- * Posledna zmena(last change): 18.03.2021
+ * Posledna zmena(last change): 25.03.2021
  *
  *	Modul: RUN
  *
@@ -8,37 +8,23 @@
  * @copyright  Copyright (c) 2021 - 2021 Ing. Peter VOJTECH ml.
  * @license
  * @link       http://petak23.echo-msz.eu
- * @version 1.0.0
+ * @version 1.0.1
  */
 Vue.component('errors', {
-  props: 
-    ['text_r']
-  ,
-  data: function () {
-    return {
-      textr: '',
-      textrv: false
-    }
+  props: {
+    error: Object,
   },
   methods: {
     skry_r() {
-      this.textrv = false;
-      this.$emit('text_r_clr', true);
+      this.$emit('error_clr', true);
     }
   },
   computed: {
     redClass: function () {
-      return this.text_r.length > 0 ? "bg-danger" : "bg-transparent";
+      return (this.error !== null && this.error.txt.length > 0) ? "bg-danger" : "bg-transparent";
     }
   },
-  watch: {
-    text_r: function (newText_r, oldText_r) {
-      this.textrv = this.text_r.length > 0 ? true : false;
-      this.textr = newText_r;
-    },
-  },
   template: `
-    <div class="col-6 mt-1 errors text-white"
-          :class="redClass" @click="skry_r">{{textr}}</div>
+    <div class="col-6 mt-1 min-h-my errors text-white" :class="redClass" @click="skry_r">{{error !== null ? error.txt : ''}}</div>
     `
 });

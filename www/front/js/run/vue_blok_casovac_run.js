@@ -1,6 +1,6 @@
 /**
  * Vue komponenta pre časovač a časovú frontu v simulácii.
- * Posledna zmena(last change): 18.03.2021
+ * Posledna zmena(last change): 23.03.2021
  *
  *	Modul: RUN
  *
@@ -8,7 +8,7 @@
  * @copyright  Copyright (c) 2021 - 2021 Ing. Peter VOJTECH ml.
  * @license
  * @link       http://petak23.echo-msz.eu
- * @version 1.0.0
+ * @version 1.0.1
  */
 Vue.component('casovac', {
   props: {  udalost: Object, 
@@ -122,12 +122,18 @@ Vue.component('casovac', {
   mounted () {
     this.initCasovac();
   },
+  created() {
+    this.timer = setInterval( () => {
+      this.casovacStop();
+      this.casovacStart();
+    }, 1000);
+  },
   watch: {
     udalost: function (newUdalost, oldUdalost) {
       if (!!newUdalost.prvky && newUdalost.prvky.constructor === Array) { // Je to pole? https://stackoverflow.com/questions/4775722/how-to-check-if-an-object-is-an-array
         newUdalost.prvky.forEach(pr => {
           pr.cas += this.time;
-          this.casova_fronta.push({cas: pr.cas, xs: pr.xs, nst: newUdalost.nst, sm: pr.sm});
+          this.casova_fronta.push({cas: pr.cas, xs: pr.xs, cesta: newUdalost.cesta, sm: pr.sm, do: newUdalost.do});
         });
       } else {
         newUdalost.cas += this.time;
