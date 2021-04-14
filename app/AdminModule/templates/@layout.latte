@@ -1,0 +1,133 @@
+{**
+ * Hlavné rozloženie stránky pre ADMIN modul aplikácie
+ * My Application layout template for ADMIN module.
+ *
+ *	Modul: ADMIN
+ *
+ * Posledna zmena(last change): 12.11.2020
+ * @copyright  Copyright (c) 2012 - 2020 Ing. Peter VOJTECH ml.
+ * @license
+ * @link       http://petak23.echo-msz.eu
+ *
+ * @param string                          $basePath       Web base path
+ * @param array                           $flashes        Flash messages
+ * @param array                           $udaje          Rozne udaje webu
+ * @param string                          $nazov_stranky  Nazov stranky
+ * @param string                          $dir_to_images  Adresar k obrazkom
+ * @param string                          $dir_to_icons   Adresar pre ikonky
+ * @param Nette\Security\User             $user           Info o uzivatelovi
+ * @param Nette\Database\Table\Selection  $admin_menu     Menu administracie
+ * @param Nette\Database\Table\ActiveRow  $verzia         Info o aktualnej verzii
+ *}
+{var $robots = noindex}
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"/>
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
+	<meta name="HandheldFriendly" content="true" />
+  <meta name="robots" content="noindex" />
+	<meta name="author" content="{$udaje['autor']}" />
+	<title>{$udaje['titulka']} - Administracia</title>
+  <link rel="stylesheet" type="text/css" href="{webpack admin.css}">
+  <!-- upload -->
+  {\Zet\FileUpload\FileUploadControl::getHead($basePath . '/vendor/ijvo/jquery-fileupload/src/www/')}
+  {block spec_css}{/block}
+	
+  {control favicon}
+
+	{block head}{/block}
+</head>
+
+<body>
+  <div class="container-fluid" id="vueappadmin">
+    <div class="row">
+      <div class="col bg-dark">
+        <nav class="navbar navbar-expand-md navbar-dark bg-dark">
+          <a class="navbar-brand" n:href="Homepage:">Administrácia</a>
+          <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarTogglerAdminTop" aria-controls="navbarTogglerAdminTop" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+          </button>
+          <div class="collapse navbar-collapse justify-content-end" id="navbarTogglerAdminTop">
+            <ul class="navbar-nav my-2 my-lg-0">
+              <li class="nav-item"><a class="nav-link" n:href=":Front:Homepage:" title="Zmeny"><i class="fas fa-eye"></i> Skontroluj zmeny na webe...</a></li>
+              <li class="nav-item" class="nav-link" n:if="$user->isInRole('admin')">
+                <a href="https://getbootstrap.com/" class="nav-link" title="Bootstrao 4" target="_blank">Bootstrap 4</a>
+              </li>
+              <li class="nav-item">
+                <a href="http://fontawesome.io/icons/" class="nav-link" title="FontAwesome 5" target="_blank"><i class="fas fa-flag"></i></a>
+              </li>
+              <li class="nav-item"  class="nav-link" n:if="$user->isInRole('admin')">
+                <a href="{$basePath}/www/adminer/?server={$udaje['host']}&db={$udaje['dbname']}" class="nav-link" title="Adminer" target="_blank"><i class="fas fa-database"></i></a>
+              </li>
+            </ul>
+          </div>
+        </nav>
+      </div>
+    </div> 
+              
+    <div class="row">
+      <div class="col-12 col-sm-3 col-md-2 left-col">
+        <div class="menu_new">
+          <ul>
+          <li n:if="$user->isInRole('admin')"><a href="{link :Front:Homepage:default}api/" title="API" target="_blank">API</a></li>
+          {foreach $admin_menu as $am}
+            <li n:if="$am->id_user_roles <= $user->getIdentity()->id_user_roles">
+              <a n:href="$am->odkaz" title="{$am->nazov}" n:class="$presenter->isLinkCurrent($am->odkaz.'*') ? selected">
+                {$am->nazov}
+              </a>
+            </li>
+          {/foreach}
+          </ul>
+        </div>
+        <div class="menu_new">{control menu:tree}</div>
+      </div>
+      <div class="col-12 col-sm-9 col-md-10">
+        <div class="row" n:snippet="flashes"> 
+          <div class="col-md-6 col-md-offset-3" n:inner-foreach="$flashes as $flash">
+            {var $nees = explode(',', $flash->type)}
+            <div class="alert alert-{$nees[0]} alert-dismissible fade show" role="alert">
+              <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+              {if isset($nees[1]) && $nees[1] == 'n'}{$flash->message|noescape}{else}{$flash->message}{/if}
+            </div>
+          </div>
+        </div>
+        {control confirmForm}
+        <div class="row" n:snippet="content">
+          {include #content}
+        </div>
+      </div>
+    </div>
+  
+    <div class="row footer-dark">
+      <div class="col-12">
+        <footer>
+          <nav class="navbar navbar-expand navbar-dark">
+            <div class="text-center justify-content-center">
+              <p class="navbar-text">
+                © {$udaje['autor']} & {$udaje['copy']} 2015 - {date('Y')}&nbsp;|&nbsp;
+                Posledná aktualizácia: <a n:href="Verzie:default" title="Verzie">{$verzia->modified|date:'j.n.Y'} - v.{$verzia->cislo}</a>&nbsp;|&nbsp;
+                <br>
+                {if $user->isInRole('admin')}
+                  PHP {=PHP_VERSION}&nbsp;|&nbsp;
+                  {ifset $_SERVER['SERVER_SOFTWARE']}Server {$_SERVER['SERVER_SOFTWARE']}&nbsp;|&nbsp;{/ifset}
+                {/if}
+                <a href="http://nette.org/cs/" class="logo-nette" title="Nette Framework - populárny nástroj pre vytváranie webových aplikacií v PHP 5.">
+                  <img src="{$basePath}/www/images/nette-powered1.gif" alt="nette powered">
+                </a>
+              </p>
+            </div>
+          </nav>
+        </footer>
+      </div>
+    </div>
+  </div>
+  <script src="{webpack admin.js}"></script>
+  {block spec_js}{/block}
+  <!-- upload -->
+  
+</body>
+</html>

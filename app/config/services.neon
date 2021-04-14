@@ -1,0 +1,42 @@
+#
+# SECURITY WARNING: it is CRITICAL that this file & directory are NOT accessible directly via a web browser!
+#
+# If you don't protect this directory from direct web access, anybody will be able to see your passwords.
+# http://nette.org/security-warning
+#
+services:
+	- App\Model\Admin_menu
+	- App\Model\Clanok_komponenty
+	- App\Model\Clanok_lang
+	- App\Model\Dlzka_novinky
+	- App\Model\Dokumenty
+	- App\Model\Druh
+	- App\Model\UserManager
+	authorizator: App\Model\AuthorizatorFactory::create(@Nette\Database\Context)
+	- App\Model\Hlavne_menu
+	- App\Model\Hlavne_menu_lang
+	- App\Model\Hlavne_menu_cast
+	- App\Model\Hlavne_menu_opravnenie
+	- App\Model\Hlavne_menu_template
+	- App\Model\Lang
+	- App\Model\Oblast
+	- App\Model\Oblast_cesty
+	- App\Model\Oblast_prvky
+	- App\Model\Prvky_kluc
+	- App\Model\Slider
+	- App\Model\Udaje	
+	- App\Model\Udaje_typ
+	- App\Model\User_login	
+	- App\Model\User_main
+	- App\Model\User_profiles
+	- App\Model\User_roles
+	- App\Model\Verzie	
+	- App\Model\Vlaky
+	- App\RouterFactory
+	router: @App\RouterFactory::createRouter
+
+	Texy: TexylaExample\MyTexy(@httpRequest)
+
+# PeterVojtech
+	- PeterVojtech\Email\IEmailControl
+	- PeterVojtech\MainLayout\Favicon\IFaviconControl

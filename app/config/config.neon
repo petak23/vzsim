@@ -1,0 +1,63 @@
+#
+# WARNING: it is CRITICAL that this file & directory are NOT accessible directly via a web browser!
+# https://nette.org/security-warning
+#
+parameters:
+	dir_to_user: files/ # Globalne nastanenie adresara pre obrazky uzivatelov
+	dir_to_menu: files/menu/ # Globalne nastanenie adresara pre obrazky menu
+	user_panel: #Nastavenie panelu uzivatela
+		view_avatar: FALSE # Zobrazenie avataru v panely uzivatela. TRUE|FALSE
+		admin_link: 3 # Sposob zobrazenia odkazu na administraciu. 1 - Len obrázok; 2 - Len text; 3 - Aj obrazok aj text.
+#   view_log_in_link_in_header - Sposob zobrazenia prihlasovacieho linku. A to:
+#    -1 = len ako odkaz vo footer-y
+#     0 = len ako kruzok  
+#     1 = zobrazi sa text
+#     2 = zobrazi sa ikonka
+#     3 = zobrazi sa ikonka aj text
+		view_log_in_link_in_header: -1
+	user_view_fields: #Nastavuje viditelne(volitelne) polozky uzivatela
+		avatar: FALSE    #Zobrazenie avataru
+		poznamka: FALSE  #Zobrazenie poznamky
+		delete: FALSE    #Zobrazenie moznosti zmazat profil
+	clanky:
+		zobraz_anotaciu: TRUE   #Zobrazenie anotacie vseobecne
+
+	prilohy_dir: files/prilohy/ #Adresar pre prilohy  - časom na zmazanie
+	prilohy_images: #Nastavenie rozmerov obrazku ako prilohy clanku po nahrati na server
+		x: 1510        #Zakladny rozmer
+		y: 1000
+		kvalita: 80    
+		tx: 226       #Rozmer nahladu
+		ty: 150
+		tkvalita: 80
+
+application:
+	errorPresenter: Error
+	mapping:
+		*: App\*Module\Presenters\*Presenter
+
+session:
+  autoStart: true
+  expiration: 14 days
+
+tracy:
+  email: petak23@gmail.com
+	
+includes:
+	- services.neon
+	- ../AdminModule/config/config.neon
+	- ../FrontModule/config/config.neon
+	- komponenty.neon
+	- database.neon
+
+extensions:
+  webpack: Oops\WebpackNetteAdapter\DI\WebpackExtension(%debugMode%, %consoleMode%)
+
+webpack:
+  build:
+    directory: %wwwDir%/dist
+    publicPath: dist/
+  # devServer - tato cast je presunuta do config.local.neon
+  manifest:  # Cez tento subor je prepojenie na filename: '[name].[contenthash:8].[ext]' vo webpack-u
+    name: webpack-assets.json  # ./www/dist/webpack-assets.json
+    mapper: Oops\WebpackNetteAdapter\Manifest\Mapper\AssetsWebpackPluginMapper

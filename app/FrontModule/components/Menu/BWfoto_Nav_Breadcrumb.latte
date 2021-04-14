@@ -1,0 +1,13 @@
+<div class="row">
+  <nav n:if="count($path) > 1" aria-label="breadcrumb" role="navigation" class="col breadcrumb-main">
+    <ol class="bg-dark breadcrumb">
+      <li n:if="count($path) > 1" class="breadcrumb-item"><a href="{plink 'Homepage:'}" title="home">Úvod</a></li>
+      {foreach $path as $k => $node}
+      <li n:if="$k >= $startLevel" class="breadcrumb-item {$node->getItemClass('active')}" {if $node->getItemClass() == ' selected'}aria-current="page"{/if}>
+        <a n:tag-if="$node->getItemClass() != ' selected'" href="{$node->link}" title="{$node->name}">{$node->name}</a>
+      </li>
+      <li n:if="count($path) == 1 && $k < $startLevel" class="breadcrumb-item"> </li>
+      {/foreach}
+    </ol>
+  </nav>
+</div>

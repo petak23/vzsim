@@ -1,0 +1,77 @@
+{block title}Oblasť: {$oblast->name}{/block}
+{block content}
+<section class="row bg-white">
+  <nav class="col-12 btn-group btn-group-sm edit-second-nav" role="group">
+    <a n:href="Edit:import $oblast->id" title="Import" class="btn btn-outline-primary">
+      <small>Import</small>
+    </a>
+    <a n:href="Edit:Generuj $oblast->id" title="Generuj" class="btn btn-outline-warning">
+      <small>Generuj</small>
+    </a>
+    <a href="#" title="Nastavenia" class="btn btn-outline-success">
+      <small>Nastavenia</small>
+    </a>
+    <a n:href="Edit:Vlaky $oblast->id" title="Nastavenia" class="btn btn-outline-warning">
+      <small>Konvertuj vlaky</small>
+    </a>
+  </nav>{*dump $prvky}{dump $jprvky*}
+  <article class="col-12 text-center">
+    <mycanvas 
+      prvky="{$jprvky}"
+      xmax_s=63
+      ymax_s=28
+    >
+    </mycanvas>
+  </article>
+  <article class="col-12" >
+    {if count($prvky)}
+      <table class="table table-striped table-hover table-sm">
+        <thead>
+          <tr>
+            <th scope="col">Kľúč</th>
+            <th scope="col">xs</th>
+            <th scope="col">y</th>
+            <th scope="col">c0</th>
+            <th scope="col">c1</th>
+            <th scope="col">c2</th>
+            <th scope="col">c3</th>
+            <th scope="col">dl</th>
+            <th scope="col">n0</th>
+            <th scope="col">n1</th>
+            <th scope="col">sm</th>
+            <th scope="col">re</th>
+            <th scope="col">odk</th>
+            <th scope="col">Ozn.</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr n:foreach="$prvky as $p">
+            {var $vyh = ($p->prvky_kluc->id == 16 || $p->prvky_kluc->id == 17) ? false : true}
+            <td><strong>{$p->prvky_kluc->key}</strong>({$p->prvky_kluc->id})</td>
+            <td>{$p->xs}</td>
+            <td>{$p->y}</td>
+            <td>{if $vyh}{$p->c0}{else}{$p->c0|uprav}{/if}</td>
+            <td>{if $vyh}{$p->c1}{else}{$p->c1|uprav}{/if}</td>
+            <td>{$p->c2}</td>
+            <td>{$p->c3}</td>
+            <td>{$p->dl}</td>
+            <td>{$p->n0}</td>
+            <td>{$p->n1}</td>
+            <td>{$p->sm}</td>
+            <td>{$p->rezim}</td>
+            <td>{$p->odk}</td>
+            <td>{if $p->oznacenie != null}{$p->oznacenie}{/if}</td>
+          </tr>
+        </tbody>
+      </table>
+    {else}
+      <div class="alert alert-warning">
+        Oblasť nemá žiadne prvky...
+      </div>
+    {/if}
+  </article>
+</section>
+{/block}
+{block scripts}
+<script src="{$basePath}/front/js/edit/vue_blok_canvas_edit.js"></script>
+<script src="{$basePath}/front/js/edit/vue_main_edit.js"></script>

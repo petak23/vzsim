@@ -1,0 +1,32 @@
+{block content}
+<div class="col">
+  <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-xl-4">
+    {if $id_menu == 0}
+      <div class="col mb-4" n:foreach="$admin_menu as $am" >
+        <div class="card h-100" n:if="$am->id_user_roles <= $user->getIdentity()->id_user_roles">
+          <a n:href="$am->odkaz" title="{$am->nazov}">
+            <img class="card-img-top" src="{$basePath}/{$dir_to_icons}{$am->avatar}" n:ifset="$am->avatar" alt="{$am->nazov}">
+            <div class="card-body">
+              <p class="card-text">{$am->nazov}</p>
+            </div>
+          </a>
+        </div>  
+      </div>
+      <div class="col mb-4 col-last">
+        {control last}
+      </div>
+    {else}
+      {control menu:mainFixed, cast=>$id_menu, avatar=>$avatar_path, anotacia => FALSE, article_avatar_view_in=>1}
+      <div class="col mb-4">
+        <div class="card border-success text-center h-100" n:if="$view_add_link">
+          <a href="{plink Menu:addpol -1*$id_menu}" title="Pridanie položky do časti">
+            <div class="card-body">
+              <h5 class="card-title"><i class="fas fa-plus fa-4x"></i></h5>
+              <p class="card-text">Pridanie položky do časti</p>
+            </div>
+          </a>
+        </div>  
+      </div>
+    {/if} 
+  </div>
+</div>       

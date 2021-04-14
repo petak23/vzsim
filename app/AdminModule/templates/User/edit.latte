@@ -1,0 +1,12 @@
+{var $robots = noindex}
+{block #content}
+<div class="col-xs-12 col-md-12">
+  <h2 n:block=title>Editácia užívateľa:</h2>
+  <h3>Hlavné údaje</h3>
+  {control editUserMainForm}
+  {if $user_view_fields['rok'] && $user_view_fields['telefon'] && $user_view_fields['poznamka'] && $user_view_fields['pohl']}
+    <hr>
+    <h3>Doplňujúce údaje</h3>
+    {control editUserProfilesForm}
+  {/if}
+</div>

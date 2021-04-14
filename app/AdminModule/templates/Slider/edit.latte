@@ -1,0 +1,18 @@
+{var $robots = noindex}
+
+{block #content}
+<div class="col-12">
+  <h2 n:block=title>Administrácia slider-u</h2>
+  {ifset $sucasny}
+    <h4>Súčasný obrázok:</h4>
+    <p class="text-center">
+      <img src="{$basePath}/{is_file($slider_i['dir'].$sucasny->subor) ? $slider_i['dir'].$sucasny->subor : $dir_to_images.'otaznik.png'}" class="img-rounded" style="width: {$slider_i['x']}px;" alt="obrazok">
+    </p>
+    <h4>Zmeň: </h4>
+  {/ifset}
+  <div class="alert alert-warning" role="alert">
+    <h4 class="alert-heading">Pozor!!!</h4>
+    Odporúčaný rozmer obrázku je: <strong>{$slider_i['x']}x{$slider_i['y']}</strong> alebo násobky tejto veľkosti. Inak môže dôjsť k deformácii alebo orezaniu obrázku pri ukladaní!
+  </div>
+  {control sliderEditForm}
+</div>

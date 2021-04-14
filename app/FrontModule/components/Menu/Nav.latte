@@ -1,0 +1,14 @@
+<div class="col-xs-12 col-md-12 breadcrumb-main">
+  <ol {*n:inner-foreach="$path as $k => $node"*} class="breadcrumb" {*n:if="count($path)"*}>
+    <li n:if="count($path) == 0"> </li>
+    {foreach $path as $k => $node}
+    <li n:if="$k >= $startLevel">
+      {if $node->link}
+        <a href="{$node->link}" title="{$node->name}" n:class="$node->getItemClass()">{$node->name}</a>
+      {else}
+        <span n:class="$node->getItemClass()">{$node->name}</span>
+      {/if}
+    </li>
+    {/foreach}
+  </ol>
+</div>

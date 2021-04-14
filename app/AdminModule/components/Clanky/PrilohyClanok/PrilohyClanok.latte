@@ -1,0 +1,80 @@
+<div class="panel panel-default" n:snippet="prilohy-in">
+  <div class="panel-heading">
+    <div class="btn-group" role="group"> 
+      <button n:if="$admin_links_prilohy['elink']" type="button" class="btn btn-success" data-toggle="modal" data-target="#myModalAddPrilohaChange" title="Pridaj prílohu k položke: {$clanok->view_name}">
+        <i class="fas fa-file-alt"></i> Pridaj jednu prílohu
+      </button>
+      <button n:if="$admin_links_prilohy['elink']" type="button" class="btn btn-primary" data-toggle="modal" data-target="#myModalAddMultiPrilohaChange" title="Pridanie viacerích príloh k položke: {$clanok->view_name}">
+        <i class="far fa-copy"></i> Pridaj naraz viac príloh
+      </button>
+    </div>
+  </div>
+  <div class="row" n:snippet="flashes">
+    <div class="col-md-6 col-md-offset-3" n:inner-foreach="$flashes as $flash">
+      {var $nees = explode(',', $flash->type)}
+      <div class="alert alert-{$nees[0]} fade in" role="alert">
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+        {if isset($nees[1]) && $nees[1] == 'n'}{$flash->message|noescape}{else}{$flash->message}{/if}
+      </div>
+    </div>
+  </div>
+  {control prilohyGrid}
+</div>
+
+{* -- Modal dialog pre zobrazenie jedneho produktu -- *}
+<div class="modal fade lightbox-img" id="imageModalCenterAttachments" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+    <div class="modal-content" n:snippet="lightbox-image-a">
+      <div class="modal-header text-center text-white" n:ifset="$big_img">
+        <h5 class="modal-title" id="exampleModalCenterTitle" >{$big_img->name}</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="container-fluid">
+          <div class="row">
+            <div class="col-12">
+              <img data-src="{$basePath}/" alt="">
+              <div n:ifset="$big_img->description">
+                {$big_img->description}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{* -- Modal dialog pre pridanie jednej prílohy -- *}
+<div class="modal fade" id="myModalAddPrilohaChange" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" n:if="$admin_links_prilohy['elink']" aria-hidden="true">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-white bg-success">
+        <h5 class="modal-title" id="myModalLabel">Pridanie prílohy k položke: {$clanok->view_name}</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+      </div>
+      <div class="modal-body">
+        {control editPrilohyForm}
+      </div>
+    </div>
+  </div>
+</div>
+      
+{* -- Modal dialog pre pridanie viacerích priloh -- *}
+<div class="modal fade" id="myModalAddMultiPrilohaChange" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" n:if="$admin_links_prilohy['elink']" aria-hidden="true">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-white bg-primary">
+        <h4 class="modal-title" id="myModalLabel">Pridanie viacerích príloh k položke: {$clanok->view_name}</h4>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+      </div>
+      <div class="modal-body">
+        {control addMultiPrilohyForm}
+      </div>
+    </div>
+  </div>
+</div>
