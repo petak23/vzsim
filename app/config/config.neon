@@ -51,7 +51,7 @@ includes:
 	- database.neon
 
 extensions:
-  webpack: Oops\WebpackNetteAdapter\DI\WebpackExtension(%debugMode%, %consoleMode%)
+  webpack: Contributte\Webpack\DI\WebpackExtension(%debugMode%, %consoleMode%)
 
 webpack:
   build:
@@ -60,4 +60,4 @@ webpack:
   # devServer - tato cast je presunuta do config.local.neon
   manifest:  # Cez tento subor je prepojenie na filename: '[name].[contenthash:8].[ext]' vo webpack-u
     name: webpack-assets.json  # ./www/dist/webpack-assets.json
-    mapper: Oops\WebpackNetteAdapter\Manifest\Mapper\AssetsWebpackPluginMapper
+    mapper: Contributte\Webpack\Manifest\Mapper\AssetsWebpackPluginMapper
