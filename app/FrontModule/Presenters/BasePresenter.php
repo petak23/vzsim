@@ -9,7 +9,7 @@ use App\Model;
 /**
  * Zakladny presenter pre vsetky presentery vo FRONT module
  * 
- * Posledna zmena(last change): 14.04.2021
+ * Posledna zmena(last change): 22.04.2021
  *
  *	Modul: FRONT
  *
@@ -17,7 +17,7 @@ use App\Model;
  * @copyright Copyright (c) 2021 - 2021 Ing. Peter VOJTECH ml.
  * @license
  * @link      http://petak23.echo-msz.eu
- * @version 1.0.1
+ * @version 1.0.2
  */
 abstract class BasePresenter extends Presenter {
 
@@ -192,5 +192,38 @@ abstract class BasePresenter extends Presenter {
     } else {
       $this->flashMessage($textEr, 'danger');
     }
+  }
+
+    /**
+   * Uprava vzhladu formularov
+   * @param \Nette\Application\UI\Form $form Formular
+   * @param string $form_class Doplnkovy class pre tag form
+   * @return \Nette\Application\UI\Form */
+  public function _vzhladForm($form, $form_class = "") {
+    $form->getElementPrototype()->class('form-horizontal'.(strlen($form_class)?" ".$form_class:""));
+    $renderer = $form->getRenderer();
+    $renderer->wrappers['error']['container'] = 'div class="row"';
+    $renderer->wrappers['error']['item'] = 'div class="col-md-6 col-md-offset-3 alert alert-danger"';
+    $renderer->wrappers['controls']['container'] = NULL;
+    $renderer->wrappers['pair']['container'] = 'div class=form-group';
+    $renderer->wrappers['pair']['.error'] = 'has-error';
+    $renderer->wrappers['pair']['container'] = 'div class="form-group row"';
+    $renderer->wrappers['label']['container'] = 'div class="col-12 col-sm-3 control-label"';
+    $renderer->wrappers['control']['container'] = 'div class="col-12 col-sm-9 control-field"';
+    $renderer->wrappers['control']['description'] = 'span class="help-block alert alert-info"';
+    $renderer->wrappers['control']['errorcontainer'] = 'span class="help-block alert alert-danger"';
+    // make form and controls compatible with Twitter Bootstrap
+    
+    foreach ($form->getControls() as $control) {
+      if ($control instanceof Controls\Button) {
+        $control->getControlPrototype()->addClass(empty($usedPrimary) ? 'btn btn-primary' : 'btn btn-default');
+        $usedPrimary = TRUE;
+      } elseif ($control instanceof Controls\TextBase || $control instanceof Controls\SelectBox || $control instanceof Controls\MultiSelectBox) {
+        $control->getControlPrototype()->addClass('form-control');
+      } elseif ($control instanceof Controls\Checkbox || $control instanceof Controls\CheckboxList || $control instanceof Controls\RadioList) {
+        $control->getSeparatorPrototype()->setName('div')->addClass($control->getControlPrototype()->type);
+      }
+    }
+    return $form;
   }
 }

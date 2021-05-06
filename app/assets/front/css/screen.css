@@ -112,3 +112,15 @@ nav.edit-second-nav {
   background-position: center;
   background-size: cover;
 }
+
+.sign-in-form {
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+}
+.sign-in-form a {
+  color: #333;
+  line-height: 2rem;
+}
+.sign-in-form .btn-link {
+  color: #333;
+}

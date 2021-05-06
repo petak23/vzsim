@@ -26,8 +26,6 @@ class Hlavne_menu extends Table {
 	protected $hlavne_menu_lang;  
   /** @var Nette\Database\Table\Selection */
 	protected $hlavne_menu_cast;
-  /** @var Nette\Database\Table\Selection */
-	protected $user_in_categories;
 
   /**
    * @param Nette\Database\Context $db
@@ -37,7 +35,6 @@ class Hlavne_menu extends Table {
     parent::__construct($db);
     $this->hlavne_menu_lang = $hlavne_menu_lang;
     $this->hlavne_menu_cast = $this->connection->table("hlavne_menu_cast");
-    $this->user_in_categories = $this->connection->table("user_in_categories");
     $this->user = $user;
 	}
   
@@ -57,7 +54,7 @@ class Hlavne_menu extends Table {
     $id_reg = isset($this->user->getIdentity()->id_user_roles) ? $this->user->getIdentity()->id_user_roles : 0;
     $h = clone $this->hlavne_menu_lang;
 		$s = $h->findBy(["hlavne_menu.id_user_roles <= " . $id_reg, "lang.skratka" => $language])
-           ->where("hlavne_menu.druh.modul IS NULL OR hlavne_menu.druh.modul = ?", "Front");
+            ->where("hlavne_menu.druh.modul IS NULL OR hlavne_menu.druh.modul = ?", "Front");
     $polozky = $s->order('hlavne_menu.id_hlavne_menu_cast, hlavne_menu.uroven, hlavne_menu.poradie ASC');
     return count($polozky) ? $this->_getMenuFront($polozky) : [];
   }
@@ -72,36 +69,31 @@ class Hlavne_menu extends Table {
 		$cislo_casti = 0;
     foreach ($polozky as $ja) {
       $v = $ja->hlavne_menu;
-      $pridaj = ($v->id_user_categories !== null) ? 
-                (boolean)count($this->user_in_categories->where(['id_user_categories'=>$v->id_user_categories, 'id_user_main'=> $this->user->getId()])) :
-                TRUE;
-      if ($pridaj) {
-        //Mam taku istu cast ako pred tym? Ak nie nastav cislo casti, ale len ak je to dovolene cez $casti
-        if ($cislo_casti !== $v->id_hlavne_menu_cast) { //Len jeden prechod cez toto a to na začiatku
-          $cislo_casti = $v->id_hlavne_menu_cast;
-          $temp_pol = new \App\FrontModule\Components\Menu\MenuNode;
-          $temp_pol->name = $v->hlavne_menu_cast->view_name;
-          $temp_pol->link = $abs_link."Homepage:";
-          $temp_pol->id = -1*$v->hlavne_menu_cast->id;
-          $out[] = ["node"=>$temp_pol, "nadradena"=>FALSE];
-          unset($temp_pol);
-        }
-        $for_link = $abs_link.($v->druh->presenter == "Menu" ? "Clanky" : $v->druh->presenter).":";
+      //Mam taku istu cast ako pred tym? Ak nie nastav cislo casti, ale len ak je to dovolene cez $casti
+      if ($cislo_casti !== $v->id_hlavne_menu_cast) { //Len jeden prechod cez toto a to na začiatku
+        $cislo_casti = $v->id_hlavne_menu_cast;
         $temp_pol = new \App\FrontModule\Components\Menu\MenuNode;
-        $temp_pol->name = $ja->menu_name;
-        $temp_pol->tooltip = $ja->h1part2;
-        $temp_pol->view_name = $ja->view_name;
-        $temp_pol->avatar = $v->avatar;
-        $temp_pol->anotacia = ($v->druh->presenter == "Clanky" && isset($ja->clanok_lang->anotacia)) ? $ja->clanok_lang->anotacia : FALSE;
-        $temp_pol->node_class = ($v->ikonka !== NULL && strlen($v->ikonka)>2) ? $v->ikonka : NULL;
-        $temp_pol->link = $v->druh->je_spec_naz ? [$for_link] : $for_link;
-        $temp_pol->absolutna = $v->absolutna;
-        $temp_pol->novinka = $v->id_dlzka_novinky > 1 ? $v->modified->add(new \DateInterval('P'.$v->dlzka_novinky->dlzka.'D')) : NULL;
-        $temp_pol->id = $v->id;
-        $temp_pol->poradie_podclankov = $v->poradie_podclankov;
-        $out[] = ["node"=>$temp_pol, "nadradena"=>isset($v->id_nadradenej) ? $v->id_nadradenej : -1*$v->hlavne_menu_cast->id];
+        $temp_pol->name = $v->hlavne_menu_cast->view_name;
+        $temp_pol->link = $abs_link."Homepage:";
+        $temp_pol->id = -1*$v->hlavne_menu_cast->id;
+        $out[] = ["node"=>$temp_pol, "nadradena"=>FALSE];
         unset($temp_pol);
       }
+      $for_link = $abs_link.($v->druh->presenter == "Menu" ? "Clanky" : $v->druh->presenter).":";
+      $temp_pol = new \App\FrontModule\Components\Menu\MenuNode;
+      $temp_pol->name = $ja->menu_name;
+      $temp_pol->tooltip = $ja->h1part2;
+      $temp_pol->view_name = $ja->view_name;
+      $temp_pol->avatar = $v->avatar;
+      $temp_pol->anotacia = ($v->druh->presenter == "Clanky" && isset($ja->clanok_lang->anotacia)) ? $ja->clanok_lang->anotacia : FALSE;
+      $temp_pol->node_class = ($v->ikonka !== NULL && strlen($v->ikonka)>2) ? $v->ikonka : NULL;
+      $temp_pol->link = $v->druh->je_spec_naz ? [$for_link] : $for_link;
+      $temp_pol->absolutna = $v->absolutna;
+      $temp_pol->novinka = $v->id_dlzka_novinky > 1 ? $v->modified->add(new \DateInterval('P'.$v->dlzka_novinky->dlzka.'D')) : NULL;
+      $temp_pol->id = $v->id;
+      $temp_pol->poradie_podclankov = $v->poradie_podclankov;
+      $out[] = ["node"=>$temp_pol, "nadradena"=>isset($v->id_nadradenej) ? $v->id_nadradenej : -1*$v->hlavne_menu_cast->id];
+      unset($temp_pol);
     }
     return $out;
   }
@@ -166,36 +158,30 @@ class Hlavne_menu extends Table {
     $out = [];
     foreach ($polozky as $ja) {
       $v = $ja->hlavne_menu;
-      $pridaj = $this->user->isInRole('admin') ? TRUE : 
-                  (($v->id_user_categories !== null) ? 
-                   (boolean)count($this->user_in_categories->where(['id_user_categories'=>$v->id_user_categories, 'id_user_main'=> $this->user->getId()])) :
-                   TRUE);
-      if ($pridaj) {
-        //Mam taku istu cast ako pred tym? Ak nie nastav cislo casti, ale len ak je to dovolene cez $casti
-        if ($cislo_casti !== $v->id_hlavne_menu_cast) { //Mam taku istu cast ako pred tym? Ak nie nastav cislo casti
-          $cislo_casti = $v->id_hlavne_menu_cast;
-          $casti[] = $cislo_casti;
-          $temp_pol = new \App\AdminModule\Components\Menu\MenuNode;
-          $temp_pol->name = $v->hlavne_menu_cast->view_name;
-          $temp_pol->link = ["Homepage:"];
-          $temp_pol->id = -1*$v->hlavne_menu_cast->id;
-          $out[] = ["node"=>$temp_pol, "nadradena"=>FALSE];
-          unset($temp_pol);
-        }
+      //Mam taku istu cast ako pred tym? Ak nie nastav cislo casti, ale len ak je to dovolene cez $casti
+      if ($cislo_casti !== $v->id_hlavne_menu_cast) { //Mam taku istu cast ako pred tym? Ak nie nastav cislo casti
+        $cislo_casti = $v->id_hlavne_menu_cast;
+        $casti[] = $cislo_casti;
         $temp_pol = new \App\AdminModule\Components\Menu\MenuNode;
-        $temp_pol->name = $ja->menu_name;
-        $temp_pol->tooltip = $ja->h1part2;
-        $temp_pol->view_name = $ja->view_name;
-        $temp_pol->avatar = $v->avatar;
-        $temp_pol->anotacia = ($v->druh->presenter == "Clanky" && isset($ja->clanok_lang->anotacia)) ? $ja->clanok_lang->anotacia : FALSE;
-        $temp_pol->node_class = ($v->ikonka !== NULL && strlen($v->ikonka)>2) ? "fa fa-".$v->ikonka : NULL;
-        $temp_pol->link = $v->druh->je_spec_naz ? [$v->druh->presenter.":"] : $v->druh->presenter.":";
-        $temp_pol->id = $v->id;
-        $temp_pol->poradie_podclankov = $v->poradie_podclankov;
-        $temp_pol->datum_platnosti = $v->datum_platnosti;
-        $out[] = ["node"=>$temp_pol, "nadradena"=>isset($v->id_nadradenej) ? $v->id_nadradenej : -1*$v->hlavne_menu_cast->id];
+        $temp_pol->name = $v->hlavne_menu_cast->view_name;
+        $temp_pol->link = ["Homepage:"];
+        $temp_pol->id = -1*$v->hlavne_menu_cast->id;
+        $out[] = ["node"=>$temp_pol, "nadradena"=>FALSE];
         unset($temp_pol);
       }
+      $temp_pol = new \App\AdminModule\Components\Menu\MenuNode;
+      $temp_pol->name = $ja->menu_name;
+      $temp_pol->tooltip = $ja->h1part2;
+      $temp_pol->view_name = $ja->view_name;
+      $temp_pol->avatar = $v->avatar;
+      $temp_pol->anotacia = ($v->druh->presenter == "Clanky" && isset($ja->clanok_lang->anotacia)) ? $ja->clanok_lang->anotacia : FALSE;
+      $temp_pol->node_class = ($v->ikonka !== NULL && strlen($v->ikonka)>2) ? "fa fa-".$v->ikonka : NULL;
+      $temp_pol->link = $v->druh->je_spec_naz ? [$v->druh->presenter.":"] : $v->druh->presenter.":";
+      $temp_pol->id = $v->id;
+      $temp_pol->poradie_podclankov = $v->poradie_podclankov;
+      $temp_pol->datum_platnosti = $v->datum_platnosti;
+      $out[] = ["node"=>$temp_pol, "nadradena"=>isset($v->id_nadradenej) ? $v->id_nadradenej : -1*$v->hlavne_menu_cast->id];
+      unset($temp_pol);
     }
     $c = $this->hlavne_menu_cast->fetchPairs("id");
     if (count($casti) !== count($c)) {

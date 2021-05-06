@@ -9,13 +9,13 @@ use Nette\Application\Routers\RouteList;
 
 /**
  * Router
- * Posledna zmena 14.04.2021
+ * Posledna zmena 06.05.2021
  * 
  * @author     Ing. Peter VOJTECH ml. <petak23@gmail.com>
  * @copyright  Copyright (c) 2021 - 2021 Ing. Peter VOJTECH ml.
  * @license
  * @link       http://petak23.echo-msz.eu
- * @version    1.0.1
+ * @version    1.0.2
  */
 class RouterFactory {
   
@@ -88,7 +88,7 @@ class RouterFactory {
             ->addRoute('error[/<action>]', 'Error:default');
     $router->withModule('Admin')
             ->addRoute('administration/<presenter>/<action>', 'Homepage:default');
-    $router->addRoute('<presenter>/<action>[/<id>]', 'Homepage:default');
+    $router->addRoute('<presenter>/<action>[/<id>]', 'Front:Homepage:default');
 		return $router;
 	}
 }

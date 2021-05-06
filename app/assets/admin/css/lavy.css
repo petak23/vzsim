@@ -1,0 +1,57 @@
+/* AUTOR: Peter VOJTECH ml.; CREATION DATE: 23.8.2010; UPDATED 16.10.2015 */
+#lavy h4 {
+  text-align: center;
+}
+.menu_new {
+  border-top: 1px solid #bbb;
+}
+.menu_new a {
+  color: #b50000;
+}
+.menu_new:nth-child(2) {
+  padding-top: 1ex;
+}
+.menu_new ul {
+  list-style-type: none;
+  margin-left: 0;
+  padding-left: 1ex;
+}
+.menu_new ul li {
+  display: inline-block;
+  width: 100%;
+}
+.menu_new ul li span > a {
+  float: left;
+}
+.menu_new ul li a{
+  margin-left: .2ex;
+  float:left;
+}
+.menu_new ul li a small {
+  margin-left: .2em;
+}
+.menu_new a.selected {
+  color: #fff;
+  background-color: rgba(0, 190, 240, .4);
+  font-style: italic;
+  width: 100%;
+  
+}
+.menu-level-2 { background-color: #ddd; }
+.menu-level-3 { background-color: #ccc; }
+.menu-level-4 { background-color: #bbb; }
+.menu-level-5 { background-color: #aaa; }
+.menu-level-6 { background-color: #999; }
+.menu-level-7 { background-color: #888; }
+.menu-level-8 { background-color: #777; }
+.in-path { 
+  width: 100%;
+  background-color: rgba(200, 160, 0, .3);
+}
+.in-path:after {
+  content: ">>";
+  color: #fff;
+}
+.node-before {
+  width: 10px;
+}

@@ -51,9 +51,9 @@ class UserLogPresenter extends BasePresenter {
   
   public function actionDefault() {
     $this["userEditForm"]->setDefaults($this->uzivatel);
-    $this["userEditForm"]->setDefaults(['avatar'=> $this->uzivatel->user_profile->avatar,
-                                        'news'  => $this->uzivatel->user_profile->news,
-                                        'pohl'  => $this->uzivatel->user_profile->pohl]);
+    $this["userEditForm"]->setDefaults(['news'  => $this->uzivatel->user_profile->news]);
+    if ($this->nastavenie['user_view_fields']['avatar']) $this["userEditForm"]->setDefaults(['avatar'=> $this->uzivatel->user_profile->avatar]);
+    if ($this->nastavenie['user_view_fields']['pohl']) $this["userEditForm"]->setDefaults(['pohl' => $this->uzivatel->user_profile->pohl]);
   }
   
   public function renderDefault() {

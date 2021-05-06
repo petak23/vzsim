@@ -43,6 +43,8 @@ class RunPresenter extends BasePresenter {
 
   private $actualTrains;
 
+  private $actualInArea = [];
+
 
   public function actionDefault(int $id = 0) {
     if (($this->aktualna_oblast = $this->oblast->find($id)) === null) {
@@ -57,7 +59,7 @@ class RunPresenter extends BasePresenter {
     $this->cesty = $this->oblast_cesty->findBy(['id_oblast'=>$id]);
     $this->vvlaky = $this->vlaky->findBy(['id_oblast'=>$id]);
     $this->actualTrains = $this->getActualTrains($this->oblast_params['hour'] / 600);
-    //dumpe($this->actualTrains);
+    //dumpe($this->actualInArea);
   }  
 
   public function renderDefault() {
@@ -66,25 +68,69 @@ class RunPresenter extends BasePresenter {
     $this->template->oblast_params = $this->oblast_params;
     $this->template->jcesty = Json::encode($this->ctoArray($this->cesty));
     $this->template->jprvky = Json::encode($this->jprvky);
-    $this->template->jvlaky = Json::encode($this->vtoArray($this->vvlaky));
+    $this->template->jvlaky = Json::encode($this->vtoArray($this->actualInArea));
     $this->template->initfronta = Json::encode($this->actualTrains);
   }
 
   private function getActualTrains(int $minutes) {
     //dump($minutes);
+    // Najdi všetky vlaky, ktorých začiatok je pred počiatočným časom
     $av = $this->vlaky->findBy(['id_oblast'=>$this->aktualna_oblast->id, 'cas_z <='.$minutes]);
     $out = [];
     foreach ($av as $k => $v) {
-      $cp_cas = explode("|", $v->cp_cas);
-      $cp_miesta = explode("|", $v->cp_miesta);
-      if (end($cp_cas) > $minutes) { // Vlaky bez prečíslovania v oblasti
-        $out[] = $v;
-      } else if ($v->cislo != $v->cislo_p) {
-        $pr = $this->vlaky->findOneBy(['cislo'=>$v->cislo_p]);
-        $cp_cas = explode("|", $pr->cp_cas);
-        $cp_miesta = explode("|", $pr->cp_miesta);
-        if (end($cp_cas) > $minutes) { // Vlaky po prečíslovaní v oblasti
-          $tt = explode("|", $v->cp_kolaj);//end();
+      $cp_cas_p = explode("|", $v->cp_cas_p);    // Čas príchodu z CP
+      $cp_cas_o = explode("|", $v->cp_cas_o);    // Čas odchodu z CP
+      $cp_miesta = explode("|", $v->cp_miesta);  // Miesta z CP
+      $cp_kolaj = explode("|", $v->cp_kolaj);    // Koľaje z CP
+      if (end($cp_cas_p) > $minutes) { // Ak je posledný čas z CP viac ako počiatočný čas... vlak je v oblasti
+        //dump($v->cislo);dump($minutes);
+        for ($i=0; $i < count($cp_cas_p); $i++) {
+          //dump($cp_cas_p[$i]);
+          //dump($cp_cas_o[$i]);
+          //dump($cp_miesta[$i]);
+          if ($cp_cas_p[$i] >= $minutes && $cp_miesta[$i] !== $v->mo) {
+            //Nájdi správnu KS
+            $ks = $this->oblast_prvky->findOneBy(['id_oblast'=>$this->aktualna_oblast->id,
+                                                  'id_prvky_kluc'=>14,    // KS
+                                                  'c2'=>$cp_miesta[$i],   // Príslušná SB
+                                                  'oznacenie'=>$cp_kolaj[$i]]); 
+            //dump($ks->xs);
+            $this->jprvky[$ks->xs]["c"][3] = $v->cislo;
+            $this->jprvky[$ks->xs]["stav"] = 3; // Obsadený
+            if ($cp_cas_o[$i] > 0) {
+              $mdo = $cp_cas_o[$i] - $minutes;  // Minúty do odchodu
+              $this->jprvky[$ks->xs]["stav"] += $mdo > 2 ? 32 : ($mdo > 1 ? 64 : 128);
+              $out[] = [
+                'xs' => $ks->xs,
+                'cas'=> $cp_cas_o[$i] * 600,
+                'nst'=> $cp_cas_o[$i] - $minutes > 2 ? 3 : 1,
+                'do' => 'zmenPrvok',
+                'vlak'=> $v->cislo,
+              ];
+              $this->actualInArea[] = $v;
+            } else if ($cp_cas_o[$i] == -1) {
+              $out[] = [
+                'xs' => $ks->xs,
+                'cas'=> $cp_cas_p[$i] * 600,
+                'nst'=> 1,
+                'do' => 'zmenPrvok',
+                'vlak'=> $v->cislo,
+              ];
+              $this->actualInArea[] = $v;
+            }
+            //dump($this->jprvky[$ks->xs]);
+            $i = count($cp_cas_p); // Ukonč...
+          }
+        }
+        //$out[] = $v;
+      } else if ($v->cislo != $v->cislo_p) { // Vlaky prečíslovávané v oblasti
+        $pr = $this->vlaky->findOneBy(['cislo'=>$v->cislo_p]); // Najdi prečíslovaný vlak
+        $cp_cas_p = explode("|", $pr->cp_cas_p);    // Čas príchodu z CP
+        $cp_cas_o = explode("|", $pr->cp_cas_o);    // Čas odchodu z CP
+        $cp_miesta = explode("|", $pr->cp_miesta);  // Miesta z CP
+        $cp_kolaj = explode("|", $pr->cp_kolaj);    // Koľaje z CP
+        if (end($cp_cas_p) > $minutes) { // Vlaky po prečíslovaní v oblasti
+          $tt = explode("|", $v->cp_kolaj);
           //dump(end($tt));
           $ls = $this->oblast_prvky->findOneBy(['id_oblast'=>$this->aktualna_oblast->id,
                                                 'id_prvky_kluc'=>14,
@@ -92,13 +138,21 @@ class RunPresenter extends BasePresenter {
                                                 'oznacenie'=>end($tt)]); //Nájdi správnu KS
           //dump($ls->xs);
           $this->jprvky[$ls->xs]["c"][3] = $pr->cislo;
-          $this->jprvky[$ls->xs]["stav"] = 3; // Obsadený
-          $this->jprvky[$ls->xs]["y"] = 2;    // Stojí a má > 3 min 
+          $this->jprvky[$ls->xs]["stav"] = 3 + 32; // Obsadený
           //dump($this->jprvky[$ls->xs]);
-          $out[] = $pr->toArray();
+          $out[] = [
+            'xs' => $ls->xs,
+            'cas'=> $pr->cas_z - $minutes > 2 ? ($pr->cas_z - 2) * 600 : $pr->cas_z,
+            'nst'=> $pr->cas_z - $minutes > 2 ? 67 : ($pr->cas_z - $minutes > 1 ? 131 : 3),
+            'do' => 'zmenPrvok',
+            'vlak'=> $pr->cislo,
+          ];
+          $this->actualInArea[] = $v;
         }
+        //dump($this->jprvky[$ls->xs]);
       }
     }
+    
     //dumpe($out);
     return $out;
   }
@@ -106,7 +160,8 @@ class RunPresenter extends BasePresenter {
   private function vtoArray($vlaky) {
     $out = [];
     foreach($vlaky as $v) {
-      $out[$v->id] = [
+      $out[] = [
+        'id' => $v->id,
         'cislo' => $v->cislo,
         'cislo_p' => $v->cislo_p,
         'mz' => $v->mz,
@@ -115,7 +170,10 @@ class RunPresenter extends BasePresenter {
         'ry' => $v->ry,
         'dl' => $v->dl,
         'sm' => $v->sm,
-        'cesta' => $v->cesta,
+        'cp_miesta' => $v->cp_miesta,
+        'cp_cas_p'  => $v->cp_cas_p,
+        'cp_cas_o'  => $v->cp_cas_o,
+        'cp_kolaj'  => $v->cp_kolaj,
       ];
     }
     return $out;

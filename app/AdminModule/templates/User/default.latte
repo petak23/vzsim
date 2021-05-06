@@ -2,8 +2,8 @@
  *
  * Modul: ADMIN
  *
- * Posledna zmena(last change): 11.05.2018
- * @copyright  Copyright (c) 2012 - 2018 Ing. Peter VOJTECH ml.
+ * Posledna zmena(last change): 16.04.2021
+ * @copyright  Copyright (c) 2012 - 2021 Ing. Peter VOJTECH ml.
  * @license
  * @link       http://petak23.echo-msz.eu
  *
@@ -15,17 +15,7 @@
     <div class="col-12">
       <a n:if="$user->isAllowed('Admin:User', 'add')" n:href="User:add"  title="Pridanie nového užívateľa" class="button-right edit-link">
         <i class="fas fa-user-plus fa-2x"></i>Pridanie nového užívateľa</a>
-      {control addPasswordLessControl}
     </div>
   </div>
   {control usersGrid}
 </div>
-{/block}
-
-{block spec_js}
-<script>
-  if ($('.error-form').length > 0) {
-    $('#modalUserAddPasswordLess').modal('show');
-  }
-</script>
-{/block}

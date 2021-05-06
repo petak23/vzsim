@@ -1,0 +1,10 @@
+@import '@fortawesome/fontawesome-free/css/all.min.css'; 
+@import 'bootstrap/dist/css/bootstrap.css';
+@import 'jquery-ui.css';
+@import '../../../../vendor/ublaboo/datagrid/assets/datagrid.css';
+@import '../../../../vendor/ublaboo/datagrid/assets/datagrid-spinners.css';
+
+@import 'formulare.css';
+@import 'lavy.css';
+@import 'main_admin.css';
+@import 'stred_admin.css';

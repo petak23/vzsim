@@ -14,11 +14,6 @@
           Prílohy{if count($prilohy)} ({count($prilohy)}){/if}
         </a>
       </li>
-      <li class="nav-item">
-        <a n:class="nav-link, $tabs == 'products-tab' ? active" id="products-tab" href="#productst" aria-controls="products" role="tab" data-toggle="tab" aria-selected="{$tabs == 'products-tab' ? 'true' : 'false'}">
-          Produkty{if $products_count} ({$products_count}){/if} 
-        </a>
-      </li>
       <li class="nav-item" n:if="$user->isInRole('admin')">
         <a class="nav-link {$tabs == 'components-tab' ? active}" id="components-tab" href="#componentst" aria-controls="components" role="tab" data-toggle="tab" aria-selected="{$tabs == 'components-tab' ? 'true' : 'false'}">
           Komponenty{if count($komponenty)} ({count($komponenty)}){/if}
@@ -29,7 +24,6 @@
     <!-- Tab panes -->
     <div class="tab-content" id="articlemyTabContent">
       <div role="tabpanel" class="tab-pane fade {if $tabs == 'prilohy-tab'} show active{/if}" id="prilohyt" aria-labelledby="prilohy-tab">{snippet prilohy}{control prilohyClanok}{/snippet}</div>
-      <div role="tabpanel" class="tab-pane fade {if $tabs == 'products-tab'} show active{/if}" id="productst" aria-labelledby="products-tab">{snippet products}{control products}{/snippet}</div>
       <div role="tabpanel" class="tab-pane fade {if $tabs == 'components-tab'} show active{/if}" id="componentst" aria-labelledby="components-tab" n:if="$user->isInRole('admin')">{snippet komponenty} {*control komponenty*} {/snippet}
         <div class="panel panel-success row">
           <div class="col-12 panel-body komponenty" n:if="$user->isAllowed('Admin:Clanky', 'komponenty') && count($zoznam_komponent)">

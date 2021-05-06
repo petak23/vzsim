@@ -9,7 +9,7 @@ use Ublaboo\DataGrid\Column\Action\Confirmation;
 /**
  * Prezenter pre spravu uzivatela.
  * 
- * Posledna zmena(last change): 14.04.2021
+ * Posledna zmena(last change): 16.04.2021
  *
  *	Modul: ADMIN
  *
@@ -17,7 +17,7 @@ use Ublaboo\DataGrid\Column\Action\Confirmation;
  * @copyright  Copyright (c) 2012 - 2021 Ing. Peter VOJTECH ml.
  * @license
  * @link       http://petak23.echo-msz.eu
- * @version 1.1.8
+ * @version 1.1.9
  */
 class UserPresenter extends BasePresenter {
   
@@ -127,7 +127,7 @@ class UserPresenter extends BasePresenter {
            $prec = 100*$item->user_profiles->pocet_pr/$poc_pr_udaje['max'];
            return Html::el('div', ['class'=> 'vyb'.($prec>70 ? 1 : ($prec>45 ? 2 : ($prec>30 ? 3 : ($prec>0 ? 4 : 5)))), 'style'=>$sirka])->addHtml(Html::el('span')->setText($item->user_profiles->pocet_pr));
           })->addCellAttributes(['class' => 'pocet_pr'])->setTemplateEscaping(FALSE);
-    $grid->addColumnDateTime('prihlas_teraz', 'Posledné prihlásenie', 'user_profiles.prihlas_teraz')->setFormat('d.m.Y H:i:s')->setAlign('right');
+    $grid->addColumnDateTime('last_login', 'Posledné prihlásenie', 'user_profiles.last_login')->setFormat('d.m.Y H:i:s')->setAlign('right');
     $grid->addColumnText('news', 'Novinky', 'user_profile.news')
          ->setRenderer(function($item) { return Html::el('div', ['class'=> $item->user_profile->news == 'A' ? "vklad" : "vyber"])->setHtml($item->user_profile->news);})
          ->setTemplateEscaping(FALSE)->setAlign('center');

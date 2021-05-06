@@ -1,0 +1,37 @@
+/* texyla vzhled */
+div.texyla {
+	background: #EEE;
+}
+
+/*div.texyla ul.toolbar li span:hover {
+	background: url("../images/button-vista.png") no-repeat 50% 50%;
+}*/
+
+/*div.texyla div.preview-wait {
+	background: url("../images/loader.gif") 10px 10px no-repeat;
+}*/
+
+/* dialog */
+/*.ui-dialog-content p.wait {
+	background: url("../images/loader.gif") 0 50% no-repeat;
+}*/
+
+/* menu */
+div.texyla ul.toolbar li ul li {
+	padding: 1px
+}
+
+div.texyla ul.toolbar li ul li.ui-state-hover {
+	padding: 0px
+}
+div.texyla div.textarea-container {
+  margin-bottom: 0;
+}
+
+/*div.texyla ul.toolbar li.menu {
+	background-image: url("../images/menu.gif");
+}
+
+div.texyla ul.toolbar li.separator {
+	background-image: url("../images/separator.gif");
+}*/

@@ -1,6 +1,6 @@
 {block title}Oblasť: {$oblast->name}{/block}
 {block content}
-<div class="row">
+<article class="row">
   <div class="col-12 py-2">
     <div class="row justify-content-center">
       <div class="col-12 col-md-6">
@@ -28,7 +28,6 @@
               </div>
               <div class="tab-pane pt-3 fade" id="run" role="tabpanel" aria-labelledby="run-tab">
                 {control firstRunForm}
-                {*<a href="{link Run: $oblast->id}" title="{$oblast->name}" class="btn btn-success">Spusť</a>*}
               </div>
               <div class="tab-pane pt-3 fade" id="load" role="tabpanel" aria-labelledby="load-tab">
                 V tejto časti,bude raz zoznam uložených situácií...
@@ -39,5 +38,4 @@
       </div>
     </div>
   </div>
-</div>
-
+</article>
