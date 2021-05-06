@@ -1,0 +1,43 @@
+{block content}
+<div class="col-12">
+  <div class="row">
+    <div class="col-12">
+      <h2>Verzie:</h2>
+      <a n:href="Verzie:add" n:if="$user->isAllowed($control->name, 'add')" title="Pridanie verzie" class="button-right btn btn-success">
+        <i class="far fa-file fa-lg"></i> Pridaj novú verziu
+      </a>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-12">
+      <div class="accordion" id="accordionVerzie" n:inner-foreach="$verzie as $ve">
+        <div class="card {first}bg-success{/first}" >
+          <div class="card-header p-0 text-white" id="heading{$ve->id}">
+            <h5 class="mb-0">
+              <button class="btn {if $iterator->first}btn-success{else}btn-light{/if}" type="button" data-toggle="collapse" data-target="#collapse{$ve->id}" aria-expanded="true" aria-controls="collapse{$ve->id}">
+                <strong>{$ve->cislo}</strong>
+                <span class="ver-datum">{$ve->modified|date:'j.n.Y'}</span>
+                <span><small>{$ve->subory}</small></span>
+              </button>
+            </h5>
+          </div>
+
+          <div id="collapse{$ve->id}" class="collapse {first}show bg-white{/first}" aria-labelledby="heading{$ve->id}" data-parent="#accordionVerzie">
+            <div class="card-body">
+              <div class="btn-group btn-group-sm float-right" role="group">
+                <a n:href="Verzie:edit $ve->id" n:if="$user->isAllowed($control->name, 'edit')"	title="Editácia verzie {$ve->cislo}" class="button-right btn btn-success">
+                  <i class="fas fa-pencil-alt fa-lg"></i> Editacia</a>
+                <a n:href="posliEmail! id => $ve->id" n:if="$user->isAllowed($control->name, 'mail')" class="button-right btn btn-primary" title="Pošli informačný e-mail o verzii {$ve->cislo}">
+                  <i class="far fa-envelope fa-lg"></i> Info. e-mail</a>
+                <a href="{link confirmForm:confirmDelete! id => $ve->id, nazov => $ve->cislo, zdroj_na_zmazanie => 'verziu'}" n:if="$user->isAllowed($control->name, 'del')" 
+                   title="Vymazanie verzie{$ve->cislo}" class="button-right btn btn-danger">
+                  <i class="far fa-trash-alt fa-lg"></i> Vymaž</a>
+              </div>
+              {$ve->text|noescape|texy}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

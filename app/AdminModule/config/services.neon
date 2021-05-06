@@ -1,0 +1,88 @@
+#
+# SECURITY WARNING: it is CRITICAL that this file & directory are NOT accessible directly via a web browser!
+#
+# If you don    t protect this directory from direct web access, anybody will be able to see your passwords.
+# http://nette.org/security-warning
+#
+services:
+  - App\AdminModule\Presenters\ClankyPresenter(%parameters%)
+  - App\AdminModule\Presenters\HomepagePresenter(%parameters%)
+  - App\AdminModule\Presenters\LangPresenter(%parameters%)
+  - App\AdminModule\Presenters\MenuPresenter(%parameters%)
+  - App\AdminModule\Presenters\SliderPresenter(%parameters%)
+  - App\AdminModule\Presenters\TexylaPresenter(%parameters%)
+  - App\AdminModule\Presenters\UdajePresenter(%parameters%)
+  - App\AdminModule\Presenters\UserPresenter(%parameters%)
+  - App\AdminModule\Presenters\VerziePresenter(%parameters%)
+
+# forms
+
+  - App\AdminModule\Components\Article\TitleArticle\ZmenDatumPlatnostiFormFactory
+  - App\AdminModule\Components\Article\TitleArticle\ZmenDlzkuNovinkyFormFactory
+  - App\AdminModule\Components\Article\TitleArticle\ZmenOpravnenieNevlastnikovFormFactory
+  - App\AdminModule\Components\Article\TitleArticle\ZmenSablonuFormFactory
+  - App\AdminModule\Components\Article\TitleArticle\ZmenUrovenRegistracieFormFactory
+  - App\AdminModule\Components\Article\TitleArticle\ZmenVlastnikaFormFactory
+
+  - App\AdminModule\Components\Article\TitleImage\EditTitleImageFormFactory(%dir_to_menu%, %wwwDir%)
+
+  - App\AdminModule\Components\Clanky\PrilohyClanok\AddMultiPrilohyFormFactory(%prilohy_dir%, %prilohy_images%, %wwwDir%)
+  - App\AdminModule\Components\Clanky\PrilohyClanok\EditPrilohyFormFactory(%prilohy_dir%, %prilohy_images%, %wwwDir%)
+
+  - App\AdminModule\Forms\Article\IEditMenuFormFactory
+
+  - App\AdminModule\Forms\Slider\EditSliderFormFactory
+
+  - App\AdminModule\Forms\Udaje\AddTypeUdajeFormFactory
+  - App\AdminModule\Forms\Udaje\EditUdajeFormFactory
+
+  - App\AdminModule\Forms\User\AddUserFormFactory
+  - App\AdminModule\Forms\User\EditUserMainFormFactory
+  - App\AdminModule\Forms\User\EditUserProfilesFormFactory
+
+  - App\AdminModule\Forms\Verzie\EditVerzieFormFactory
+
+# component services 
+  - App\AdminModule\Components\Article\IAdminAddMenu
+  TitleArticleControl:
+    implement: App\AdminModule\Components\Article\TitleArticle\ITitleArticleControl
+    arguments: 
+      zobraz_anotaciu: %clanky.zobraz_anotaciu%
+  TitleImageControl:
+    implement: App\AdminModule\Components\Article\TitleImage\ITitleImageControl
+    arguments: 
+      dir_to_menu: %dir_to_menu%
+  ZobrazClanokAControl:
+    implement: App\AdminModule\Components\Clanky\IZobrazClanokAControl
+    arguments: 
+      zobraz_anotaciu: %clanky.zobraz_anotaciu%
+  PrilohyClanokAControl:
+    implement: App\AdminModule\Components\Clanky\PrilohyClanok\IPrilohyClanokAControl
+    arguments: 
+      prilohy_images: %prilohy_images%
+  KomponentyControl:
+    implement: App\AdminModule\Components\Clanky\Komponenty\IKomponentyControl
+    arguments: 
+      nastavenie_k: %komponenty%
+
+  - App\AdminModule\Components\User\IKontaktControl
+  - App\AdminModule\Components\User\IUserLastControl
+
+extensions:
+  fileUpload: Zet\FileUpload\FileUploadExtension
+
+fileUpload:
+	maxFiles: 30
+	fileFilter: Zet\FileUpload\Filter\ImageFilter
+	uploadModel: App\Model\Products
+	renderer: App\AdminModule\Forms\Products\Bootstrap4Renderer
+	messages:
+		maxFiles: "Presiahli ste max. počet naraz nahrávaných súborov. Naraz môžete nahrať max {maxFiles} súborov."
+		maxSize: "Presiahli ste max. veľkosť nahrávaného súboru, ktorá je {maxSize}."
+		fileTypes: "Povolené typy súborov sú {fileTypes}."
+		fileSize: "Súbor je príliš veľký."
+		partialUpload: "Súbor bol nahraný len čiastočne."
+		noFile: "Nebyl nahraný žiaden súbor."
+		tmpFolder: "Chyba dočasný adresár!"
+		cannotWrite: "Nepodarilo sa zapísať súbor na disk."
+		stopped: "Nahrávanie súboru bolo prerušené."

@@ -1,6 +1,6 @@
 /**
  * Vue komponenta pre výpis a správu zoznamu vlakov v simulácii.
- * Posledna zmena(last change): 18.03.2021
+ * Posledna zmena(last change): 05.05.2021
  *
  *	Modul: RUN
  *
@@ -8,16 +8,35 @@
  * @copyright  Copyright (c) 2021 - 2021 Ing. Peter VOJTECH ml.
  * @license
  * @link       http://petak23.echo-msz.eu
- * @version 1.0.0
+ * @version 1.0.1
  */
 Vue.component('zoznam', {
   props: {
     text_i: String,
     vlaky: String,
   },
-  computed: {
+  data: function () {
+    return {
+      view_vlaky: [],
+    }
+  },
+  /*computed: {
     myvlk() {
       return JSON.parse(this.vlaky);
+    },
+  },*/
+  mounted () {
+    var vl = JSON.parse(this.vlaky);
+    vl.forEach(v => {
+      this.view_vlaky.push(v);
+    });
+  },
+  watch: {
+    vlaky: function (newVlaky) {
+      var vl = JSON.parse(newVlaky);
+      vl.forEach(v => {
+        this.view_vlaky.push(v);
+      });
     },
   },
   filters: {
@@ -91,9 +110,9 @@ Vue.component('zoznam', {
   template: `
     <div class="col-6 bg-primary zoznam">
       <ul>
-        <li v-for="vl in myvlk">
+        <li v-for="vl in view_vlaky">
           {{vl.cislo | cislovlaku}}, {{vl.dl | dlzkatextpred(3)}}0m, 
-          {{vl.ry | dlzkatextpred(3)}}km/h, {{vl.mz}}<i class="fas fa-long-arrow-alt-right"></i>{{vl.mo}}
+          {{vl.ry | dlzkatextpred(3)}}km/h, {{vl.mz}} <i class="fas fa-long-arrow-alt-right"></i> {{vl.mo}}
         </li>
       </ul>
     </div>

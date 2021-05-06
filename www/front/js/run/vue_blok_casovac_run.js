@@ -11,22 +11,23 @@
  * @version 1.0.1
  */
 Vue.component('casovac', {
-  props: {  udalost: Object, 
-            day: {              // Deň v týždni 1=pondelok ... 7=nedeľa
-              type: String,
-              default: 1,        
-              validator: function (value) {
-                return parseInt(value) >= 1 && parseInt(value) <=7;
-              }
-            },
-            hour: {             // Počiatočný čas v desatinách sekúnd
-              type: String,
-              default: 288000,  // 08:00:00
-              validator: function (value) {
-                return parseInt(value) >= 0 && parseInt(value) < 864000;
-              }
-            },
-            initFronta: String  // Json objekt pre iniciáciu casovej fronty
+  props: {  
+    udalost: Object, 
+    day: {              // Deň v týždni 1=pondelok ... 7=nedeľa
+      type: String,
+      default: 1,        
+      validator: function (value) {
+        return parseInt(value) >= 1 && parseInt(value) <=7;
+      }
+    },
+    hour: {             // Počiatočný čas v desatinách sekúnd
+      type: String,
+      default: 288000,  // 08:00:00
+      validator: function (value) {
+        return parseInt(value) >= 0 && parseInt(value) < 864000;
+      }
+    },
+    initfronta: String  // Json objekt pre iniciáciu casovej fronty
   },
   data: function () {
     return {
@@ -113,10 +114,16 @@ Vue.component('casovac', {
         this.$emit("urob", first);                  // Odošli na spracovanie
       }
     },
-    initCasovac: function() { // Počiatočné naplnenie časovača a dňa
+    initCasovac() { // Počiatočné naplnenie časovača a dňa
       this.den = parseInt(this.day) - 1;
       this.time = parseInt(this.hour);
-      //this.casova_fronta = JSON.parse(this.initFronta);
+
+      if (typeof this.initfronta  !== "undefined") {
+        var to_tf = JSON.parse(this.initfronta);
+        to_tf.forEach(i => {
+          this.casova_fronta.push(i);
+        });
+      }
     },
   },
   mounted () {
@@ -129,7 +136,7 @@ Vue.component('casovac', {
     }, 1000);
   },
   watch: {
-    udalost: function (newUdalost, oldUdalost) {
+    udalost: function (newUdalost/*, oldUdalost*/) {
       if (!!newUdalost.prvky && newUdalost.prvky.constructor === Array) { // Je to pole? https://stackoverflow.com/questions/4775722/how-to-check-if-an-object-is-an-array
         newUdalost.prvky.forEach(pr => {
           pr.cas += this.time;

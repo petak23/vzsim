@@ -1,0 +1,34 @@
+{* Sablona pre zobrazenie poslednych prihlaseni
+ *
+ * Modul: ADMIN
+ *
+ * Posledna zmena(last change): 18.02.2019
+ * @copyright  Copyright (c) 2012 - 2019 Ing. Peter VOJTECH ml.
+ * @license
+ * @link       http://petak23.echo-msz.eu
+ *
+ * @param string   $h3      Nadpis
+ * @param array    $last    Data z DB tabulky user_prihlasenie
+ * @param array    $user    Data o uzivatelovy
+*}
+<div class="card border-info text-center last-login h-100" n:snippet="llogin">
+  <div class="card-header">
+    {$h3}
+    <a class="erase ajax" n:href="ZoznamErase!" title="Vymazanie zoznamu"><i class="far fa-trash-alt"></i></a>
+  </div>
+  <div class="card-body">
+    <table class="table table-sm table-striped" n:if="count($last)">
+      <tbody n:inner-foreach="$last as $c">
+        <tr>
+          <td n:class="$user->id == $c->id_user_main ? zvyrazni">
+            {$c->user_main->meno} {$c->user_main->priezvisko|upper}
+          </td>
+          <td n:class="$user->id == $c->id_user_main ? zvyrazni">
+            {$c->log_in_datetime|date:'%d.%m.%Y %H:%M'}
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <h5 class="card-title" n:if="!count($last)">Bez záznamu</h5>
+  </div>
+</div>

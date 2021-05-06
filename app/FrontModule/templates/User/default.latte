@@ -1,0 +1,9 @@
+{var $robots = noindex}
+{block #content}
+<div class="row justify-content-center users-form">
+  <div class="col-12 text-center border border-2 border-warning rounded py-3 sign-in-form">
+    <h2 n:inner-block="title"><i class="fas fa-sign-in-alt"></i> {_'SignInForm_h2'}</h2>
+    {control signInForm}
+    <a n:href="User:register" title="Registrácia">Registrácia nového dispečera</a>
+  </div>
+</div>

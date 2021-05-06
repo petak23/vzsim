@@ -1,0 +1,28 @@
+#
+# SECURITY WARNING: 'it is CRITICAL that this file & directory are NOT accessible directly via a web browser!
+#
+# If you don't protect this directory from direct web access, anybody will be able to see your passwords.
+# http://nette.org/security-warning
+#
+parameters:
+  datagrid:
+    texts_for_translator:
+      ublaboo_datagrid.no_item_found_reset: 'Žiadné položky neboli nájdené. Filter môžete vynulovať...'
+      ublaboo_datagrid.no_item_found: 'Žiadné položky neboli nájdené.'
+      ublaboo_datagrid.here: 'tu'
+      ublaboo_datagrid.items: 'Položky'
+      ublaboo_datagrid.all: 'všetky'
+      ublaboo_datagrid.from: 'z'
+      ublaboo_datagrid.reset_filter: 'Resetovať filter'
+      ublaboo_datagrid.group_actions: 'Hromadné akcie'
+      ublaboo_datagrid.show_all_columns: 'Zobraziť všetky stĺpce'
+      ublaboo_datagrid.hide_column: 'Skryť stĺpec'
+      ublaboo_datagrid.action: 'Akcia'
+      ublaboo_datagrid.previous: 'Predošlá'
+      ublaboo_datagrid.next: 'Daľšia'
+      ublaboo_datagrid.choose: 'Vyberte'
+      ublaboo_datagrid.execute: 'Vykonať'
+      ublaboo_datagrid.short: 'Usporiadaj'
+
+includes:
+  - services.neon

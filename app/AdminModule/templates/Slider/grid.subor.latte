@@ -1,0 +1,7 @@
+{if is_file($slider_dir.$item->subor)}
+  <img class="jslghtbx-thmb img-rounded slider-small-img" src="{$basePath}/{$slider_dir}{$item->subor}" alt="obrázok" data-jslghtbx="{$basePath}/{$slider_dir}{$item->subor}" data-jslghtbx-group="mygroup1">
+{else}
+  <img class="img-rounded slider-small-img" src="{$basePath}/{$dir_to_images}otaznik.png" alt="Chybný obrázok" title="Chybný obrázok">
+{/if}  
+<p n:if="$popis" class="slider-file-name">{$item->subor}</p>
+     

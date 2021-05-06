@@ -1,0 +1,57 @@
+{var $robots = noindex}
+
+{block content}
+<div class="col-12">
+  <h2 n:block=title>{$h2}</h2>
+  {control verzieEditForm}
+</div>
+
+{/block}
+
+{block spec_css}
+  <link rel="stylesheet" href="{$basePath}/www/jquery_ui/jquery-ui.css" type="text/css">
+  <link rel="stylesheet" href="{$basePath}/www/texyla/css/texyla-style.css" type="text/css">
+	<link rel="stylesheet" href="{$basePath}/www/texyla/css/texyla-theme.css" type="text/css">
+{/block}
+
+{block spec_js}
+<script src="{$basePath}/www/jquery_ui/jquery.js" type="text/javascript"></script>
+<script src="{$basePath}/www/jquery_ui/jquery-ui.js" type="text/javascript"></script>
+
+<script src="{$basePath}/www/texyla/js/texyla.js" type="text/javascript"></script>
+<script src="{$basePath}/www/texyla/js/selection.js" type="text/javascript"></script>
+<script src="{$basePath}/www/texyla/js/texy.js" type="text/javascript"></script>
+<script src="{$basePath}/www/texyla/js/buttons.js" type="text/javascript"></script>
+<script src="{$basePath}/www/texyla/js/dom.js" type="text/javascript"></script>
+<script src="{$basePath}/www/texyla/js/view.js" type="text/javascript"></script>
+<script src="{$basePath}/www/texyla/js/ajaxupload.js" type="text/javascript"></script>
+<script src="{$basePath}/www/texyla/js/window.js" type="text/javascript"></script>
+
+<script src="{$basePath}/www/texyla/languages/sk.js" type="text/javascript"></script>
+
+<script src="{$basePath}/www/texyla/plugins/keys/keys.js" type="text/javascript"></script>
+<script src="{$basePath}/www/texyla/plugins/resizableTextarea/resizableTextarea.js" type="text/javascript"></script>
+<script src="{$basePath}/www/texyla/plugins/img/img.js" type="text/javascript"></script>
+<script src="{$basePath}/www/texyla/plugins/table/table.js" type="text/javascript"></script>
+<script src="{$basePath}/www/texyla/plugins/link/link.js" type="text/javascript"></script>
+<script src="{$basePath}/www/texyla/plugins/emoticon/emoticon.js" type="text/javascript"></script>
+<script src="{$basePath}/www/texyla/plugins/symbol/symbol.js" type="text/javascript"></script>
+<script src="{$basePath}/www/texyla/plugins/files/files.js" type="text/javascript"></script>
+<script src="{$basePath}/www/texyla/plugins/color/color.js" type="text/javascript"></script>
+<script src="{$basePath}/www/texyla/plugins/textTransform/textTransform.js" type="text/javascript"></script>
+<script src="{$basePath}/www/texyla/plugins/youtube/youtube.js" type="text/javascript"></script>
+<script src="{$basePath}/www/texyla/plugins/gravatar/gravatar.js" type="text/javascript"></script>
+<script src="{$basePath}/www/texyla/plugins/gravatar/gravatar.js" type="text/javascript"></script>
+<script src="{$basePath}/www/texyla/texyla-init.js" type="text/javascript"></script>
+<script type="text/javascript">
+  $.texyla.setDefaults({
+    baseDir: {$baseUrl} + '/www/js/texyla',
+    iconPath: {$baseUrl} + '/www/ikonky/icons/%var%.png',
+    previewPath: {$previewPath},
+    filesPath: {$filesPath},
+    filesUploadPath: {$filesUploadPath},
+    filesMkDirPath: {$filesMkDirPath},
+    filesRenamePath: {$filesRenamePath},
+    filesDeletePath: {$filesDeletePath}
+  });
+</script>

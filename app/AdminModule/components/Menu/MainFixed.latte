@@ -1,0 +1,14 @@
+<div class="col mb-4" n:if="isset($startNode) && count($startNode->nodes)" n:foreach=" $startNode->nodes as $node">
+  <div class="card text-center text-white bg-secondary h-100">
+    <a href="{$node->link}" title="{$node->name}" class="card-a-white">
+      {if ($nastav['article_avatar_view_in'] & 1)}
+        {var $a = ($node->avatar && is_file($nastavenie['dir_to_menu'].$node->avatar)) ? $nastavenie['dir_to_menu'].$node->avatar : $nastavenie['dir_to_images'].'bga_w.png'}
+        <img class="card-img-top" n:if="!isset($node->node_class)" src="{$basePath}/{$a}" alt="{$nastav['text_title_image']}">
+        <i n:if="isset($node->node_class)" class="card-fa {$node->node_class} fa-5x"> </i>
+      {/if}
+      <div class="card-body">
+        <p class="card-text">{$node->name}</p>
+      </div>
+    </a>
+  </div>  
+</div>

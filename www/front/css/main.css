@@ -32,3 +32,9 @@
 #right-click-menu li a {
   text-decoration: none;
 }
+
+.zoznam {
+  height: 8.5rem;
+  column-fill: auto;
+  column-rule: dotted #999;
+}

@@ -1,0 +1,16 @@
+{default $width = 420, $height = 315}
+{*
+<div>
+<object width="{$width}" height="{$height}">
+<param name="movie" value="https://www.youtube.com/watch?v={$id}">
+<param name="wmode" value="transparent">
+<embed
+src="https://www.youtube.com/watch?v={$id}"
+type="application/x-shockwave-flash"
+wmode="transparent"
+width="{$width}"
+height="{$height}">
+</object>
+</div>*}
+
+<iframe width="{$width}" height="{$height}" src="https://www.youtube.com/embed/{$id}" frameborder="0" allowfullscreen></iframe>

@@ -3,7 +3,17 @@
 # https://nette.org/security-warning
 #
 parameters:
-	dir_to_user: files/ # Globalne nastanenie adresara pre obrazky uzivatelov
+	dir_to_images: images/ # Globalne nastanenie adresara pre "pevne" obrazky webu 
+	dir_to_icons: ikonky/ # Globalne nastanenie adresara pre ikonky webu 
+	dir_to_user: files/ # Globalne nastanenie adresara pre obrazky uzivatelov 
+	dir_to_menu: files/menu/ # Globalne nastanenie adresara pre obrazky menu
+	send_e_mail_news: TRUE # Globalne povolenie posielania info mailov v pripade pridania polozky TRUE|FALSE
+	slider:       #Nastavenie slider-u
+		x: 1280   #Rozmery slider-u
+		y: 260
+		varianta: 5 #0-nahodne nacitany obrazok, 1-meniace sa obrazky, 2-carousel, 3-scspp, 5-bwfoto
+		odkaz: FALSE # Povolenie zobrazenia obrazkov slider-u ako odkazu TRUE|FALSE
+		dir: files/slider/
 	user_panel: #Nastavenie panelu uzivatela
 		view_avatar: FALSE # Zobrazenie avataru v panely uzivatela. TRUE|FALSE
 		admin_link: 3 # Sposob zobrazenia odkazu na administraciu. 1 - Len obrázok; 2 - Len text; 3 - Aj obrazok aj text.
@@ -15,9 +25,25 @@ parameters:
 #     3 = zobrazi sa ikonka aj text
 		view_log_in_link_in_header: -1
 	user_view_fields: #Nastavuje viditelne(volitelne) polozky uzivatela
+		rok: FALSE       #Zobrazenie roku narodenia
+		telefon: FALSE   #Zobrazenie telefonu
+		pohl: FALSE      #Zobrazenie pohlavia
 		avatar: FALSE    #Zobrazenie avataru
 		poznamka: FALSE  #Zobrazenie poznamky
 		delete: FALSE    #Zobrazenie moznosti zmazat profil
+		titul_pred: FALSE #Zobrazenie titulu pred menom
+		titul_za: FALSE   #Zobrazenie titulu za menom
+	clanky:
+		zobraz_anotaciu: TRUE   #Zobrazenie anotacie vseobecne
+
+	prilohy_dir: files/prilohy/ #Adresar pre prilohy  - časom na zmazanie
+	prilohy_images: #Nastavenie rozmerov obrazku ako prilohy clanku po nahrati na server
+		x: 1510        #Zakladny rozmer
+		y: 1000
+		kvalita: 80    
+		tx: 226       #Rozmer nahladu
+		ty: 150
+		tkvalita: 80
 
 application:
 	errorPresenter: Error
@@ -33,10 +59,13 @@ tracy:
 	
 includes:
 	- services.neon
+	- ../AdminModule/config/config.neon
+	- ../FrontModule/config/config.neon
+	- komponenty.neon
 	- database.neon
 
 extensions:
-  webpack: Contributte\Webpack\DI\WebpackExtension(%debugMode%, %consoleMode%)
+  webpack: Oops\WebpackNetteAdapter\DI\WebpackExtension(%debugMode%, %consoleMode%)
 
 webpack:
   build:
@@ -45,4 +74,4 @@ webpack:
   # devServer - tato cast je presunuta do config.local.neon
   manifest:  # Cez tento subor je prepojenie na filename: '[name].[contenthash:8].[ext]' vo webpack-u
     name: webpack-assets.json  # ./www/dist/webpack-assets.json
-    mapper: Contributte\Webpack\Manifest\Mapper\AssetsWebpackPluginMapper
+    mapper: Oops\WebpackNetteAdapter\Manifest\Mapper\AssetsWebpackPluginMapper

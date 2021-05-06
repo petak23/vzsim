@@ -263,34 +263,29 @@ Vue.component('mycanvas', {
       var xxs = this.krokx*(this.sux(pr.xs) + 0.5);
       var yys = this.kroky*(this.suy(pr.xs) + 0.5);
       var ctx = this.canvas;
-      var ss = ((pr.stav & 15) === 0) ? pr.oznacenie : pr.c[3]; // Text na koľaji
-      var b = (ss !== 0) ? String(ss).length : 0;          // Dĺžka textu na koľaji
       var k_l = this.kr2x*(pr.c[0]>>4)*2; 
       var k_r = this.kr2x*(pr.c[0] & 15)*2;
-      ctx.fillStyle = "#000000";
+      // Určenie farby pozadia textu
+      ctx.fillStyle = (pr.stav < 32) ? "#000" : ((pr.stav == 131 ? '#fff703' : (pr.stav == 35 ? '#f33' : '#e0f')));
       ctx.fillRect(xxs - k_l - (3 * this.kr2x), yys - this.kr2y + 1, (6 * this.kr2x) + k_l + k_r, 2*this.kr2y - 2);
       //nastupiste
       if ((pr.sm & 1) === 1) { this.drawLine(xxs - 3 * this.kr2x, yys + this.kr2y, xxs + 3 * this.kr2x, yys + this.kr2y, 2, '#FF9F03'); }
       if ((pr.sm & 2) === 2) { this.drawLine(xxs - 3 * this.kr2x, yys - this.kr2y, xxs + 3 * this.kr2x, yys - this.kr2y, 2, '#FF9F03'); }
-      var text_w_pol = ctx.measureText(ss).width / 2 + 4;
-      /* pr.y == 1 - stojí a nemá
-       * pr.y == 2 - stojí a má > 3 min do odchodu
-       * pr.y == 3 - 1 min do odchodu */
-      if (pr.y > 0) {
-        ctx.fillStyle = (pr.y == 3 ? '#fff703' : (pr.y == 1 || pr.y == 2 ? '#f33' : '#000'));
-        ctx.fillRect(xxs - k_l - (3 * this.kr2x), yys - this.kr2y + 1, (6 * this.kr2x) + k_l + k_r, 2*this.kr2y - 2);     
-      }
       var col = this.farbaStav(pr.stav & 15);
-      if (b === 0) { 
+      var text_on_ks = ((pr.stav & 15) === 0) ? pr.oznacenie : pr.c[3];     // Text na koľaji
+      var lenght_text = (text_on_ks !== 0) ? String(text_on_ks).length : 0; // Dĺžka textu na koľaji
+      if (lenght_text === 0) { 
         this.drawLine(xxs - k_l  - (3 * this.kr2x), yys, xxs + k_r + (3 * this.kr2x), yys, 3, col[0]);
       } else {
+        var text_w_pol = ctx.measureText(text_on_ks).width / 2 + 4;
         this.drawLine(xxs - k_l - (3 * this.kr2x), yys, xxs - text_w_pol, yys, 3, col[0]);
         this.drawLine(xxs + k_r + (3 * this.kr2x), yys, xxs + text_w_pol, yys, 3, col[0]);
-        ctx.fillStyle = (pr.y == 1 ? '#fff703' : (pr.y == 3 || pr.y == 2 ? '#000' : '#ddd'));
+
+        ctx.fillStyle = (pr.stav == 131 ? '#fff703' : (pr.stav == 35 || pr.stav == 67 ? '#000' : col[0]));
         ctx.font = "14px Verdana";
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
-        ctx.fillText(ss, xxs, yys+1); 
+        ctx.fillText(text_on_ks, xxs, yys+1); 
       }
     },
     
@@ -488,6 +483,7 @@ Vue.component('mycanvas', {
     get_mouse(m, e) {
       var xs = this.getXs(e.offsetX, e.offsetY);
       var pr = this.myprv[xs];
+      console.log(xs);
       if (typeof pr !== 'undefined' ) { //https://stackoverflow.com/questions/2281633/javascript-isset-equivalent
         this.$emit('was_clicked', {prvok: pr, mod: m});
       } else {
