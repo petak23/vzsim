@@ -1,11 +1,10 @@
 {block title}Oblasť: {$oblast->name}{/block}
-{block content} {dump $initfronta}
+{block content}
 <ui_run
   prvky="{$jprvky}"
   cesty="{$jcesty}"
-  @status="status = $event"
+  vlaky="{$jvlaky}"
   @kresli="kresli = $event"
-  @error="error = $event"
   @udalost="udalost = $event"
   :urob=urob
   :was_clicked=was_clicked
@@ -23,14 +22,12 @@
       ></casovac>
       <nastavenie></nastavenie>
       <zoznam
-        vlaky="{$jvlaky}"
+        vlaky="{$jvlaky_act}"
       ></zoznam>
     </div>
   </article>
   <article class="col-12 stred">
     <mycanvas 
-      prvky="{$jprvky}"
-      cesty="{$jcesty}"
       xmax_s=63
       ymax_s=28
       @was_clicked="was_clicked = $event"
@@ -40,20 +37,11 @@
     </mycanvas>
   </article>
   <article class="col-12 row dolny-panel ">
-    <info 
-      
-    >
-    </info>
-    <errors
-      :error=error
-      @error_clr="error_clear"
-    ></errors>
+    <info></info>
+    <errors></errors>
   </article>
   <article class="col-12 status-bar">
-    <statusbar
-      :status=status
-      @status_clr="status_clear"
-    ></statusbar>
+    <statusbar></statusbar>
   </article>
 </section>
 {/block}

@@ -7,7 +7,7 @@ use Nette\Utils\Json;
 
 /**
  * Prezenter pre beh simulácie.
- * Posledna zmena(last change): 14.04.2021
+ * Posledna zmena(last change): 10.05.2021
  *
  *	Modul: FRONT
  *
@@ -15,7 +15,7 @@ use Nette\Utils\Json;
  * @copyright  Copyright (c) 2021 - 2021 Ing. Peter VOJTECH ml.
  * @license
  * @link       http://petak23.echo-msz.eu
- * @version 1.0.6
+ * @version 1.0.7
  */
 class RunPresenter extends BasePresenter {
   
@@ -68,7 +68,8 @@ class RunPresenter extends BasePresenter {
     $this->template->oblast_params = $this->oblast_params;
     $this->template->jcesty = Json::encode($this->ctoArray($this->cesty));
     $this->template->jprvky = Json::encode($this->jprvky);
-    $this->template->jvlaky = Json::encode($this->vtoArray($this->actualInArea));
+    $this->template->jvlaky = Json::encode($this->vtoArray($this->vvlaky));
+    $this->template->jvlaky_act = Json::encode($this->vtoArray($this->actualInArea));
     $this->template->initfronta = Json::encode($this->actualTrains);
   }
 
@@ -109,16 +110,17 @@ class RunPresenter extends BasePresenter {
               ];
               $this->actualInArea[] = $v;
             } else if ($cp_cas_o[$i] == -1) {
-              $out[] = [
+              /*$out[] = [
                 'xs' => $ks->xs,
                 'cas'=> $cp_cas_p[$i] * 600,
                 'nst'=> 1,
                 'do' => 'zmenPrvok',
                 'vlak'=> $v->cislo,
-              ];
+              ];*/
               $this->actualInArea[] = $v;
             }
             //dump($this->jprvky[$ks->xs]);
+            //dump($out);
             $i = count($cp_cas_p); // Ukonč...
           }
         }
@@ -174,6 +176,7 @@ class RunPresenter extends BasePresenter {
         'cp_cas_p'  => $v->cp_cas_p,
         'cp_cas_o'  => $v->cp_cas_o,
         'cp_kolaj'  => $v->cp_kolaj,
+        'vact' => 0,
       ];
     }
     return $out;

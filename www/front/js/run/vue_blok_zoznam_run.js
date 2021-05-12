@@ -20,14 +20,20 @@ Vue.component('zoznam', {
       view_vlaky: [],
     }
   },
-  /*computed: {
-    myvlk() {
-      return JSON.parse(this.vlaky);
-    },
-  },*/
+  computed: {},
+  methods: {
+    skratka(m) {
+      if (typeof this.$store.state.prvky[m] !== 'undefined' && this.$store.state.prvky[m].oznacenie !== null) {
+        var o = this.$store.state.prvky[m].oznacenie.split("|")
+        return o[1]
+      } else return  m
+    }
+  },
   mounted () {
     var vl = JSON.parse(this.vlaky);
     vl.forEach(v => {
+      v.mz = this.skratka(v.mz);
+      v.mo = this.skratka(v.mo);
       this.view_vlaky.push(v);
     });
   },
@@ -35,6 +41,8 @@ Vue.component('zoznam', {
     vlaky: function (newVlaky) {
       var vl = JSON.parse(newVlaky);
       vl.forEach(v => {
+        v.mz = this.skratka(v.mz);
+        v.mo = this.skratka(v.mo);
         this.view_vlaky.push(v);
       });
     },
@@ -105,7 +113,7 @@ Vue.component('zoznam', {
         v = "\u00A0"+v;
       }
       return v;
-    }
+    },
   },
   template: `
     <div class="col-6 bg-primary zoznam">

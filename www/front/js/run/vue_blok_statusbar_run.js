@@ -1,6 +1,6 @@
 /**
  * Vue komponenta pre stavový riadok v simulácii.
- * Posledna zmena(last change): 24.03.2021
+ * Posledna zmena(last change): 07.05.2021
  *
  *	Modul: RUN
  *
@@ -8,12 +8,9 @@
  * @copyright  Copyright (c) 2021 - 2021 Ing. Peter VOJTECH ml.
  * @license
  * @link       http://petak23.echo-msz.eu
- * @version 1.0.1
+ * @version 1.0.2
  */
 Vue.component('statusbar', {
-  props: {
-    status: Object,
-  },
   data: function () {
     return {
       timer:null,             // Časovač pre zhasnutie status baru
@@ -22,12 +19,12 @@ Vue.component('statusbar', {
   },
   methods: {
     skry_g() {
-      this.$emit('status_clr', true);
+      this.$store.commit('SET_STATUS_BAR', { txt:"", type: ""})
     },
     start_g() {
       if (!this.timer) {
         this.timer = setInterval( () => { // https://codepen.io/edscode/pen/QXXowy
-          this.$emit('status_clr', true);
+          this.$store.commit('SET_STATUS_BAR', { txt:"", type: ""})
           clearInterval(this.timer);
           this.timer = null;
           this.stop();
@@ -41,20 +38,21 @@ Vue.component('statusbar', {
   },
   computed: {
     activeClass: function () {
-      return this.status == null ? 'bg-transparent' : (this.status.type === 'V' ? 'bg-success text-white' : (this.status.type === 'P' ? 'bg-light' : 'bg-transparent'));
+      return this.$store.state.status_bar.type == "" ? 'bg-transparent' 
+                                                     : (this.$store.state.status_bar.type === "V" ? 'bg-success text-white' 
+                                                                                                  : (this.$store.state.status_bar.type === "P" ? 'bg-light' 
+                                                                                                                                               : 'bg-transparent'));
     },
-    text_status: function () {
-      return this.status == null ? "" : this.status.txt;
-    }
   },
   watch: {
-    status: function(newStatus) {
-      if (newStatus !== null) {
+    '$store.state.status_bar.txt': function () {         // https://stackoverflow.com/a/56461539
+      if (this.$store.state.status_bar.txt.length > 0) {
+        this.stop();
         this.start_g();
       }
-    }
+    },
   },
   template: `
-      <div :class="activeClass" @click="skry_g">{{text_status}}</div>
+      <div :class="activeClass" @click="skry_g">{{ $store.state.status_bar.txt }}</div>
     `
 });

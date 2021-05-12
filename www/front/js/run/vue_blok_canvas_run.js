@@ -1,6 +1,6 @@
 /**
  * Vue komponenta pre canvas a vykreslovanie plochy v simulácii.
- * Posledna zmena(last change): 25.03.2021
+ * Posledna zmena(last change): 10.05.2021
  *
  *	Modul: RUN
  *
@@ -8,18 +8,19 @@
  * @copyright  Copyright (c) 2021 - 2021 Ing. Peter VOJTECH ml.
  * @license
  * @link       http://petak23.echo-msz.eu
- * @version 1.0.2
+ * @version 1.0.4
  */
 Vue.component('mycanvas', { 
 //var mycanvas = {  
   props: {
-    prvky: String,
-    cesty: String,
     xmax_s: String,
     ymax_s: String,
     urob: Object,
-
     kresli: Object, // Požiadavka na vykreslenie prvku
+    grid_enabled: { // Povolenie zobrazenia mriežky
+      type: Boolean,
+      default: false
+    }
   },
   data: function () {
     return {
@@ -78,13 +79,6 @@ Vue.component('mycanvas', {
       </div>
     `,
   computed: {
-    // Parsovanie JSON-u  na array
-    myprv() {
-      return JSON.parse(this.prvky);
-    },
-    mycst() {
-      return JSON.parse(this.cesty);
-    },
     xmax() {
       return (this.xmax_s * this.krokx);
     },
@@ -101,9 +95,13 @@ Vue.component('mycanvas', {
   mounted() {
     var c = document.getElementById("editPlace");
     this.canvas = c.getContext('2d');
-    //this.mriezka(this.xmax_s, this.ymax_s);
-    Object.keys(this.myprv).forEach(xs => {
-      this.kresli_prvok(this.myprv[xs]);
+    
+    // Vykreslenie mriežky
+    if (this.grid_enabled) this.drawGrid(this.xmax_s, this.ymax_s);
+
+    //Vykreslenie prvkov - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/entries
+    Object.entries(this.$store.state.prvky).forEach(([key, pr]) => {
+      this.kresli_prvok(pr);
 		});
   },
   methods: {
@@ -119,7 +117,7 @@ Vue.component('mycanvas', {
       this.menu_items = [];
     },
     openMenu(e) { 
-      var pr = this.myprv[this.getXs(e.offsetX, e.offsetY)];
+      var pr = this.$store.state.prvky[this.getXs(e.offsetX, e.offsetY)];
       if (typeof pr !== 'undefined') {
         if (pr.id_prvky_kluc == 6 || pr.id_prvky_kluc == 8) { // Menu je pre návestidlo
           this.menu_nadpis = pr.oznacenie != null ? pr.oznacenie : pr.xs;
@@ -131,22 +129,32 @@ Vue.component('mycanvas', {
       }
     },
     selectMenu(id) {
-      var pr = this.myprv[this.menu_xs];
+      var pr = this.$store.state.prvky[this.menu_xs];
       this.$emit('context_menu', {prvok: pr, pol: this.menus[pr.id_prvky_kluc][id-1].txt});
       this.closeMenu();
     },
 		// --- Kontextové menu - Koniec
-    drawLine(x1, y1, x2, y2, w, s) {
+
+    // ----------------------  GRAFICKÁ ČASŤ  ----------------------
+    /**
+     * Vykreslenie čiary
+     * @param {int} x1 
+     * @param {int} y1 
+     * @param {int} x2 
+     * @param {int} y2 
+     * @param {int} width Hrúbka
+     * @param {int} color Farba */
+    drawLine(x1, y1, x2, y2, width, color) {
       let ctx = this.canvas;
       ctx.beginPath();
-      ctx.strokeStyle = s;
-      ctx.lineWidth = w;
+      ctx.strokeStyle = color;
+      ctx.lineWidth = width;
       ctx.moveTo(x1, y1);
       ctx.lineTo(x2, y2);
       ctx.stroke();
       ctx.closePath();
     },
-    mriezka() {
+    drawGrid() { // Vykreslenie mriežky
       var i;
       for (i = 0; i <= this.xmax_s; i++) {
         this.drawLine((i*this.krokx), 0, (i*this.krokx), (this.ymax_s * this.kroky), 1, "#555");
@@ -194,7 +202,7 @@ Vue.component('mycanvas', {
       ctx.fillStyle = "#000";
       ctx.fillRect(xxs - this.kr2x, yys - this.kr2y, 2*this.kr2x, 2*this.kr2y);
       ctx.stroke();
-      var a = [0, 0, 0];
+      var a = [0, 0, 0]; 
       a[0] = ((pr.c[0] & 4095) >> 8) % 10;
       a[1] = (((pr.c[0] & 4095) >> 4) & 15) % 10;
       a[2] = ((pr.c[0] & 4095) & 15) % 10;
@@ -381,7 +389,8 @@ Vue.component('mycanvas', {
       var ctx = this.canvas;
       ctx.fillStyle = '#f80';
       ctx.fillRect(xxs - this.kr2x + 1, yys - this.kr2y + 3, 2*this.kr2x - 2, 2*this.kr2y - 6);
-      this.kresliText(xxs, yys, pr.n[1], pr.oznacenie, '#ddd');
+      var o = pr.oznacenie.split("|")
+      this.kresliText(xxs, yys, pr.n[1], o[0], '#ddd');
     },
     
     /* Vykreslenie textu so smerom
@@ -482,8 +491,9 @@ Vue.component('mycanvas', {
     },
     get_mouse(m, e) {
       var xs = this.getXs(e.offsetX, e.offsetY);
-      var pr = this.myprv[xs];
-      console.log(xs);
+      var pr = this.$store.state.prvky[xs];
+      //console.log(xs);
+      //console.log(pr);
       if (typeof pr !== 'undefined' ) { //https://stackoverflow.com/questions/2281633/javascript-isset-equivalent
         this.$emit('was_clicked', {prvok: pr, mod: m});
       } else {
@@ -491,7 +501,6 @@ Vue.component('mycanvas', {
       }
     },
     kresli_prvok(pr) {
-      this.myprv[pr.xs] = pr; //Aktualizuj údaje o prvku
       switch (pr.id_prvky_kluc) {
         case 1:
         case 2:
@@ -533,27 +542,26 @@ Vue.component('mycanvas', {
               cast = 2;
             } else {
               if (cast == 0) {                            // Vykresli pre nultú časť
-                this.myprv[odkazy[i]].stav = pr.stav;
-                this.prvok_XB(this.myprv[odkazy[i]]);  
+                this.$store.commit('UPDATE_PRVOK_STAV', {xs: odkazy[i], stav: pr.stav})
+                this.prvok_XB(this.$store.state.prvky[odkazy[i]]);  
               } else if (cast == pr.sm || pr.stav == 0) { // Vykresli ak sa zhoduje alebo pri základnom stave
-                this.myprv[odkazy[i]].stav = pr.stav;
-                this.prvok_XB(this.myprv[odkazy[i]]);  
+                this.$store.commit('UPDATE_PRVOK_STAV', {xs: odkazy[i], stav: pr.stav})
+                this.prvok_XB(this.$store.state.prvky[odkazy[i]]);  
               } 
             }
           }
         } else {                                          // Pre ostatné prvky
           odkazy.forEach(x => {
-            var po = this.myprv[x];
-            po.stav = pr.stav;
-            this.prvok_XB(po);
+            this.$store.commit('UPDATE_PRVOK_STAV', {xs: x, stav: pr.stav})
+            this.prvok_XB(this.$store.state.prvky[x]);
           });
         }
       }
     },
     najdiOdkazy(pr) {
       var odkazy = [];
-      Object.keys(this.myprv).forEach(xos => {    // Prejdi všetky prvky
-        var pro = this.myprv[xos];                // Len pre skrátenie zápisu
+      Object.keys(this.$store.state.prvky).forEach(xos => {    // Prejdi všetky prvky
+        var pro = this.$store.state.prvky[xos];                // Len pre skrátenie zápisu
         if (pro.id_prvky_kluc === 4) {            // Najdi odkazy v stanici
           if (pr.id_prvky_kluc === 16) {          // Odkazy na výhybku
             if (pro.n[pro.sm-1] === pr.xs) odkazy.push(xos);// Pre správnu cestu
