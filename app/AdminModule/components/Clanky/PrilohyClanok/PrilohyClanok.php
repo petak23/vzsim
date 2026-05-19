@@ -7,9 +7,6 @@ use App\Model;
 use Nette;
 use Nette\Security\User;
 use Nette\Utils\Html;
-use Ublaboo\DataGrid\DataGrid;
-use Ublaboo\DataGrid\Column\Action\Confirmation;
-use Ublaboo\DataGrid\Localization\SimpleTranslator;
 
 /**
  * Komponenta pre spravu priloh clanku.
@@ -272,5 +269,5 @@ class PrilohyClanokAControl extends Nette\Application\UI\Control {
 
 interface IPrilohyClanokAControl {
   /** @return PrilohyClanokAControl */
-  function create();
+  public function create(): PrilohyClanokAControl;
 }

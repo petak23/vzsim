@@ -2,6 +2,7 @@
 namespace PeterVojtech\Email;
 
 use App\Model;
+use Nette\Mail\SendException;
 use Nette\Mail\Message;
 use Nette\Mail\SendmailMailer;
 use Nette\Application\UI;
@@ -20,7 +21,7 @@ use Latte;
 
 class EmailControl extends UI\Control {
   
-  /** @var Nette\Mail\Message */
+  /** @var Message */
   private $mail;
   /** @var string */
   private $email_list;
@@ -40,10 +41,10 @@ class EmailControl extends UI\Control {
   
   /** 
    * @param string $template Kompletná cesta k súboru template
-   * @param type $from Od koho
-   * @param type $id_user_roles Minimalna uroven registracie
+   * @param string $from Od koho
+   * @param int $id_user_roles Minimalna uroven registracie
    * @return \PeterVojtech\Email\EmailControl */
-  public function nastav($template, $from, $id_user_roles) {
+  public function nastav(string $template, string $from, int $id_user_roles) {
     $this->template = $template;
     $this->from = $this->user_main->find($from)->email;
     $this->email_list = $this->user_main->emailUsersListStr($id_user_roles);
@@ -59,7 +60,7 @@ class EmailControl extends UI\Control {
    * @return string Zoznam komu bol odoslany email
    * @throws SendException
    */
-  public function send($params, $subjekt) {
+  public function send(array $params, string $subjekt) {
     $templ = new Latte\Engine;
     $this->mail->setFrom($params["site_name"].' <'.  $this->from.'>');
     $this->mail->setSubject($subjekt)
@@ -68,13 +69,8 @@ class EmailControl extends UI\Control {
       $sendmail = new SendmailMailer;
       $sendmail->send($this->mail);
       return $this->email_list;
-    } catch (Exception $e) {
+    } catch (\Exception $e) {
       throw new SendException('Došlo k chybe pri odosielaní e-mailu. Skúste neskôr znovu...'.$e->getMessage());
     }
   }
-}
-
-interface IEmailControl {
-  /** @return EmailControl */
-  function create();
 }

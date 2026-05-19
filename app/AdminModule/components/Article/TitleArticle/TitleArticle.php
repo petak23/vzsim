@@ -233,5 +233,5 @@ class TitleArticleControl extends Nette\Application\UI\Control {
 
 interface ITitleArticleControl {
   /** @return TitleArticleControl */
-  function create();
+  public function create(): TitleArticleControl;
 }

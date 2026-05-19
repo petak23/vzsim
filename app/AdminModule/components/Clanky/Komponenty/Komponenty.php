@@ -89,5 +89,5 @@ class KomponentyControl extends Nette\Application\UI\Control {
 
 interface IKomponentyControl {
   /** @return KomponentyControl */
-  function create();
+  public function create(): KomponentyControl;
 }

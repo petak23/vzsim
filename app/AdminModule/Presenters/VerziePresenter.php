@@ -25,7 +25,7 @@ class VerziePresenter extends BasePresenter {
 	public $editVerzieForm;
   
   // -- Components
-  /** @var Email\IEmailControl @inject */
+  /** @var Email\EmailControl @inject */
   public $emailControl;
   
 	public function renderDefault()	{
@@ -77,7 +77,7 @@ class VerziePresenter extends BasePresenter {
     $values = $this->verzie->find($id);
     $params = [ "site_name" => $this->nazov_stranky,
                 "cislo" 		=> $values->cislo,
-                "text"      => $this->texy->process($values->text),
+                "text"      => $values->text,
                 "odkaz" 		=> $this->link("Verzie:default"),
               ];
     try {

@@ -47,5 +47,5 @@ class KontaktControl extends Control {
 
 interface IKontaktControl {
   /** @return KontaktControl */
-  function create();
+  public function create(): KontaktControl;
 }

@@ -27,9 +27,7 @@ class EditMenuFormFactory {
   
   /** @var array Hodnoty id=>name pre formulare z tabulky hlavne_menu_template */
   public $hlavne_menu_templateForm;
-  /** @var array Hodnoty id=>nazov pre formulare z tabulky hlavicka */
-  protected $hlavickaForm;
-
+  
   /**
    * @param User $user
    * @param Model\Lang $lang
@@ -38,7 +36,6 @@ class EditMenuFormFactory {
                               Model\Hlavne_menu_template $hlavne_menu_template) {
     $this->user = $user;
     $this->lang = $lang;
-    $this->hlavickaForm = $hlavicka->hlavickaForm();
     $this->hlavne_menu_templateForm = $hlavne_menu_template->formPairs();
   }
   
@@ -87,13 +84,12 @@ class EditMenuFormFactory {
            ->setOption('description', 'Toto je len nepovinná doplnková časť názvu. Podtitul...');
 		}
 		// Cast textov koniec -----------------
-    $form->addSubmit('uloz', $uloz)->setAttribute('class', 'btn btn-success');
-    $form->addSubmit('cancel', 'Cancel')->setAttribute('class', 'btn btn-default')->setValidationScope([]);
+    $form->addSubmit('uloz', $uloz)->setHtmlAttribute('class', 'btn btn-success');
+    $form->addSubmit('cancel', 'Cancel')->setHtmlAttribute('class', 'btn btn-default')->setValidationScope([]);
 		return $form;
 	}
 }
 
 interface IEditMenuFormFactory {
-  /** @return EditMenuFormFactory */
-  function create();
+  public function create(): EditMenuFormFactory;
 }

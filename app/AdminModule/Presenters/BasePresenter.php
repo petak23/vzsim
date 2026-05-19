@@ -7,7 +7,7 @@ use Nette\Application\UI;
 use Nette\Http;
 use Nette\Security\User;
 use PeterVojtech;
-use Texy;
+
 
 /**
  * Zakladny presenter pre vsetky presentery v module ADMIN
@@ -55,8 +55,6 @@ abstract class BasePresenter extends UI\Presenter {
   /** @var Http\Request @inject*/
   public $httpRequest;
   
-  /** @var Texy\Texy @inject */
-	public $texy;
 
   /** @var string kmenovy nazov stranky pre rozne ucely typu www.neco.sk*/
   public $nazov_stranky;
@@ -75,7 +73,7 @@ abstract class BasePresenter extends UI\Presenter {
   public $language_id = 1;
   
   /** @var array nastavenie z config-u */
-  public $nastavenie;
+  public $nastavenie = null;
 	/** @var string - relatívna cesta pre avatar poloziek menu */
   public $menu_avatar;
 
@@ -92,10 +90,10 @@ abstract class BasePresenter extends UI\Presenter {
           6=>"Chýbajúci dočasný priečinok!",
         ];  
   
-  public function __construct($parameters) {
+  /*public function __construct($parameters) {
     // Nastavenie z config-u
     $this->nastavenie = $parameters;
-  }
+  }*/
 
   /** Vychodzie nastavenia */
   protected function startup() {
@@ -199,27 +197,10 @@ abstract class BasePresenter extends UI\Presenter {
       $pom = $servise->hlavne_menu_lang->findOneBy(['id_hlavne_menu'=>$id, 'id_lang'=>$servise->language_id]);
       return $pom !== FALSE ? $pom->h1part2 : $id;
     }); 
-    $this->texy->allowedTags = TRUE;
-    $this->texy->headingModule->balancing = "FIXED";
-    $this->template->addFilter('texy', [$this->texy, 'process']);
-    
-    //For texyla
-    $this->template->previewPath = $this->link("Texyla:preview");
-    $this->template->filesPath = $this->link("Texyla:listFiles");
-    $this->template->filesUploadPath = $this->link("Texyla:upload");
-    $this->template->filesMkDirPath = $this->link("Texyla:mkDir");
-    $this->template->filesRenamePath = $this->link("Texyla:rename");
-    $this->template->filesDeletePath = $this->link("Texyla:delete");
   }
 
   //  ---- Komponenty ---- 
-  
-  /** 
-   * Komponenta pre výpis css a js súborov
-   * @return \PeterVojtech\Base\CssJsFilesControl */
-  public function createComponentFiles() {
-    return new PeterVojtech\Base\CssJsFilesControl($this->nastavenie['web_files'], $this->name, $this->action);
-  }
+
 
   /** 
    * Vytvorenie komponenty pre posledných 25 prihlásení

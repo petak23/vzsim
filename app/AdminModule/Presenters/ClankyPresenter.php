@@ -152,12 +152,11 @@ class ClankyPresenter extends ArticlePresenter {
         $form->addText($j->skratka.'_anotacia', 'Anotácia článku pre jazyk '.$j->nazov.':', 0, 255);
       }
 			$form->addTextArea($j->skratka.'_text', 'Text článku pre jazyk '.$j->nazov.':')
-            ->setAttribute('cols', 0)
-            ->setAttribute('rows', 20)
-            ->getControlPrototype()->class("texyla");
+            ->setHtmlAttribute('cols', 0)
+            ->setHtmlAttribute('rows', 20);
     }
 		$form->addGroup();
-		$form->addSubmit('uloz', 'Ulož článok')->setAttribute('class', 'btn btn-success');
+		$form->addSubmit('uloz', 'Ulož článok')->setHtmlAttribute('class', 'btn btn-success');
 		$form->onSuccess[] = [$this,'clankyEditFormSubmitted'];
 		$form = $this->_vzhladForm($form);
     $renderer = $form->getRenderer();

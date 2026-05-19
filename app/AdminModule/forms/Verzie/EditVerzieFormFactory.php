@@ -36,14 +36,14 @@ class EditVerzieFormFactory {
     $form->addHidden("id");
     $form->addHidden("id_user_main");
 		$form->addText('cislo', 'Číslo verzie:', 0, 80)
-         ->setAttribute('autofocus', 'autofocus')
+         ->setHtmlAttribute('autofocus', 'autofocus')
 				 ->addRule(Form::FILLED, 'Číslo verzie musí byť zadané!');
 		$form->addText('subory', 'Zmenené súbory:', 0, 80);
-		$form->addTextArea('text', 'Popis zmien:', 0, 15)->getControlPrototype()->class("texyla");
+		$form->addTextArea('text', 'Popis zmien:', 0, 15);
 		$form->addSubmit('uloz', 'Ulož')
-         ->setAttribute('class', 'btn btn-success')
+         ->setHtmlAttribute('class', 'btn btn-success')
          ->onClick[] = [$this, 'editVerzieFormSubmitted'];
-    $form->addSubmit('cancel', 'Cancel')->setAttribute('class', 'btn btn-default')
+    $form->addSubmit('cancel', 'Cancel')->setHtmlAttribute('class', 'btn btn-default')
          ->setValidationScope([]);
 		return $form;
 	}

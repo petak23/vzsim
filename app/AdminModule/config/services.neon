@@ -5,15 +5,14 @@
 # http://nette.org/security-warning
 #
 services:
-  - App\AdminModule\Presenters\ClankyPresenter(%parameters%)
-  - App\AdminModule\Presenters\HomepagePresenter(%parameters%)
-  - App\AdminModule\Presenters\LangPresenter(%parameters%)
-  - App\AdminModule\Presenters\MenuPresenter(%parameters%)
-  - App\AdminModule\Presenters\SliderPresenter(%parameters%)
-  - App\AdminModule\Presenters\TexylaPresenter(%parameters%)
-  - App\AdminModule\Presenters\UdajePresenter(%parameters%)
-  - App\AdminModule\Presenters\UserPresenter(%parameters%)
-  - App\AdminModule\Presenters\VerziePresenter(%parameters%)
+  - App\AdminModule\Presenters\ClankyPresenter
+  - App\AdminModule\Presenters\HomepagePresenter
+  - App\AdminModule\Presenters\LangPresenter
+  - App\AdminModule\Presenters\MenuPresenter
+  - App\AdminModule\Presenters\SliderPresenter
+  - App\AdminModule\Presenters\UdajePresenter
+  - App\AdminModule\Presenters\UserPresenter
+  - App\AdminModule\Presenters\VerziePresenter
 
 # forms
 
@@ -67,22 +66,3 @@ services:
 
   - App\AdminModule\Components\User\IKontaktControl
   - App\AdminModule\Components\User\IUserLastControl
-
-extensions:
-  fileUpload: Zet\FileUpload\FileUploadExtension
-
-fileUpload:
-	maxFiles: 30
-	fileFilter: Zet\FileUpload\Filter\ImageFilter
-	uploadModel: App\Model\Products
-	renderer: App\AdminModule\Forms\Products\Bootstrap4Renderer
-	messages:
-		maxFiles: "Presiahli ste max. počet naraz nahrávaných súborov. Naraz môžete nahrať max {maxFiles} súborov."
-		maxSize: "Presiahli ste max. veľkosť nahrávaného súboru, ktorá je {maxSize}."
-		fileTypes: "Povolené typy súborov sú {fileTypes}."
-		fileSize: "Súbor je príliš veľký."
-		partialUpload: "Súbor bol nahraný len čiastočne."
-		noFile: "Nebyl nahraný žiaden súbor."
-		tmpFolder: "Chyba dočasný adresár!"
-		cannotWrite: "Nepodarilo sa zapísať súbor na disk."
-		stopped: "Nahrávanie súboru bolo prerušené."

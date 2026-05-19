@@ -60,5 +60,5 @@ class UserLastControl extends Nette\Application\UI\Control {
 
 interface IUserLastControl {
   /** @return UserLastControl */
-  function create();
+  public function create(): UserLastControl;
 }

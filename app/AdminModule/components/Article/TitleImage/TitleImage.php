@@ -97,5 +97,5 @@ class TitleImageControl extends Nette\Application\UI\Control {
 
 interface ITitleImageControl {
   /** @return TitleImageControl */
-  function create();
+  public function create(): TitleImageControl;
 }

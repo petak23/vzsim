@@ -34,7 +34,7 @@ class AuthorizatorFactory {
   /**
    * @param Nette\Database\Context $database
    * @return Nette\Security\Permission */
-  public static function create(Nette\Database\Context $database){
+  public static function create(Nette\Database\Context $database): Nette\Security\Permission {
     $acl = new Nette\Security\Permission;
     $roles = $database->table(self::TABLE_NAME_ROLES);
     foreach ($roles as $role) {

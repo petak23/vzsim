@@ -234,5 +234,5 @@ class MenuItem {
 
 interface IUserLangMenuControl {
   /** @return UserLangMenuControl */
-  function create();
+  public function create(): UserLangMenuControl;
 }

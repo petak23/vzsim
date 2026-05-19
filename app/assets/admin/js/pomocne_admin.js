@@ -1,6 +1,6 @@
 //document.addEventListener('DOMContentLoaded', naja.initialize.bind(naja));
 $(function() {
-  $.nette.init(); //ajax pravdepodobne sa inicializuje v texyle...
+  $.nette.init(); 
 	$( "#locale" ).change(function() {
 			$( "#datepicker" ).datepicker( "option",
 				$.datepicker.regional[ 'sk' ] );

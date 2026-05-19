@@ -6,7 +6,7 @@ namespace App\AdminModule\Components\Clanky;
 use App\Model;
 use Nette\Application\UI\Control;
 use Nette\Utils\Html;
-use Texy;
+
 /**
  * Komponenta pre zobrazenie konkretneho clanku
  * Posledna zmena(last change): 14.04.2021
@@ -24,17 +24,13 @@ class ZobrazClanokAControl extends Control {
   protected $id_hlavne_menu;
   /** @var boolean $zobraz_anotaciu Zobrazenie anotacie polozky*/
   private $zobraz_anotaciu;
-  /** @var Texy\Texy */
-	public $texy;
   
   /**
    * @param bool $zobraz_anotaciu Povolenie zobrazenia anotacie - Nastavenie priamo cez servises.neon
-   * @param Model\Hlavne_menu_lang $hlavne_menu_lang
-   * @param Texy\Texy $texy */   
-  public function __construct(bool $zobraz_anotaciu, Model\Hlavne_menu_lang $hlavne_menu_lang, Texy\Texy $texy) {
+   * @param Model\Hlavne_menu_lang $hlavne_menu_lang*/   
+  public function __construct(bool $zobraz_anotaciu, Model\Hlavne_menu_lang $hlavne_menu_lang) {
     $this->zobraz_anotaciu = $zobraz_anotaciu;
     $this->hlavne_menu_lang = $hlavne_menu_lang;
-    $this->texy = $texy;
   }
   
   /** 
@@ -79,14 +75,12 @@ class ZobrazClanokAControl extends Control {
       return $vysledok;
     });
     
-    $this->texy->allowedTags = TRUE;
-    $this->texy->headingModule->balancing = "FIXED";
-    $this->template->addFilter('texy', [$this->texy, 'process']);
+    
     $this->template->render();
   }
 }
 
 interface IZobrazClanokAControl {
   /** @return ZobrazClanokAControl */
-  function create();
+  public function create(): ZobrazClanokAControl;
 }

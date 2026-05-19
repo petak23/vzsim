@@ -35,8 +35,6 @@ services:
 	- App\RouterFactory
 	router: @App\RouterFactory::createRouter
 
-	Texy: TexylaExample\MyTexy(@httpRequest)
-
 # PeterVojtech
-	- PeterVojtech\Email\IEmailControl
+	- PeterVojtech\Email\EmailControl
 	- PeterVojtech\MainLayout\Favicon\IFaviconControl

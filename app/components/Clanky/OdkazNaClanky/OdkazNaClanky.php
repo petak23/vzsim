@@ -73,5 +73,5 @@ class OdkazNaClankyControl extends Nette\Application\UI\Control {
 
 interface IOdkazNaClankyControl {
   /** @return OdkazNaClankyControl */
-  function create(string $language);
+  public function create(string $language): OdkazNaClankyControl;
 }

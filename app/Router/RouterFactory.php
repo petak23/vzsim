@@ -22,8 +22,6 @@ class RouterFactory {
   /** @var Model\Oblast */
   public $oblast;
   
-  /**
-   * @param Model\Oblast $tu */
   public function __construct(Model\Oblast $oblast) {
     $this->oblast = $oblast;
   }
@@ -31,7 +29,8 @@ class RouterFactory {
 	/**
 	 * @return Nette\Application\IRouter
 	 */
-	public function createRouter()	{
+	public function createRouter(): Nette\Application\IRouter	
+  {
     $servis = $this;
 		$router = new RouteList;
     $router->addRoute('index.php', 'Front:Homepage:default', Route::ONE_WAY);

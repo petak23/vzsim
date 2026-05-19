@@ -8,12 +8,12 @@ services:
 # services for language support
 	- Language_support\LanguageMain
 
-	- App\FrontModule\Presenters\EditPresenter(%parameters%)
-	- App\FrontModule\Presenters\ErrorPresenter(%parameters%)
-	- App\FrontModule\Presenters\HomepagePresenter(%parameters%)
-	- App\FrontModule\Presenters\RunPresenter(%parameters%)
-	- App\FrontModule\Presenters\UserLogPresenter(%parameters%)
-	- App\FrontModule\Presenters\UserPresenter(%parameters%)
+	- App\FrontModule\Presenters\EditPresenter
+	- App\FrontModule\Presenters\ErrorPresenter
+	- App\FrontModule\Presenters\HomepagePresenter
+	- App\FrontModule\Presenters\RunPresenter
+	- App\FrontModule\Presenters\UserLogPresenter
+	- App\FrontModule\Presenters\UserPresenter
 
 # forms
 	- App\FrontModule\Forms\Homepage\FirstRunFormFactory

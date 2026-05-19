@@ -107,5 +107,5 @@ interface IAdminAddMenu {
   /** 
    * @param int $id
    * @return AdminAddMenuControl */
-  function create(int $id);
+  public function create(int $id): AdminAddMenuControl;
 }
